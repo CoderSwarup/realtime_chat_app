@@ -2,8 +2,10 @@ import express from "express";
 import dotenv from "dotenv";
 import ChatRouter from "./Routes/Chats.routes.js";
 import cors from "cors";
+import ConnectDB from "./DB/DBConnect.js";
 
 dotenv.config();
+
 const app = express();
 
 // Enable CORS for all routes
@@ -15,6 +17,9 @@ app.use(
 
 const PORT = process.env.PORT || 8080;
 
+//  Db connection
+
+ConnectDB();
 // Routes
 
 app.get("/", (req, res) => {
