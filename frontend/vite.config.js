@@ -8,6 +8,11 @@ export default defineConfig({
     proxy: {
       // chats
       "/api/v1/chats": BACKENDURL,
+
+      //User
+
+      "/api/v1/user/register": BACKENDURL,
+      "/api/v1/user/login": BACKENDURL,
     },
   },
 });

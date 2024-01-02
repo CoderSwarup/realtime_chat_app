@@ -1,8 +1,16 @@
 import mongoose from "mongoose";
+import JWT from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const UserSchema = new mongoose.Schema(
   {
-    username: { type: String, required: true },
+    username: {
+      type: String,
+      required: true,
+    },
     email: {
       type: String,
       required: true,
@@ -21,4 +29,21 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
+UserSchema.pre("save", async function (next) {
+  if (this.isModified("password")) {
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+  } else {
+    return next();
+  }
+});
+
+UserSchema.methods.getJWTToken = function () {
+  return JWT.sign({ _id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: "1d",
+  });
+};
+
 const UserModel = mongoose.model("User", UserSchema);
+
+export default UserModel;

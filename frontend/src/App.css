@@ -41,8 +41,22 @@
   color: #888;
 } */
 
-* {
+#root,
+body {
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
+}
+
+.loading {
+  animation: rotate 1s infinite linear;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(-180deg);
+  }
+  100% {
+    transform: rotate(180deg);
+  }
 }

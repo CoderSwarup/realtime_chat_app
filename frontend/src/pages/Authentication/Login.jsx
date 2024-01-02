@@ -15,18 +15,77 @@ import {
   Link,
   Stack,
   Text,
+  useToast,
 } from "@chakra-ui/react";
 import { PasswordField } from "../../Components/PasswordField";
 import { Logo } from "../../Components/Logo";
-
+import { NavLink, useNavigate } from "react-router-dom";
+import axios from "axios";
 export default function Login() {
+  const toast = useToast();
+  const Navigator = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setLoading] = useState(false);
 
-  const handleSignIn = () => {
+  // Clear Input Function
+  const clearInputs = () => {
+    setEmail("");
+    setPassword("");
+    setLoading(false);
+  };
+  const handleSignIn = async () => {
     // Add your logic for handling the sign-in process
-    console.log("Email:", email);
-    console.log("Password:", password);
+    if (!email || !password) {
+      toast({
+        title: "Please Fill all the Feilds",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+        },
+      };
+      const data = await axios.post(
+        "/api/v1/user/login",
+        {
+          email,
+          password,
+        },
+        config
+      );
+      // console.log(data);
+      toast({
+        title: "User Login Succefully",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      // localStorage.setItem("userInfo", JSON.stringify(data));
+      setLoading(false);
+      Navigator("/chats");
+      clearInputs();
+    } catch (error) {
+      // console.log(error);
+      toast({
+        title: "SomeThing Went Wrong",
+        description: `${error?.response.data.error || "Error Occured!"}`,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+    }
   };
 
   return (
@@ -83,13 +142,24 @@ export default function Login() {
               </Button>
             </HStack>
             <Stack spacing="6">
-              <Button colorScheme="blue" onClick={handleSignIn}>
-                Sign in
+              <Button
+                isDisabled={isLoading}
+                colorScheme="blue"
+                onClick={handleSignIn}
+              >
+                {isLoading ? (
+                  <span className="material-symbols-outlined loading">
+                    progress_activity
+                  </span>
+                ) : (
+                  <span> Log In</span>
+                )}
               </Button>
             </Stack>
             <Divider />
             <Text color="fg.muted" align="right">
-              Don't have an account? <Link href="#">Sign up</Link>
+              Don't have an account?
+              <NavLink to="/signup"> Sign up</NavLink>
             </Text>
           </Stack>
         </Box>

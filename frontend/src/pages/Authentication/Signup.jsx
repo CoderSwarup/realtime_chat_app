@@ -19,16 +19,98 @@ import { PasswordField } from "../../Components/PasswordField";
 import { Logo } from "../../Components/Logo";
 import React, { useState } from "react";
 import FileUpload from "../../Components/FileUpload";
-
+import { useToast } from "@chakra-ui/react";
+import { NavLink, useNavigate } from "react-router-dom";
+import axios from "axios";
 export default function Signup() {
+  const toast = useToast();
+  const Navigator = useNavigate();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  const handleFileUpload = (files) => {
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [isLoading, setLoading] = useState(false);
+  //Image / Profile images Handler
+  const handleFileUpload = (url) => {
+    setUploadedFile(url);
+    // console.log("URL IS", url);
     // Handle the files, e.g., upload them to a server
-    console.log(files, username, email, password, confirmPassword);
+  };
+
+  // Clear Input Function
+  const clearInputs = () => {
+    setUsername("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setUploadedFile(null);
+  };
+
+  // Send Data To backend And The Validation
+  const submitHandler = async () => {
+    if (!username || !email || !password || !confirmPassword) {
+      toast({
+        title: "Please Fill all the Feilds",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
+    if (password !== confirmPassword) {
+      toast({
+        title: "Passwords Do Not Match",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+        },
+      };
+      const data = await axios.post(
+        "/api/v1/user/register",
+        {
+          username,
+          email,
+          password,
+          avatar: uploadedFile,
+        },
+        config
+      );
+      // console.log(data);
+      toast({
+        title: "Registration Successful",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      // localStorage.setItem("userInfo", JSON.stringify(data));
+      setLoading(false);
+      Navigator("/login");
+      clearInputs();
+    } catch (error) {
+      // console.log(error);
+      toast({
+        title: "SomeThing Went Wrong",
+        description: `${error?.response.data.error || "Error Occured!"}`,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+    }
   };
 
   return (
@@ -98,7 +180,21 @@ export default function Signup() {
 
               <FormControl>
                 <FormLabel htmlFor="email">Upload Avatar</FormLabel>
-                <FileUpload onFileUpload={handleFileUpload} />
+                <FileUpload
+                  setLoading={setLoading}
+                  onFileUpload={handleFileUpload}
+                />
+                {uploadedFile && (
+                  <Flex m="auto" w="100%">
+                    <Center m="auto" mt="5px">
+                      <img
+                        width="50px"
+                        src={uploadedFile}
+                        alt="Uploaded File"
+                      />
+                    </Center>
+                  </Flex>
+                )}
               </FormControl>
             </Stack>
             <HStack justify="space-between">
@@ -108,11 +204,23 @@ export default function Signup() {
               </Button>
             </HStack>
             <Stack spacing="6">
-              <Button colorScheme="blue">Sign up</Button>
+              <Button
+                isDisabled={isLoading}
+                onClick={submitHandler}
+                colorScheme="blue"
+              >
+                {isLoading ? (
+                  <span className="material-symbols-outlined loading">
+                    progress_activity
+                  </span>
+                ) : (
+                  <span> Sign up</span>
+                )}
+              </Button>
             </Stack>
             <Divider></Divider>
             <Text color="fg.muted" align="right">
-              Already have an account? <Link href="#">Log in</Link>
+              Already have an account? <NavLink to="/login">Log in</NavLink>
             </Text>
           </Stack>
         </Box>
