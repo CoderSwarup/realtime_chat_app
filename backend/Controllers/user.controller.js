@@ -1,6 +1,8 @@
 import TokenSender from "../Config/generateJWT.js";
 import UserModel from "../Models/user.model.js";
 import bcrypt from "bcrypt";
+
+// Register User
 const registerUser = async (req, res) => {
   try {
     const { username, email, password, avatar } = req.body;
@@ -51,6 +53,7 @@ const registerUser = async (req, res) => {
   }
 };
 
+//Login User
 const LoginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -59,7 +62,8 @@ const LoginUser = async (req, res) => {
       throw new Error("Email and Password are required fields!");
     }
     // Checking if the user exist in the database
-    const user = await UserModel.findOne({ email }).select("+password");
+
+    const user = await UserModel.findOne({ email: email });
     if (!user) {
       res.status(401);
       throw new Error("Invalid Email or Password");
@@ -83,11 +87,43 @@ const LoginUser = async (req, res) => {
     // console.log("done");
     return TokenSender(user, 200, "User Login Succefully", res);
   } catch (err) {
-    // console.log(err.message);
+    console.log(err);
     res.status(400).send({
       error: err.message,
       success: false,
     });
   }
 };
-export { registerUser, LoginUser };
+
+// GetallUser
+
+const GetAllUser = async (req, res) => {
+  try {
+    // If User Serach By user name
+    const keywords = req.query.search
+      ? {
+          $or: [
+            { name: { $regex: req.query.search, $options: "i" } },
+            { email: { $regex: req.query.search, $options: "i" } },
+          ],
+        }
+      : {};
+
+    // Find In database
+
+    const Users = await UserModel.find(keywords).find({
+      _id: { $ne: req.user._id },
+    });
+    console.log("sss");
+    res.status(200).send({
+      message: "User is found",
+      Users,
+    });
+  } catch (error) {
+    res.status(400).send({
+      error: err.message,
+      success: false,
+    });
+  }
+};
+export { registerUser, LoginUser, GetAllUser };

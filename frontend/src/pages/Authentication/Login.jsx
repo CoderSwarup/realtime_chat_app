@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -20,21 +20,28 @@ import {
 import { PasswordField } from "../../Components/PasswordField";
 import { Logo } from "../../Components/Logo";
 import { NavLink, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../../Store/Actions/UserActions";
+import { clearError, clearMessage } from "../../Store/Slice/Userslice";
 export default function Login() {
+  const dispatch = useDispatch();
   const toast = useToast();
   const Navigator = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setLoading] = useState(false);
 
-  // Clear Input Function
+  // Destructuring user state using useSelector
+  const { loading, isAuthenticated, error, message } = useSelector(
+    (state) => state.user
+  );
+
   const clearInputs = () => {
     setEmail("");
     setPassword("");
-    setLoading(false);
   };
-  const handleSignIn = async () => {
+
+  //
+  const handleLogin = async () => {
     // Add your logic for handling the sign-in process
     if (!email || !password) {
       toast({
@@ -47,22 +54,53 @@ export default function Login() {
       return;
     }
 
-    try {
-      setLoading(true);
-      const config = {
-        headers: {
-          "Content-type": "application/json",
-        },
-      };
-      const data = await axios.post(
-        "/api/v1/user/login",
-        {
-          email,
-          password,
-        },
-        config
-      );
-      // console.log(data);
+    dispatch(loginUser({ email, password }));
+    // try {
+    //   setLoading(true);
+    //   const config = {
+    //     headers: {
+    //       "Content-type": "application/json",
+    //     },
+    //   };
+    //   const data = await axios.post(
+    //     "/api/v1/user/login",
+    //     {
+    //       email,
+    //       password,
+    //     },
+    //     config
+    //   );
+    //   // console.log(data);
+    //   toast({
+    //     title: "User Login Succefully",
+    //     status: "success",
+    //     duration: 5000,
+    //     isClosable: true,
+    //     position: "bottom",
+    //   });
+    //   // localStorage.setItem("userInfo", JSON.stringify(data));
+    //   setLoading(false);
+    //   Navigator("/chats");
+    //   clearInputs();
+    // } catch (error) {
+    //   // console.log(error);
+    //   toast({
+    //     title: "SomeThing Went Wrong",
+    //     description: `${error?.response.data.error || "Error Occured!"}`,
+    //     status: "error",
+    //     duration: 5000,
+    //     isClosable: true,
+    //     position: "bottom",
+    //   });
+    //   setLoading(false);
+    // }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated === true) {
+      Navigator("/chats");
+    }
+    if (message) {
       toast({
         title: "User Login Succefully",
         status: "success",
@@ -70,23 +108,23 @@ export default function Login() {
         isClosable: true,
         position: "bottom",
       });
-      // localStorage.setItem("userInfo", JSON.stringify(data));
-      setLoading(false);
-      Navigator("/chats");
+      dispatch(clearMessage());
       clearInputs();
-    } catch (error) {
-      // console.log(error);
+    }
+
+    if (error) {
       toast({
         title: "SomeThing Went Wrong",
-        description: `${error?.response.data.error || "Error Occured!"}`,
+        description: `${error || "Error Occured!"}`,
         status: "error",
         duration: 5000,
         isClosable: true,
         position: "bottom",
       });
-      setLoading(false);
+      dispatch(clearError());
+      clearInputs();
     }
-  };
+  }, [loading, error, message, isAuthenticated]);
 
   return (
     <Container
@@ -143,11 +181,11 @@ export default function Login() {
             </HStack>
             <Stack spacing="6">
               <Button
-                isDisabled={isLoading}
+                isDisabled={loading}
                 colorScheme="blue"
-                onClick={handleSignIn}
+                onClick={handleLogin}
               >
-                {isLoading ? (
+                {loading ? (
                   <span className="material-symbols-outlined loading">
                     progress_activity
                   </span>

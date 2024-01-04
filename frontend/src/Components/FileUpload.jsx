@@ -30,9 +30,9 @@ import React, { useCallback } from "react";
 import { Button } from "@chakra-ui/react";
 import { CloudinaryContext } from "cloudinary-react";
 
-const FileUpload = ({ onFileUpload, setLoading }) => {
+const FileUpload = ({ onFileUpload /* setLoading */ }) => {
   const openUploadWidget = () => {
-    setLoading(true);
+    // setLoading(true);
     cloudinary.openUploadWidget(
       {
         cloudName: import.meta.env.VITE_REACT_APP_CLOUDINARY_CLOUD_NAME,
@@ -58,7 +58,7 @@ const FileUpload = ({ onFileUpload, setLoading }) => {
         }
       }
     );
-    setLoading(false);
+    // setLoading(false);
   };
 
   return (

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 const ChatSchema = new mongoose.Schema(
   {
-    chaName: {
+    chatName: {
       type: String,
       required: true,
     },
@@ -31,3 +31,5 @@ const ChatSchema = new mongoose.Schema(
 );
 
 const ChatModel = mongoose.model("Chat", ChatSchema);
+
+export default ChatModel;

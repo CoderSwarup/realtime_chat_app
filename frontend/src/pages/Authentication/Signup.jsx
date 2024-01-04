@@ -17,20 +17,32 @@ import {
 } from "@chakra-ui/react";
 import { PasswordField } from "../../Components/PasswordField";
 import { Logo } from "../../Components/Logo";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import FileUpload from "../../Components/FileUpload";
 import { useToast } from "@chakra-ui/react";
 import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { RegisterUser } from "../../Store/Actions/UserActions";
+import { clearError, clearMessage } from "../../Store/Slice/Userslice";
 export default function Signup() {
+  const dispatch = useDispatch();
   const toast = useToast();
   const Navigator = useNavigate();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const [isLoading, setLoading] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState(
+    "https://img.freepik.com/free-vector/isolated-young-handsome-man-different-poses-white-background-illustration_632498-859.jpg?w=740&t=st=1703608430~exp=1703609030~hmac=7417c7b018d219fc7ff063b13a4bb7d29ecb1daf2e5bf08679c74a43aa9b108f"
+  );
+  // const [isLoading, setLoading] = useState(false);
+
+  // Destructuring user state using useSelector
+  const { loading, isAuthenticated, error, message } = useSelector(
+    (state) => state.user
+  );
+
   //Image / Profile images Handler
   const handleFileUpload = (url) => {
     setUploadedFile(url);
@@ -70,24 +82,60 @@ export default function Signup() {
       return;
     }
 
-    try {
-      setLoading(true);
-      const config = {
-        headers: {
-          "Content-type": "application/json",
-        },
-      };
-      const data = await axios.post(
-        "/api/v1/user/register",
-        {
-          username,
-          email,
-          password,
-          avatar: uploadedFile,
-        },
-        config
-      );
-      // console.log(data);
+    // try {
+    //   setLoading(true);
+    //   const config = {
+    //     headers: {
+    //       "Content-type": "application/json",
+    //     },
+    //   };
+    //   const data = await axios.post(
+    //     "/api/v1/user/register",
+    //     {
+    //       username,
+    //       email,
+    //       password,
+    //       avatar: uploadedFile,
+    //     },
+    //     config
+    //   );
+    //   // console.log(data);
+    //   toast({
+    //     title: "Registration Successful",
+    //     status: "success",
+    //     duration: 5000,
+    //     isClosable: true,
+    //     position: "bottom",
+    //   });
+    //   // localStorage.setItem("userInfo", JSON.stringify(data));
+    //   setLoading(false);
+    //   Navigator("/login");
+    //   clearInputs();
+    // } catch (error) {
+    //   // console.log(error);
+    //   toast({
+    //     title: "SomeThing Went Wrong",
+    //     description: `${error?.response.data.error || "Error Occured!"}`,
+    //     status: "error",
+    //     duration: 5000,
+    //     isClosable: true,
+    //     position: "bottom",
+    //   });
+    //   setLoading(false);
+    // }
+
+    dispatch(
+      RegisterUser({
+        username,
+        email,
+        password,
+        avatar: uploadedFile,
+      })
+    );
+  };
+
+  useEffect(() => {
+    if (message) {
       toast({
         title: "Registration Successful",
         status: "success",
@@ -95,23 +143,24 @@ export default function Signup() {
         isClosable: true,
         position: "bottom",
       });
-      // localStorage.setItem("userInfo", JSON.stringify(data));
-      setLoading(false);
-      Navigator("/login");
+      dispatch(clearMessage());
       clearInputs();
-    } catch (error) {
-      // console.log(error);
+      Navigator("/chats");
+    }
+
+    if (error) {
       toast({
         title: "SomeThing Went Wrong",
-        description: `${error?.response.data.error || "Error Occured!"}`,
+        description: `${error || "Error Occured!"}`,
         status: "error",
         duration: 5000,
         isClosable: true,
         position: "bottom",
       });
-      setLoading(false);
+      dispatch(clearError());
+      clearInputs();
     }
-  };
+  }, [loading, error, message, isAuthenticated]);
 
   return (
     <Container
@@ -181,7 +230,7 @@ export default function Signup() {
               <FormControl>
                 <FormLabel htmlFor="email">Upload Avatar</FormLabel>
                 <FileUpload
-                  setLoading={setLoading}
+                  // setLoading={setLoading}
                   onFileUpload={handleFileUpload}
                 />
                 {uploadedFile && (
@@ -205,11 +254,11 @@ export default function Signup() {
             </HStack>
             <Stack spacing="6">
               <Button
-                isDisabled={isLoading}
+                isDisabled={loading}
                 onClick={submitHandler}
                 colorScheme="blue"
               >
-                {isLoading ? (
+                {loading ? (
                   <span className="material-symbols-outlined loading">
                     progress_activity
                   </span>
