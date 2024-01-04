@@ -4,7 +4,7 @@ import ChatRouter from "./Routes/Chats.routes.js";
 import cors from "cors";
 import ConnectDB from "./DB/DBConnect.js";
 import userRouter from "./Routes/user.routes.js";
-
+import cookieParser from "cookie-parser";
 dotenv.config();
 
 const app = express();
@@ -15,6 +15,7 @@ app.use(
     origin: "*",
   })
 );
+app.use(cookieParser());
 app.use(express.json());
 
 const PORT = process.env.PORT || 8080;

@@ -95,8 +95,29 @@ const LoginUser = async (req, res) => {
   }
 };
 
-// GetallUser
+//GetUserDetails
+const GetUserDetails = async (req, res) => {
+  try {
+    let user = req.user._id;
 
+    const isUserExists = await UserModel.findById(user).select("-password");
+    if (!isUserExists) {
+      throw new Error("User Not Found");
+    }
+
+    return res.status(200).send({
+      user: isUserExists,
+      message: "User is Found",
+    });
+  } catch (error) {
+    res.status(400).send({
+      error: err.message,
+      success: false,
+    });
+  }
+};
+
+// GetallUser
 const GetAllUser = async (req, res) => {
   try {
     // If User Serach By user name
@@ -126,4 +147,4 @@ const GetAllUser = async (req, res) => {
     });
   }
 };
-export { registerUser, LoginUser, GetAllUser };
+export { registerUser, LoginUser, GetUserDetails, GetAllUser };
