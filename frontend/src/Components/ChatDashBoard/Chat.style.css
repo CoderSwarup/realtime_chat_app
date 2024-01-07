@@ -1,0 +1,33 @@
+.SearchResult-container::-webkit-scrollbar {
+  display: none;
+}
+
+.MyChats-Container::-webkit-scrollbar {
+  display: none;
+}
+
+.GroupChatImgContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.GroupChatimgOne,
+.GroupChatimgTwo,
+.GroupChatimgThree {
+  width: 30px !important;
+  height: 30px !important;
+}
+.GroupChatimgOne {
+  position: absolute;
+}
+
+.GroupChatimgTwo {
+  position: absolute;
+  top: -10px;
+}
+.GroupChatimgThree {
+  position: absolute;
+  top: -10px;
+}

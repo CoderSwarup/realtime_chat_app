@@ -70,7 +70,7 @@ export const FetAllchats = async (req, res) => {
       success: true,
       message: "Your All Chats",
       count: allChats.length,
-      data: allChats,
+      chats: allChats,
     });
   } catch (error) {
     res.status(400).send({

@@ -54,7 +54,7 @@ export default function Login() {
       return;
     }
 
-    dispatch(loginUser({ email, password }));
+    dispatch(loginUser({ email, password, Navigator }));
     // try {
     //   setLoading(true);
     //   const config = {
@@ -98,7 +98,7 @@ export default function Login() {
 
   useEffect(() => {
     if (isAuthenticated === true) {
-      Navigator("/chats");
+      Navigator("/");
     }
     if (message) {
       toast({
@@ -108,6 +108,7 @@ export default function Login() {
         isClosable: true,
         position: "bottom",
       });
+
       dispatch(clearMessage());
       clearInputs();
     }

@@ -106,6 +106,7 @@ const GetUserDetails = async (req, res) => {
     }
 
     return res.status(200).send({
+      success: true,
       user: isUserExists,
       message: "User is Found",
     });
@@ -124,7 +125,7 @@ const GetAllUser = async (req, res) => {
     const keywords = req.query.search
       ? {
           $or: [
-            { name: { $regex: req.query.search, $options: "i" } },
+            { username: { $regex: req.query.search, $options: "i" } },
             { email: { $regex: req.query.search, $options: "i" } },
           ],
         }
@@ -135,7 +136,6 @@ const GetAllUser = async (req, res) => {
     const Users = await UserModel.find(keywords).find({
       _id: { $ne: req.user._id },
     });
-    console.log("sss");
     res.status(200).send({
       message: "User is found",
       Users,
@@ -147,4 +147,35 @@ const GetAllUser = async (req, res) => {
     });
   }
 };
-export { registerUser, LoginUser, GetUserDetails, GetAllUser };
+
+//logout fucntionallity
+const LogoutUserController = async (req, res) => {
+  try {
+    res
+      .cookie("token", null, {
+        expires: new Date(Date.now()),
+        httpOnly: true,
+      })
+      .cookie("refreshToken", null, {
+        expires: new Date(Date.now()),
+        httpOnly: true,
+      })
+      .status(200)
+      .send({
+        success: true,
+        message: "logout Successfully",
+      });
+  } catch (err) {
+    res.status(400).send({
+      error: err.message,
+      success: false,
+    });
+  }
+};
+export {
+  registerUser,
+  LoginUser,
+  GetUserDetails,
+  GetAllUser,
+  LogoutUserController,
+};
