@@ -20,6 +20,14 @@ const ChatSlice = createSlice({
       ...state,
       error: null,
     }),
+
+    setSelectedChat: (state, action) => {
+      // console.log(action);
+      return {
+        ...state,
+        selectedChat: action.payload,
+      };
+    },
   },
 
   extraReducers: (builder) => {
@@ -43,5 +51,6 @@ const ChatSlice = createSlice({
   },
 });
 
-export const { clearChatError, clearChatMessage } = ChatSlice.actions;
+export const { clearChatError, clearChatMessage, setSelectedChat } =
+  ChatSlice.actions;
 export const { reducer: ChatReducer } = ChatSlice;

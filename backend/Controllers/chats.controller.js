@@ -215,10 +215,6 @@ export const RemoveUserFromGroup = async (req, res) => {
       throw new Error("This Group Does not Exist");
     }
 
-    console.log(
-      JSON.stringify(isGroupAvailable.groupAdmin),
-      JSON.stringify(req.user._id)
-    );
     // Check if the User Making the Request is the Admin of the Group
     if (
       JSON.stringify(isGroupAvailable.groupAdmin) !==
@@ -228,8 +224,7 @@ export const RemoveUserFromGroup = async (req, res) => {
     }
 
     if (
-      JSON.stringify(isGroupAvailable.groupAdmin) ===
-      JSON.stringify(req.user._id)
+      JSON.stringify(isGroupAvailable.groupAdmin) === JSON.stringify(userid)
     ) {
       throw new Error("Admin Cannot Remove Our Self");
     }
@@ -254,6 +249,52 @@ export const RemoveUserFromGroup = async (req, res) => {
     return res.status(200).json({
       data: removeMember,
       message: "User has been removed successfully",
+    });
+  } catch (error) {
+    res.status(400).send({
+      error: error.message,
+      success: false,
+    });
+  }
+};
+
+//Leave Group
+export const LeaveGroup = async (req, res) => {
+  try {
+    const { chatid } = req.body;
+
+    if (!chatid) {
+      throw new Error("Please provide all fields");
+    }
+
+    // Check if the Group Exists
+    const isGroupAvailable = await ChatModel.findById(chatid);
+    if (!isGroupAvailable) {
+      throw new Error("This Group Does not Exist");
+    }
+
+    // Check if the User is a Member of the Group
+    const isUserInGroup = await ChatModel.find({
+      $and: [{ _id: chatid }, { users: { $elemMatch: { $eq: req.user._id } } }],
+    });
+
+    if (isUserInGroup.length === 0) {
+      throw new Error("You are not a member of this group.");
+    }
+
+    // Remove the User from the Group
+    const leaveGroup = await ChatModel.findByIdAndUpdate(
+      { _id: chatid },
+      { $pull: { users: req.user._id } }
+    );
+
+    if (!leaveGroup) {
+      throw new Error("Failed to leave the group");
+    }
+
+    return res.status(200).json({
+      data: leaveGroup,
+      message: "You have left the group successfully",
     });
   } catch (error) {
     res.status(400).send({

@@ -28,6 +28,7 @@ import { LogOutUser, SearchUsers } from "../../Store/Actions/UserActions";
 import { useNavigate } from "react-router-dom";
 import UserListItem from "./UserListItem";
 import "./Chat.style.css";
+import { FetchMyChats, accessNewChat } from "../../Store/Actions/ChatActions";
 
 export default function SideDrawer() {
   const { user } = useSelector((state) => state.user);
@@ -40,7 +41,7 @@ export default function SideDrawer() {
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [loadingSearchResult, setLoadingSearchResult] = useState(false);
-
+  const [isDisable, setIsDisable] = useState(false);
   const toast = useToast();
 
   const HandleSearch = async () => {
@@ -59,7 +60,13 @@ export default function SideDrawer() {
     setSearchResult(result.Users);
   };
 
-  const handleFunction = (userID) => {};
+  const handleFunction = async (userId) => {
+    setIsDisable(true);
+    const Access = await accessNewChat({ userId });
+    // console.log(Access);
+    dispatch(FetchMyChats());
+    setIsDisable(false);
+  };
 
   const LogOutHandler = () => {
     dispatch(LogOutUser({ Navigate }));
@@ -119,7 +126,7 @@ export default function SideDrawer() {
             />
           </MenuButton>
           <MenuList>
-            <ProfileModal>
+            <ProfileModal user={user.user}>
               <MenuItem color="#000">My Profile</MenuItem>
             </ProfileModal>
 
@@ -168,7 +175,11 @@ export default function SideDrawer() {
                     <UserListItem
                       key={currentUser._id}
                       user={currentUser}
-                      handleFunction={handleFunction(currentUser._id)}
+                      handleFunction={() => {
+                        if (!isDisable) {
+                          handleFunction(currentUser._id);
+                        }
+                      }}
                     />
                   );
                 })}

@@ -2,10 +2,13 @@
   display: none;
 }
 
-.MyChats-Container::-webkit-scrollbar {
+.MyChats-Container::-webkit-scrollbar,
+.ChatBoxCantainer::-webkit-scrollbar {
   display: none;
 }
-
+.MessageRedingBox::-webkit-scrollbar {
+  display: none;
+}
 .GroupChatImgContainer {
   position: relative;
   display: flex;
@@ -30,4 +33,10 @@
 .GroupChatimgThree {
   position: absolute;
   top: -10px;
+}
+
+.SingleChatConatiner {
+  height: 100%;
+  display: grid;
+  grid-template-rows: 1fr 13fr 1fr;
 }

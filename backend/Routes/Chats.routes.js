@@ -5,6 +5,7 @@ import {
   AccessChat,
   AddNewUserInGroup,
   FetAllchats,
+  LeaveGroup,
   RemoveUserFromGroup,
   RenameGroupName,
   createGroupChat,
@@ -21,6 +22,7 @@ ChatRouter.route("/group").post(AuthMiddleWare, createGroupChat);
 ChatRouter.route("/rename/group").put(AuthMiddleWare, RenameGroupName);
 ChatRouter.route("/useradd/group").put(AuthMiddleWare, AddNewUserInGroup);
 ChatRouter.route("/userremove/group").put(AuthMiddleWare, RemoveUserFromGroup);
+ChatRouter.route("/userleave/group").post(AuthMiddleWare, LeaveGroup);
 
 // get single chat
 ChatRouter.route("/:chatid").get((req, res) => {

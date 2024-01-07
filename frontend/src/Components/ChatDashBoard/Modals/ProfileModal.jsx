@@ -16,15 +16,15 @@ import {
 import { ViewIcon } from "@chakra-ui/icons";
 import { useSelector } from "react-redux";
 import { Image } from "@chakra-ui/react";
-export default function ProfileModal({ children }) {
+export default function ProfileModal({ children, user }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { user } = useSelector((state) => state.user);
+
   return (
     <>
       {children ? (
         <span onClick={onOpen}> {children}</span>
       ) : (
-        <IconButton icon={<ViewIcon />}></IconButton>
+        <IconButton onClick={onOpen} icon={<ViewIcon />}></IconButton>
       )}
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -36,7 +36,7 @@ export default function ProfileModal({ children }) {
             textTransform="uppercase"
             textAlign="center"
           >
-            {user.user.username}
+            {user.username}
           </ModalHeader>
           <ModalCloseButton />
 
@@ -49,10 +49,10 @@ export default function ProfileModal({ children }) {
             <Image
               borderRadius="50%"
               w={150}
-              src="https://bit.ly/dan-abramov"
+              src={user.avatar}
               alt="Dan Abramov"
             />
-            <Text fontSize="lg">{user.user.email}</Text>
+            <Text fontSize="lg">{user.email}</Text>
           </ModalBody>
 
           <ModalFooter>
