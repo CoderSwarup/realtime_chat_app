@@ -5,6 +5,7 @@ import cors from "cors";
 import ConnectDB from "./DB/DBConnect.js";
 import userRouter from "./Routes/user.routes.js";
 import cookieParser from "cookie-parser";
+import MsgRouter from "./Routes/Message.routes.js";
 dotenv.config();
 
 const app = express();
@@ -31,6 +32,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1/chats", ChatRouter);
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/messages", MsgRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
