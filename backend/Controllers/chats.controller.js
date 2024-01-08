@@ -64,6 +64,13 @@ export const FetAllchats = async (req, res) => {
       .populate("users", "-password")
       .populate("groupAdmin", "-password")
       .populate("latestMessage")
+      .populate({
+        path: "latestMessage",
+        populate: {
+          path: "sender",
+          select: "username",
+        },
+      })
       .sort({ updatedAt: -1 });
 
     res.status(200).send({

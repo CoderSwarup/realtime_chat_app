@@ -88,7 +88,9 @@ export default function SideDrawer() {
         </Button>
       </Tooltip>
 
-      <Text fontSize="2xl">TALK</Text>
+      <Text fontSize="2xl" fontWeight="700">
+        TALK LIVE
+      </Text>
 
       <div className="right-side-drawer">
         <Menu>

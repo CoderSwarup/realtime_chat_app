@@ -40,3 +40,24 @@
   display: grid;
   grid-template-rows: 1fr 13fr 1fr;
 }
+
+.FormControllerInputSender {
+  position: relative;
+}
+
+.inputGroupAttachmentIcon {
+  position: absolute;
+  top: 0;
+}
+
+/* Message */
+
+.MessageRedingBox {
+  padding: 8px;
+  background: #2e2e2e;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll !important;
+}

@@ -22,7 +22,6 @@ export default function MyChats() {
   const [isMobile] = useMediaQuery("(max-width: 800px)");
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
-
   return (
     <Box
       flexDirection="column"
@@ -107,7 +106,7 @@ export default function MyChats() {
                     </Text>
                     {chat.latestMessage && (
                       <Text fontSize="xs">
-                        <b>{chat.latestMessage.sender.name} : </b>
+                        <b>{chat.latestMessage.sender.username} : </b>
                         {chat.latestMessage.content.length > 50
                           ? chat.latestMessage.content.substring(0, 51) + "..."
                           : chat.latestMessage.content}

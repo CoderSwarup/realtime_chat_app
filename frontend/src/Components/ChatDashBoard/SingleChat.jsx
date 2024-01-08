@@ -1,5 +1,14 @@
 import { Box, Text } from "@chakra-ui/layout";
-import { IconButton, Spinner, useToast } from "@chakra-ui/react";
+import {
+  FormControl,
+  IconButton,
+  Input,
+  Spinner,
+  useToast,
+  InputGroup,
+  InputLeftElement,
+  InputRightElement,
+} from "@chakra-ui/react";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import { useEffect, useState } from "react";
 import ProfileModal from "./Modals/ProfileModal";
@@ -9,16 +18,65 @@ import { setSelectedChat } from "../../Store/Slice/ChatSlice";
 import UpdateGroupChatModal from "./Modals/UpdateGroupChatModel";
 import "./Chat.style.css";
 import { useRef } from "react";
+
+import { AttachmentIcon, ArrowForwardIcon } from "@chakra-ui/icons";
+import {
+  FetchMyChatMessages,
+  SendNewMessage,
+} from "../../Store/Actions/MessageActions";
+import ScrollableChat from "./ScrollableChat";
+
 const SingleChat = () => {
   const toast = useToast();
   const dispatch = useDispatch();
   const scrollableBoxRef = useRef();
   const { user } = useSelector((state) => state.user);
   const { selectedChat } = useSelector((state) => state.chats);
+  const [isDisable, setIsDisable] = useState(false);
+  // Messages
+  const { loading } = useSelector((state) => state.message);
+  const [newMessage, setNewMessage] = useState("");
 
+  const callFunction = () => {
+    setNewMessage("");
+    FetchMessages();
+  };
+  // SendMessages
+  const sendMessage = async (event) => {
+    if (isDisable === true) {
+      return;
+    }
+    console.log("send");
+    setIsDisable(true);
+    await SendNewMessage(newMessage, selectedChat._id, toast, callFunction);
+    setIsDisable(false);
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      sendMessage();
+    }
+  };
+
+  const FetchMessages = async () => {
+    if (!selectedChat) return;
+    await dispatch(FetchMyChatMessages({ selectedChatId: selectedChat._id }));
+  };
+
+  // Fetching Messages UseEffect
   useEffect(() => {
-    scrollableBoxRef.current.scrollTop = scrollableBoxRef.current.scrollHeight;
+    FetchMessages();
   }, [selectedChat]);
+
+  // Typing Handler
+  const typingHandler = (e) => {
+    setNewMessage(e.target.value);
+  };
+
+  // Scrolling Down
+  // useEffect(() => {
+  //   scrollableBoxRef.current.scrollTop = scrollableBoxRef.current.scrollHeight;
+  // }, [selectedChat]);
 
   return (
     <div className="SingleChatConatiner">
@@ -52,20 +110,71 @@ const SingleChat = () => {
         )}
       </Text>
 
-      <Box
-        ref={scrollableBoxRef}
-        display="flex"
-        flexDir="column"
-        p={3}
-        bg="#000000"
-        w="100%"
-        h="100%"
-        borderRadius="lg"
-        overflowY="scroll"
-        className="MessageRedingBox"
-      ></Box>
+      {loading ? (
+        <Box w="100%" h="100%" display="grid" placeItems="center">
+          <Spinner
+            thickness="4px"
+            speed="0.65s"
+            emptyColor="gray.200"
+            color="blue.500"
+            size="xl"
+          />
+        </Box>
+      ) : (
+        <div className="MessageRedingBox">
+          <ScrollableChat></ScrollableChat>
+        </div>
+      )}
 
-      <div className="MessageSenderConatiner"></div>
+      {/* Message Sender Functionality */}
+      <div className="MessageSenderContainer">
+        <FormControl
+          className="FormControllerInputSender"
+          id="first-name"
+          isRequired
+          mt={3}
+        >
+          <InputGroup>
+            {/* Left side: Image sender button */}
+            <InputLeftElement>
+              {/* Chakra UI Attachment icon */}
+              <IconButton
+                className="inputGroupAttachmentIcon"
+                background="#707070"
+                size="sm"
+                icon={<AttachmentIcon />}
+              />
+            </InputLeftElement>
+
+            {/* Message input */}
+            <Input
+              className="InputField"
+              paddingLeft="44px"
+              variant="filled"
+              bg="#313131"
+              placeholder="Enter a message.."
+              _hover={{ bg: "#313131" }}
+              outline="none"
+              value={newMessage}
+              onChange={typingHandler}
+              onKeyPress={handleKeyPress}
+            />
+
+            {/* Right side: Send arrow */}
+            {newMessage && (
+              <InputRightElement>
+                {/* Chakra UI ArrowForward icon */}
+                <IconButton
+                  background="#707070"
+                  icon={<ArrowForwardIcon />}
+                  onClick={sendMessage}
+                  size="sm"
+                />
+              </InputRightElement>
+            )}
+          </InputGroup>
+        </FormControl>
+      </div>
     </div>
   );
 };

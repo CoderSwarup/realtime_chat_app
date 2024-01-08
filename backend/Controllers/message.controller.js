@@ -19,6 +19,7 @@ export const sendMessageController = async (req, res) => {
     const ExistedUserSendMessageCheking = await ChatModel.findOne({
       $and: [{ _id: chatId }, { users: { $elemMatch: { $eq: req.user._id } } }],
     });
+    // console.log(ExistedUserSendMessageCheking);
     if (!ExistedUserSendMessageCheking) {
       throw new Error("UnAuthorized Person");
     }
@@ -64,7 +65,7 @@ export const allMessagesController = async (req, res) => {
     }
 
     const messages = await MessageModel.find({ chat: chatid })
-      .populate("sender", "name pic email")
+      .populate("sender")
       .populate("chat");
     res.status(200).send({
       success: true,

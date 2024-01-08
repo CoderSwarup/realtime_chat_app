@@ -13,13 +13,16 @@ export default defineConfig({
       "/api/v1/chats/userleave/group": BACKENDURL,
       "/api/v1/chats/useradd/group": BACKENDURL,
       "/api/v1/chats/userremove/group": BACKENDURL,
-      //User
 
+      //User
       "/api/v1/user/register": BACKENDURL,
       "/api/v1/user/login": BACKENDURL,
       "/api/v1/user/logout": BACKENDURL,
       "/api/v1/user/getuserdetails": BACKENDURL,
       "/api/v1/user/getallusers": BACKENDURL,
+
+      //Messages
+      "/api/v1/messages": BACKENDURL,
     },
   },
 });
