@@ -1,5 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { io } from "socket.io-client";
+const ENDPOINT = "http://localhost:8080";
+const socket = io(ENDPOINT);
 const config = {
   "Content-Type": "application/json",
 };
@@ -33,7 +36,8 @@ export const SendNewMessage = async (
       },
       config
     );
-    console.log(data);
+    socket.emit("new message", data);
+    // console.log(data);
     callFunction();
   } catch (error) {
     toast({

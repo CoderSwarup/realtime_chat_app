@@ -26,6 +26,14 @@ import {
 } from "../../Store/Actions/MessageActions";
 import ScrollableChat from "./ScrollableChat";
 
+// Socket Connection
+import { io } from "socket.io-client";
+import { setMessages } from "../../Store/Slice/MessageSlice";
+const ENDPOINT = "http://localhost:8080";
+let socket;
+
+let mySocket, selectedChatCompare;
+
 const SingleChat = () => {
   const toast = useToast();
   const dispatch = useDispatch();
@@ -37,40 +45,93 @@ const SingleChat = () => {
   const { loading } = useSelector((state) => state.message);
   const [newMessage, setNewMessage] = useState("");
 
+  // Typindg Effect
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const [istyping, setIsTyping] = useState(false);
+
+  useEffect(() => {
+    // Establish the socket connection when the component mounts
+    socket = io(ENDPOINT);
+    socket.emit("setup", user);
+    socket.on("connected", () => setSocketConnected(true));
+    socket.on("typing", () => setIsTyping(true));
+    socket.on("stop typing", () => setIsTyping(false));
+    // Clean up the socket connection when the component unmounts
+    // return () => {
+    //   socket.disconnect();
+    // };
+  }, []);
+
+  useEffect(() => {
+    socket.on("message received", (newMessageReceived) => {
+      if (
+        !selectedChat ||
+        selectedChat._id !== newMessageReceived.message.chat._id
+      ) {
+        return;
+      }
+
+      dispatch(setMessages(newMessageReceived));
+    });
+  }, [selectedChat, dispatch]);
+
   const callFunction = () => {
     setNewMessage("");
-    FetchMessages();
+    // FetchMessages();
   };
+
   // SendMessages
   const sendMessage = async (event) => {
     if (isDisable === true) {
       return;
     }
-    console.log("send");
+    socket.emit("stop typing", selectedChat._id);
     setIsDisable(true);
     await SendNewMessage(newMessage, selectedChat._id, toast, callFunction);
     setIsDisable(false);
   };
 
+  // On Enter Press
   const handleKeyPress = (event) => {
     if (event.key === "Enter") {
       sendMessage();
     }
   };
 
+  //FetchThe Messages
   const FetchMessages = async () => {
     if (!selectedChat) return;
     await dispatch(FetchMyChatMessages({ selectedChatId: selectedChat._id }));
+    socket.emit("join chat", selectedChat._id);
   };
 
   // Fetching Messages UseEffect
   useEffect(() => {
     FetchMessages();
+    selectedChatCompare = selectedChat;
   }, [selectedChat]);
 
   // Typing Handler
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
+
+    if (!socketConnected) return;
+
+    if (!typing) {
+      setTyping(true);
+      socket.emit("typing", selectedChat._id);
+    }
+    let lastTypingTime = new Date().getTime();
+    var timerLength = 3000;
+    setTimeout(() => {
+      var timeNow = new Date().getTime();
+      var timeDiff = timeNow - lastTypingTime;
+      if (timeDiff >= timerLength && typing) {
+        socket.emit("stop typing", selectedChat._id);
+        setTyping(false);
+      }
+    }, timerLength);
   };
 
   // Scrolling Down
@@ -122,7 +183,7 @@ const SingleChat = () => {
         </Box>
       ) : (
         <div className="MessageRedingBox">
-          <ScrollableChat></ScrollableChat>
+          <ScrollableChat istyping={istyping}></ScrollableChat>
         </div>
       )}
 

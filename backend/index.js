@@ -6,6 +6,7 @@ import ConnectDB from "./DB/DBConnect.js";
 import userRouter from "./Routes/user.routes.js";
 import cookieParser from "cookie-parser";
 import MsgRouter from "./Routes/Message.routes.js";
+import { Server } from "socket.io";
 dotenv.config();
 
 const app = express();
@@ -34,6 +35,52 @@ app.use("/api/v1/chats", ChatRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/messages", MsgRouter);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+});
+
+const io = new Server(server, {
+  pingTimeout: 60000,
+  cors: {
+    origin: "http://localhost:5173",
+  },
+});
+
+io.on("connection", (socket) => {
+  // console.log("Connection Done");
+
+  socket.on("setup", (userdata) => {
+    socket.join(userdata.user._id);
+    socket.emit("connected");
+  });
+
+  // User Join the which Room
+  socket.on("join chat", (room) => {
+    socket.join(room);
+    console.log("user join ", room);
+  });
+
+  //typing Effect
+  socket.on("typing", (room) => {
+    socket.to(room).emit("typing");
+  });
+  socket.on("stop typing", (room) => {
+    socket.to(room).emit("stop typing");
+  });
+
+  //new Message isComming
+  socket.on("new message", (newMessageRecived) => {
+    let chat = newMessageRecived.message.chat;
+    // console.log(newMessageRecived);
+    if (!chat.users) return console.log("Chat .user not defined");
+    socket.to(chat._id).emit("message received", newMessageRecived);
+    // chat.users.forEach((user) => {
+    //   if (user._id === newMessageRecived.message.sender._id) return;
+    // });
+  });
+
+  socket.off("setup", () => {
+    console.log("USER DISCONNECTED");
+    socket.leave(userData._id);
+  });
 });

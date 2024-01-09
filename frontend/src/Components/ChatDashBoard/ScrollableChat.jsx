@@ -9,11 +9,11 @@ import {
   isSameUser,
 } from "../../config/ChatLogics";
 
-export default function ScrollableChat() {
+export default function ScrollableChat({ istyping }) {
   const { messages } = useSelector((state) => state.message);
   const { user } = useSelector((state) => state.user);
   return (
-    <ScrollableFeed>
+    <ScrollableFeed className="hide">
       {messages &&
         messages.map((m, i) => {
           return (
@@ -66,6 +66,19 @@ export default function ScrollableChat() {
             </div>
           );
         })}
+
+      {istyping && (
+        <p
+          style={{
+            textAlign: "center",
+            width: "100%",
+            padding: "3px 0px",
+            margin: "auto",
+          }}
+        >
+          Typing..
+        </p>
+      )}
     </ScrollableFeed>
   );
 }
