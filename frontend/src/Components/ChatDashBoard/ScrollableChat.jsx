@@ -67,18 +67,7 @@ export default function ScrollableChat({ istyping }) {
           );
         })}
 
-      {istyping && (
-        <p
-          style={{
-            textAlign: "center",
-            width: "100%",
-            padding: "3px 0px",
-            margin: "auto",
-          }}
-        >
-          Typing..
-        </p>
-      )}
+      {istyping && <p>Typing..</p>}
     </ScrollableFeed>
   );
 }

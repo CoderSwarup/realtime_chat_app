@@ -29,12 +29,12 @@ import ScrollableChat from "./ScrollableChat";
 // Socket Connection
 import { io } from "socket.io-client";
 import { setMessages } from "../../Store/Slice/MessageSlice";
+import { addNotification } from "../../Store/Slice/Notificationslice";
 const ENDPOINT = "http://localhost:8080";
-let socket;
 
 let mySocket, selectedChatCompare;
 
-const SingleChat = () => {
+const SingleChat = ({ socket }) => {
   const toast = useToast();
   const dispatch = useDispatch();
   const scrollableBoxRef = useRef();
@@ -52,8 +52,8 @@ const SingleChat = () => {
 
   useEffect(() => {
     // Establish the socket connection when the component mounts
-    socket = io(ENDPOINT);
-    socket.emit("setup", user);
+    // socket = io(ENDPOINT);
+    // socket.emit("setup", user);
     socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
@@ -62,19 +62,6 @@ const SingleChat = () => {
     //   socket.disconnect();
     // };
   }, []);
-
-  useEffect(() => {
-    socket.on("message received", (newMessageReceived) => {
-      if (
-        !selectedChat ||
-        selectedChat._id !== newMessageReceived.message.chat._id
-      ) {
-        return;
-      }
-
-      dispatch(setMessages(newMessageReceived));
-    });
-  }, [selectedChat, dispatch]);
 
   const callFunction = () => {
     setNewMessage("");

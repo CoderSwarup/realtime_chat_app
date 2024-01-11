@@ -100,7 +100,7 @@ export default function Login() {
     if (isAuthenticated === true) {
       Navigator("/");
     }
-    if (message) {
+    if (message && isAuthenticated === true) {
       toast({
         title: "User Login Succefully",
         status: "success",

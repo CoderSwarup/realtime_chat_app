@@ -17,10 +17,16 @@ import {
   Input,
   useToast,
   ListItem,
+  Badge,
 } from "@chakra-ui/react";
 import { Avatar, AvatarBadge, AvatarGroup } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { BellIcon, ChevronDownIcon, Search2Icon } from "@chakra-ui/icons";
+import {
+  BellIcon,
+  ChevronDownIcon,
+  CloseIcon,
+  Search2Icon,
+} from "@chakra-ui/icons";
 import { useDispatch, useSelector } from "react-redux";
 import ProfileModal from "./Modals/ProfileModal";
 import ChatLoading from "./ChatLoading";
@@ -29,9 +35,13 @@ import { useNavigate } from "react-router-dom";
 import UserListItem from "./UserListItem";
 import "./Chat.style.css";
 import { FetchMyChats, accessNewChat } from "../../Store/Actions/ChatActions";
+import { getSender } from "../../config/ChatLogics";
+import { setSelectedChat } from "../../Store/Slice/ChatSlice";
+import { removeNotification } from "../../Store/Slice/Notificationslice";
 
 export default function SideDrawer() {
   const { user } = useSelector((state) => state.user);
+  const { notifications } = useSelector((state) => state.notification);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [placement, setPlacement] = useState("left");
 
@@ -101,10 +111,57 @@ export default function SideDrawer() {
               color: "#fff",
             }}
             p={1}
+            position="relative"
           >
             <BellIcon fontSize="2xl" />
+            {notifications.length > 0 && (
+              <Badge
+                position="absolute"
+                top={1}
+                right={1}
+                background="#ff0000"
+                color="#fff"
+                fontSize="12px"
+              >
+                {notifications.length}
+              </Badge>
+            )}
           </MenuButton>
-          {/* <MenuList></MenuList> */}
+          <MenuList
+            padding="3px"
+            textAlign="center"
+            background="#242424"
+            color="#fff"
+          >
+            {notifications.length > 0 ? (
+              <>
+                {notifications.map((notif) => (
+                  <MenuItem
+                    background="#000000"
+                    color="#fff"
+                    key={notif._id}
+                    onClick={() => {
+                      dispatch(setSelectedChat(notif.chat));
+                      dispatch(removeNotification(notif));
+                    }}
+                  >
+                    <>
+                      <Text fontWeight="600" mr="4px">
+                        {notif.content.length > 10
+                          ? `${notif.content.slice(0, 10)}...`
+                          : notif.content}
+                      </Text>
+                      {notif.chat.isGroupChat
+                        ? `  From ${notif.chat.chatName}`
+                        : `   From ${notif.sender.username}`}
+                    </>
+                  </MenuItem>
+                ))}
+              </>
+            ) : (
+              <span>No Notification Yet</span>
+            )}
+          </MenuList>
         </Menu>
 
         <Menu>
@@ -150,7 +207,18 @@ export default function SideDrawer() {
         <DrawerOverlay />
         <DrawerContent background="#242424" color="#fff">
           <DrawerHeader borderBottomWidth="1px">
-            Search User
+            <Box display="flex" justifyContent="center" alignItems="center">
+              Search User
+              <Button
+                ml="auto"
+                onClick={onClose}
+                background="transparent"
+                color="#fff"
+                _hover={{ background: "#242424" }}
+              >
+                <CloseIcon />
+              </Button>
+            </Box>
             <Box mt="5px" display="flex" paddingBottom="4px">
               <Input
                 htmlSize={4}

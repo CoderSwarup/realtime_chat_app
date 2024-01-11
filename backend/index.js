@@ -69,18 +69,23 @@ io.on("connection", (socket) => {
   });
 
   //new Message isComming
-  socket.on("new message", (newMessageRecived) => {
-    let chat = newMessageRecived.message.chat;
-    // console.log(newMessageRecived);
+  socket.on("new message", (newMessageReceived) => {
+    let chat = newMessageReceived.message.chat;
+
     if (!chat.users) return console.log("Chat .user not defined");
-    socket.to(chat._id).emit("message received", newMessageRecived);
-    // chat.users.forEach((user) => {
-    //   if (user._id === newMessageRecived.message.sender._id) return;
-    // });
+
+    socket.to(chat._id).emit("message received", newMessageReceived);
+    chat.users.forEach((user) => {
+      // Exclude the sender from receiving "message received" event
+      if (user._id !== newMessageReceived.message.sender._id) {
+        socket.to(user._id).emit("send notification", newMessageReceived);
+        return;
+      }
+    });
   });
 
-  socket.off("setup", () => {
-    console.log("USER DISCONNECTED");
-    socket.leave(userData._id);
-  });
+  // socket.off("setup", () => {
+  //   console.log("USER DISCONNECTED");
+  //   socket.leave(userData._id);
+  // });
 });

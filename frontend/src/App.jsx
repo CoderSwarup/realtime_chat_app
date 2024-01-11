@@ -10,13 +10,13 @@ import ChatPage from "./pages/ChatPage";
 import PageNotFound from "./pages/PageNotFound";
 import { GetUserDeatils } from "./Store/Actions/UserActions";
 import Loading from "./Components/Loading";
-
 function App() {
   const { loading, isAuthenticated } = useSelector((state) => state.user);
   const distaptch = useDispatch();
   useEffect(() => {
     distaptch(GetUserDeatils());
   }, []);
+
   return (
     <>
       <BrowserRouter>
