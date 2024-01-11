@@ -135,7 +135,7 @@ export default function Signup() {
   };
 
   useEffect(() => {
-    if (message) {
+    if (message && isAuthenticated) {
       toast({
         title: "Registration Successful",
         status: "success",

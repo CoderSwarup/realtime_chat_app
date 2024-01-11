@@ -4,6 +4,9 @@ const BACKENDURL = "http://localhost:8080";
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    chunkSizeWarningLimit: 1000, // Set to an appropriate limit in kilobytes
+  },
   server: {
     proxy: {
       // chats

@@ -129,6 +129,7 @@ export default function Login() {
 
   return (
     <Container
+      minH="100vh"
       maxW="lg"
       py={{ base: "12", md: "24" }}
       px={{ base: "0", sm: "8" }}
