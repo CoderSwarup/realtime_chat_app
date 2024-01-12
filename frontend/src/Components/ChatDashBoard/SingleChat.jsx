@@ -106,6 +106,7 @@ const SingleChat = ({ socket }) => {
     if (!socketConnected) return;
 
     if (!typing) {
+      console.log("y");
       setTyping(true);
       socket.emit("typing", selectedChat._id);
     }

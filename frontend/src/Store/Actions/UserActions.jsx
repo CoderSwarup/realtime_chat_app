@@ -9,7 +9,7 @@ const config = {
 // Login user
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
-  async ({ email, password, Navigator }) => {
+  async ({ email, password, Navigator, toast }) => {
     try {
       const { data } = await axios.post(
         "/api/v1/user/login",
@@ -17,6 +17,13 @@ export const loginUser = createAsyncThunk(
         config
       );
       Navigator("/");
+      toast({
+        title: "User Login Succefully",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
       return data;
     } catch (error) {
       throw new Error(error.response.data.error);
@@ -27,9 +34,21 @@ export const loginUser = createAsyncThunk(
 // Register User
 export const RegisterUser = createAsyncThunk(
   "auth/registeruser",
-  async (Data) => {
+  async ({ username, email, password, avatar, Navigator, toast }) => {
     try {
-      const { data } = await axios.post("/api/v1/user/register", Data, config);
+      const { data } = await axios.post(
+        "/api/v1/user/register",
+        { username, email, password, avatar },
+        config
+      );
+      Navigator("/login");
+      toast({
+        title: "Registration Successful",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
       return data;
     } catch (error) {
       throw new Error(error.response.data.error);

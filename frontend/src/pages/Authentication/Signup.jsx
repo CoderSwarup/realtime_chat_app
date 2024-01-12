@@ -130,22 +130,17 @@ export default function Signup() {
         email,
         password,
         avatar: uploadedFile,
+
+        Navigator,
+        toast,
       })
     );
   };
 
   useEffect(() => {
     if (message && isAuthenticated) {
-      toast({
-        title: "Registration Successful",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
-      });
       dispatch(clearMessage());
       clearInputs();
-      Navigator("/chats");
     }
 
     if (error) {
@@ -158,7 +153,6 @@ export default function Signup() {
         position: "bottom",
       });
       dispatch(clearError());
-      clearInputs();
     }
   }, [loading, error, message, isAuthenticated]);
 

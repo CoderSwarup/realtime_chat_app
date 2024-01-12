@@ -54,7 +54,7 @@ export default function Login() {
       return;
     }
 
-    dispatch(loginUser({ email, password, Navigator }));
+    dispatch(loginUser({ email, password, Navigator, toast }));
     // try {
     //   setLoading(true);
     //   const config = {
@@ -101,14 +101,6 @@ export default function Login() {
       Navigator("/");
     }
     if (message && isAuthenticated === true) {
-      toast({
-        title: "User Login Succefully",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
-      });
-
       dispatch(clearMessage());
       clearInputs();
     }
@@ -123,7 +115,7 @@ export default function Login() {
         position: "bottom",
       });
       dispatch(clearError());
-      clearInputs();
+      // clearInputs();
     }
   }, [loading, error, message, isAuthenticated]);
 

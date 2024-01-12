@@ -61,3 +61,40 @@
   flex-direction: column;
   overflow-y: scroll !important;
 }
+
+.scrollable-chat-container::-webkit-scrollbar {
+  display: none;
+}
+.scrollable-chat-container {
+  overflow-y: auto; /* Enable vertical scrolling if the content exceeds the container height */
+  padding: 10px; /* Add some padding for better visual appearance */
+  box-sizing: border-box; /* Include the padding in our element's */
+}
+
+.message-container {
+  margin-bottom: 10px; /* Add margin between messages */
+}
+
+.message-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.message-content {
+  background-color: #b9f5d0; /* Default background color for other users' messages */
+  color: #000;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 5px 15px;
+  max-width: 75%;
+  margin-top: 8px;
+}
+
+.my-message {
+  background-color: #bee3f8; /* Background color for the current user's messages */
+  margin-left: auto;
+}
+
+p {
+  margin: 7px;
+}

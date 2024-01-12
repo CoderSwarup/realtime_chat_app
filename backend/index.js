@@ -55,27 +55,30 @@ const server = app.listen(PORT, () => {
 const io = new Server(server, {
   pingTimeout: 60000,
   cors: {
-    origin: "http://localhost:4173",
+    origin: ["http://localhost:5173", "http://localhost:4173"],
   },
 });
 
 io.on("connection", (socket) => {
   // console.log("Connection Done");
 
+  socket.emit("connected");
+
   socket.on("setup", (userdata) => {
     socket.join(userdata.user._id);
-    socket.emit("connected");
+    // socket.emit("connected");
   });
 
   // User Join the which Room
   socket.on("join chat", (room) => {
     socket.join(room);
-    console.log("user join ", room);
+    // console.log("user join ", room);
   });
 
   //typing Effect
   socket.on("typing", (room) => {
     socket.to(room).emit("typing");
+    // console.log("44");
   });
   socket.on("stop typing", (room) => {
     socket.to(room).emit("stop typing");

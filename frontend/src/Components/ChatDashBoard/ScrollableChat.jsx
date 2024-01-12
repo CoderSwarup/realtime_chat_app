@@ -1,7 +1,6 @@
-import { Avatar, Tooltip } from "@chakra-ui/react";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import ScrollableFeed from "react-scrollable-feed";
+import { Avatar, Tooltip } from "@chakra-ui/react";
 import {
   isLastMessage,
   isSameSender,
@@ -9,16 +8,29 @@ import {
   isSameUser,
 } from "../../config/ChatLogics";
 
+import "./Chat.style.css"; // Import your custom CSS file
+
 export default function ScrollableChat({ istyping }) {
   const { messages } = useSelector((state) => state.message);
   const { user } = useSelector((state) => state.user);
+
+  const chatContainerRef = useRef(null);
+
+  useEffect(() => {
+    // Scroll down to the latest message when messages change
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
-    <ScrollableFeed className="hide">
+    <div ref={chatContainerRef} className="scrollable-chat-container">
       {messages &&
         messages.map((m, i) => {
           return (
-            <div key={i}>
-              <div style={{ display: "flex" }} key={m._id}>
+            <div key={i} className="message-container">
+              <div className="message-wrapper">
                 {(isSameSender(messages, m, i, user.user._id) ||
                   isLastMessage(messages, i, user.user._id)) && (
                   <Tooltip
@@ -40,25 +52,18 @@ export default function ScrollableChat({ istyping }) {
 
                 <span
                   style={{
-                    backgroundColor: `${
-                      m.sender._id === user.user._id ? "#BEE3F8" : "#B9F5D0"
-                    }`,
-                    color: "#000",
-                    fontWeight: "600",
-
                     marginLeft: isSameSenderMargin(
                       messages,
                       m,
                       i,
                       user.user._id
                     ),
-                    marginTop: isSameUser(messages, m, i, user.user._id)
-                      ? 3
-                      : 10,
-                    borderRadius: "20px",
-                    padding: "5px 15px",
-                    maxWidth: "75%",
                   }}
+                  className={`message-content ${
+                    m.sender._id === user.user._id
+                      ? "my-message"
+                      : "other-message"
+                  }`}
                 >
                   {m.content}
                 </span>
@@ -66,8 +71,7 @@ export default function ScrollableChat({ istyping }) {
             </div>
           );
         })}
-
       {istyping && <p>Typing..</p>}
-    </ScrollableFeed>
+    </div>
   );
 }
