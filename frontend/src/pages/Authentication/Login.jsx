@@ -18,7 +18,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { PasswordField } from "../../Components/PasswordField";
-import { Logo } from "../../Components/Logo";
+import { Logo } from "../../Components/PublicComponent/Logo";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../Store/Actions/UserActions";

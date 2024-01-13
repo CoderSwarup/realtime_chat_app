@@ -7,7 +7,7 @@ import {
   Text,
   useMediaQuery,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getSender, getSenderImg } from "../../config/ChatLogics";
 import "./Chat.style.css";
@@ -15,13 +15,23 @@ import { AddIcon } from "@chakra-ui/icons";
 import GroupChatImg from "./GroupChatImg";
 import GroupChatModal from "./Modals/GroupChatModal";
 import { setSelectedChat } from "../../Store/Slice/ChatSlice";
+import { useSocket } from "../../Context/SocketContext";
 export default function MyChats() {
   const { loading, mychats, selectedChat } = useSelector(
     (state) => state.chats
   );
+  let socket = useSocket();
   const [isMobile] = useMediaQuery("(max-width: 800px)");
   const { user } = useSelector((state) => state.user);
+  const [onlineUsers, setOnlineUsers] = useState([]);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    socket.on("get-active-users", (usersList) => {
+      // console.log(usersList);
+      setOnlineUsers(usersList);
+    });
+  }, [socket, mychats]);
   return (
     <Box
       flexDirection="column"
@@ -85,15 +95,25 @@ export default function MyChats() {
                   alignItems="center"
                 >
                   {!chat.isGroupChat ? (
-                    <Avatar
-                      // background="#fff"
-                      size="sm"
-                      cursor="pointer"
-                      objectFit="cover"
-                      name={user.user.username}
-                      // name="Dan Abrahmov"
-                      src={getSenderImg(user.user, chat.users)}
-                    />
+                    <div className="Userchat">
+                      <Avatar
+                        size="sm"
+                        cursor="pointer"
+                        objectFit="cover"
+                        name={user.user.username}
+                        src={getSenderImg(user.user, chat.users)}
+                      />
+                      {onlineUsers.some(
+                        (onlineUser) =>
+                          (onlineUser.userId === chat.users[1]._id ||
+                            onlineUser.userId === chat.users[0]._id) &&
+                          onlineUser.userId !== user.user._id
+                      ) ? (
+                        <div className="online-dot "></div>
+                      ) : (
+                        <div className="offline-dot"></div>
+                      )}
+                    </div>
                   ) : (
                     <GroupChatImg users={chat.users}></GroupChatImg>
                   )}

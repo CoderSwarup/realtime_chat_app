@@ -53,11 +53,12 @@ const SingleChat = ({ socket }) => {
   useEffect(() => {
     // Establish the socket connection when the component mounts
     // socket = io(ENDPOINT);
-    // socket.emit("setup", user);
+
     socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
-    // Clean up the socket connection when the component unmounts
+
+    // Clean up the event listener when the component unmounts
     // return () => {
     //   socket.disconnect();
     // };

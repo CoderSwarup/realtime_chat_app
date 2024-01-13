@@ -7,21 +7,19 @@ import { useEffect, useMemo } from "react";
 import { setMessages } from "../../Store/Slice/MessageSlice";
 import { useToast } from "@chakra-ui/react";
 import { getSender } from "../../config/ChatLogics";
+import { useSocket } from "../../Context/SocketContext";
 
-const ENDPOINT = "http://localhost:8080";
-let socket;
 const Chatbox = () => {
   const dispatch = useDispatch();
-  socket = useMemo(() => io(ENDPOINT), []);
+  let socket = useSocket();
   const toast = useToast();
 
   const { loading, user } = useSelector((s) => s.user);
   const { selectedChat } = useSelector((s) => s.chats);
-  const { notifications } = useSelector((s) => s.notification);
 
   useEffect(() => {
-    socket.emit("join chat", user.user._id);
-  }, [loading]);
+    socket.emit("new-user-add", user);
+  }, []);
 
   useEffect(() => {
     // Message received event
@@ -64,10 +62,10 @@ const Chatbox = () => {
     socket.on("message received", messageReceivedHandler);
     socket.on("send notification", sendNotificationHandler);
 
-    // Clear the event listeners when the component unmounts
-    return () => {
-      socket.off("message received", messageReceivedHandler);
-    };
+    // // Clear the event listeners when the component unmounts
+    // return () => {
+    //   socket.off("message received", messageReceivedHandler);
+    // };
   }, [socket, selectedChat, user.id, dispatch]);
 
   return (

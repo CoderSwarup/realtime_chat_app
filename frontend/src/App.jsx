@@ -9,7 +9,9 @@ import { useDispatch, useSelector } from "react-redux";
 import ChatPage from "./pages/ChatPage";
 import PageNotFound from "./pages/PageNotFound";
 import { GetUserDeatils } from "./Store/Actions/UserActions";
-import Loading from "./Components/Loading";
+import Loading from "./Components/PublicComponent/Loading";
+import { SocketProvider } from "./Context/SocketContext";
+
 function App() {
   const { loading, isAuthenticated } = useSelector((state) => state.user);
   const distaptch = useDispatch();
@@ -19,26 +21,30 @@ function App() {
 
   return (
     <>
-      <BrowserRouter>
-        {loading && <Loading></Loading>}
-        <Routes>
-          {isAuthenticated ? (
-            <Route exact path="/" element={<ChatPage />} />
-          ) : (
-            <>
-              <Route exact path="/" element={<Home />} />
-              <Route exact path="/login" element={<Login />} />
-              <Route exact path="/signup" element={<Signup />} />
-            </>
-          )}
+      <SocketProvider>
+        <BrowserRouter>
+          {loading && <Loading></Loading>}
+          <Routes>
+            {isAuthenticated ? (
+              <Route exact path="/" element={<ChatPage />} />
+            ) : (
+              <>
+                <Route exact path="/" element={<Home />} />
+                <Route exact path="/login" element={<Login />} />
+                <Route exact path="/signup" element={<Signup />} />
+              </>
+            )}
 
-          <Route element={<ProtectedRoute isAuthenticated={isAuthenticated} />}>
-            {/* <Route exact path="/" element={<ChatPage />} /> */}
-          </Route>
+            <Route
+              element={<ProtectedRoute isAuthenticated={isAuthenticated} />}
+            >
+              {/* <Route exact path="/" element={<ChatPage />} /> */}
+            </Route>
 
-          <Route exact path="*" element={<PageNotFound />} />
-        </Routes>
-      </BrowserRouter>
+            <Route exact path="*" element={<PageNotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </SocketProvider>
     </>
   );
 }

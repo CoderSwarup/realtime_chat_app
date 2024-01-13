@@ -81,8 +81,10 @@
 }
 
 .message-content {
-  background-color: #b9f5d0; /* Default background color for other users' messages */
-  color: #000;
+  /* background-color: #b9f5d0; Default background color for other users' messages */
+  background: linear-gradient(98.63deg, #f9a225 0%, #f95f35 100%);
+
+  color: #ffffff;
   font-weight: 600;
   border-radius: 20px;
   padding: 5px 15px;
@@ -91,10 +93,34 @@
 }
 
 .my-message {
-  background-color: #bee3f8; /* Background color for the current user's messages */
+  /* background-color: #bee3f8; Background color for the current user's messages */
+  background: linear-gradient(98.63deg, #24e2f0cc 0%, #3590f9d4 100%);
   margin-left: auto;
 }
 
 p {
   margin: 7px;
+}
+
+.Userchat {
+  position: relative;
+}
+.online-dot {
+  background-color: rgb(93, 255, 17);
+  border-radius: 50%;
+  position: absolute;
+  top: 0.5px;
+  right: 0px;
+  width: 13px;
+  height: 13px;
+}
+
+.offline-dot {
+  background-color: rgb(255, 0, 0);
+  border-radius: 50%;
+  position: absolute;
+  top: 0.5px;
+  right: 0px;
+  width: 13px;
+  height: 13px;
 }

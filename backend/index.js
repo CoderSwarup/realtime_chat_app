@@ -59,19 +59,29 @@ const io = new Server(server, {
   },
 });
 
+let activeUsers = [];
+
 io.on("connection", (socket) => {
   // console.log("Connection Done");
 
-  socket.emit("connected");
+  // socket.emit("connected");
 
-  socket.on("setup", (userdata) => {
+  socket.on("new-user-add", (userdata) => {
     socket.join(userdata.user._id);
-    // socket.emit("connected");
+    // console.log(socket.id);
+    // console.log(userdata);
+    if (!activeUsers.some((user) => user.userId === userdata.user._id)) {
+      activeUsers.push({ userId: userdata.user._id, socketId: socket.id });
+      // console.log("New User Connected", activeUsers);
+    }
+    // send all active users to all users
+    io.emit("get-active-users", activeUsers);
   });
 
   // User Join the which Room
   socket.on("join chat", (room) => {
     socket.join(room);
+    socket.emit("connected"); // First emission
     // console.log("user join ", room);
   });
 
@@ -100,8 +110,12 @@ io.on("connection", (socket) => {
     });
   });
 
-  // socket.off("setup", () => {
-  //   console.log("USER DISCONNECTED");
-  //   socket.leave(userData._id);
-  // });
+  socket.on("disconnect", function () {
+    // console.log("user disconnected", socket.id);
+    // remove user from active users
+    activeUsers = activeUsers.filter((user) => user.socketId !== socket.id);
+    // console.log("User Disconnected", activeUsers);
+    // send all active users to all users
+    io.emit("get-active-users", activeUsers);
+  });
 });

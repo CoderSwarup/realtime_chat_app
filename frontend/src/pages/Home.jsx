@@ -13,6 +13,7 @@ import {
   Divider,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
+import { Logo } from "../Components/PublicComponent/Logo";
 export default function Home() {
   return (
     <Box p="10px" minH="100vh">
@@ -23,7 +24,13 @@ export default function Home() {
         backdropFilter="blur(202px)"
         padding="1rem"
       >
-        <Box>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          gap="2px"
+        >
+          <Logo />
           <Text fontSize="xl" fontWeight="bold" color="white">
             TalkLive
           </Text>

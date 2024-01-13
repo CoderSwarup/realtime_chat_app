@@ -16,7 +16,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { PasswordField } from "../../Components/PasswordField";
-import { Logo } from "../../Components/Logo";
+import { Logo } from "../../Components/PublicComponent/Logo";
 import React, { useEffect, useState } from "react";
 import FileUpload from "../../Components/FileUpload";
 import { useToast } from "@chakra-ui/react";
