@@ -62,7 +62,7 @@ const io = new Server(server, {
 let activeUsers = [];
 
 io.on("connection", (socket) => {
-  // console.log("Connection Done");
+  console.log("Connection Done");
 
   // socket.emit("connected");
 
