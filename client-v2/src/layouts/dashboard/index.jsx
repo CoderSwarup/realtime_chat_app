@@ -18,7 +18,7 @@ const DashboardLayout = () => {
   console.log(theme);
 
   return (
-    <>
+    <Stack direction="row">
       <Box
         sx={{
           background: theme.palette.background.paper,
@@ -133,7 +133,7 @@ const DashboardLayout = () => {
       </Box>
 
       <Outlet />
-    </>
+    </Stack>
   );
 };
 
