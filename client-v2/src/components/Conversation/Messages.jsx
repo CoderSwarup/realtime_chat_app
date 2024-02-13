@@ -14,22 +14,22 @@ export default function Messages() {
   return (
     <Box p={3}>
       <Stack spacing={3}>
-        {Chat_History.map((ele) => {
+        {Chat_History.map((ele, i) => {
           switch (ele.type) {
             case "divider":
-              return <TimeLine ele={ele} />;
+              return <TimeLine key={i} ele={ele} />;
             case "msg":
               switch (ele.subtype) {
                 case "img":
-                  return <MediaMessage ele={ele} />;
+                  return <MediaMessage key={i} ele={ele} />;
                 case "doc":
-                  return <DocMessage ele={ele} />;
+                  return <DocMessage key={i} ele={ele} />;
                 case "link":
-                  return <LinkMsg ele={ele} />;
+                  return <LinkMsg key={i} ele={ele} />;
                 case "reply":
-                  return <ReplyMessage ele={ele} />;
+                  return <ReplyMessage key={i} ele={ele} />;
                 default:
-                  return <TextMsg ele={ele} />;
+                  return <TextMsg key={i} ele={ele} />;
               }
               break;
             default:

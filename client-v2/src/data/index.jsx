@@ -19,7 +19,7 @@ const Profile_Menu = [
     icon: <Gear />,
   },
   {
-    title: "Profile",
+    title: "Logout",
     icon: <SignOut />,
   },
 ];
@@ -50,7 +50,7 @@ const ChatList = [
   {
     id: 0,
     img: faker.image.avatar(),
-    name: faker.name.firstName(),
+    name: faker.person.firstName(),
     msg: faker.lorem.sentence(),
     time: "9:36",
     unread: 0,
@@ -60,7 +60,7 @@ const ChatList = [
   {
     id: 1,
     img: faker.image.avatar(),
-    name: faker.name.firstName(),
+    name: faker.person.firstName(),
     msg: faker.lorem.sentence(),
     time: "12:02",
     unread: 2,
@@ -70,7 +70,7 @@ const ChatList = [
   {
     id: 2,
     img: faker.image.avatar(),
-    name: faker.name.firstName(),
+    name: faker.person.firstName(),
     msg: faker.lorem.sentence(),
     time: "10:35",
     unread: 3,
@@ -80,7 +80,7 @@ const ChatList = [
   {
     id: 3,
     img: faker.image.avatar(),
-    name: faker.name.firstName(),
+    name: faker.person.firstName(),
     msg: faker.lorem.sentence(),
     time: "04:00",
     unread: 0,
@@ -90,7 +90,7 @@ const ChatList = [
   {
     id: 4,
     img: faker.image.avatar(),
-    name: faker.name.firstName(),
+    name: faker.person.firstName(),
     msg: faker.lorem.sentence(),
     time: "08:42",
     unread: 0,
@@ -100,7 +100,7 @@ const ChatList = [
   {
     id: 5,
     img: faker.image.avatar(),
-    name: faker.name.firstName(),
+    name: faker.person.firstName(),
     msg: faker.lorem.sentence(),
     time: "08:42",
     unread: 0,
@@ -110,7 +110,7 @@ const ChatList = [
   {
     id: 6,
     img: faker.image.avatar(),
-    name: faker.name.firstName(),
+    name: faker.person.firstName(),
     msg: faker.lorem.sentence(),
     time: "08:42",
     unread: 0,
@@ -120,7 +120,7 @@ const ChatList = [
   {
     id: 7,
     img: faker.image.avatar(),
-    name: faker.name.firstName(),
+    name: faker.person.firstName(),
     msg: faker.lorem.sentence(),
     time: "08:42",
     unread: 0,

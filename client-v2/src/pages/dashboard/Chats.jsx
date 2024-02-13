@@ -188,8 +188,8 @@ export default function Chats() {
               Pinned
             </Typography>
 
-            {ChatList.filter((e) => e.pinned).map((ele) => {
-              return <ChatElement {...ele} />;
+            {ChatList.filter((e) => e.pinned).map((ele, i) => {
+              return <ChatElement key={i} {...ele} />;
             })}
           </Stack>
 
@@ -199,8 +199,8 @@ export default function Chats() {
               All Chats
             </Typography>
 
-            {ChatList.filter((e) => !e.pinned).map((ele) => {
-              return <ChatElement {...ele} />;
+            {ChatList.filter((e) => !e.pinned).map((ele, i) => {
+              return <ChatElement key={i} {...ele} />;
             })}
           </Stack>
         </Stack>

@@ -3,11 +3,15 @@ import {
   Divider,
   IconButton,
   Link,
+  Menu,
+  MenuItem,
   Stack,
   Typography,
   useTheme,
 } from "@mui/material";
-import { DownloadSimple, Image } from "phosphor-react";
+import { DotsThreeVertical, DownloadSimple, Image } from "phosphor-react";
+import { useState } from "react";
+import { Message_options } from "../../data";
 
 export const TextMsg = ({ ele }) => {
   const theme = useTheme();
@@ -30,6 +34,7 @@ export const TextMsg = ({ ele }) => {
           {ele.message}
         </Typography>
       </Box>
+      <MessagesOptions></MessagesOptions>
     </Stack>
   );
 };
@@ -59,6 +64,7 @@ export const MediaMessage = ({ ele }) => {
           </Typography>
         </Stack>
       </Box>
+      <MessagesOptions></MessagesOptions>
     </Stack>
   );
 };
@@ -98,6 +104,7 @@ export const ReplyMessage = ({ ele }) => {
           {ele.reply}
         </Typography>
       </Box>
+      <MessagesOptions></MessagesOptions>
     </Stack>
   );
 };
@@ -168,6 +175,7 @@ export const LinkMsg = ({ ele }) => {
           </Stack>
         </Stack>
       </Box>
+      <MessagesOptions></MessagesOptions>
     </Stack>
   );
 };
@@ -209,6 +217,50 @@ export const DocMessage = ({ ele }) => {
           </Typography>
         </Stack>
       </Box>
+      <MessagesOptions></MessagesOptions>
     </Stack>
+  );
+};
+
+export const MessagesOptions = () => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  return (
+    <>
+      <DotsThreeVertical
+        id="basic-button"
+        aria-controls={open ? "basic-menu" : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? "true" : undefined}
+        onClick={handleClick}
+        size={22}
+      />
+
+      <Menu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          "aria-labelledby": "basic-button",
+        }}
+      >
+        <Stack spacing={1} p={1}>
+          {Message_options.map((ele, i) => {
+            return (
+              <MenuItem key={i} onClick={handleClose}>
+                {ele.title}
+              </MenuItem>
+            );
+          })}
+        </Stack>
+      </Menu>
+    </>
   );
 };
