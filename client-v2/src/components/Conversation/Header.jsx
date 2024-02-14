@@ -17,9 +17,12 @@ import {
   VideoCamera,
 } from "phosphor-react";
 import StyledBadge from "./StyledBadge";
+import { useDispatch } from "react-redux";
+import { ToggleSideBar } from "../../Redux/Slices/AppSlice";
 
 export default function Header() {
   const theme = useTheme();
+  const dispatch = useDispatch();
   return (
     <Box
       p={2}
@@ -38,7 +41,14 @@ export default function Header() {
         sx={{ height: "100%", width: "100%" }}
       >
         {/* Left avatar */}
-        <Stack direction={"row"} spacing={2}>
+        <Stack
+          onClick={() => {
+            console.log("FF");
+            dispatch(ToggleSideBar());
+          }}
+          direction={"row"}
+          spacing={2}
+        >
           <StyledBadge
             overlap="circular"
             anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
