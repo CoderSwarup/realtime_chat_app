@@ -13,7 +13,7 @@ import { DotsThreeVertical, DownloadSimple, Image } from "phosphor-react";
 import { useState } from "react";
 import { Message_options } from "../../data";
 
-export const TextMsg = ({ ele }) => {
+export const TextMsg = ({ ele, menu }) => {
   const theme = useTheme();
   return (
     <Stack direction={"row"} justifyContent={ele.incoming ? "start" : "end"}>
@@ -34,12 +34,12 @@ export const TextMsg = ({ ele }) => {
           {ele.message}
         </Typography>
       </Box>
-      <MessagesOptions></MessagesOptions>
+      {menu && <MessagesOptions></MessagesOptions>}
     </Stack>
   );
 };
 
-export const MediaMessage = ({ ele }) => {
+export const MediaMessage = ({ ele, menu }) => {
   const theme = useTheme();
   return (
     <Stack direction={"row"} justifyContent={ele.incoming ? "start" : "end"}>
@@ -64,12 +64,12 @@ export const MediaMessage = ({ ele }) => {
           </Typography>
         </Stack>
       </Box>
-      <MessagesOptions></MessagesOptions>
+      {menu && <MessagesOptions></MessagesOptions>}
     </Stack>
   );
 };
 
-export const ReplyMessage = ({ ele }) => {
+export const ReplyMessage = ({ ele, menu }) => {
   const theme = useTheme();
   return (
     <Stack direction={"row"} justifyContent={ele.incoming ? "start" : "end"}>
@@ -104,7 +104,7 @@ export const ReplyMessage = ({ ele }) => {
           {ele.reply}
         </Typography>
       </Box>
-      <MessagesOptions></MessagesOptions>
+      {menu && <MessagesOptions></MessagesOptions>}
     </Stack>
   );
 };
@@ -127,7 +127,7 @@ export const TimeLine = ({ ele }) => {
   );
 };
 
-export const LinkMsg = ({ ele }) => {
+export const LinkMsg = ({ ele, menu }) => {
   const theme = useTheme();
   return (
     <Stack direction={"row"} justifyContent={ele.incoming ? "start" : "end"}>
@@ -175,12 +175,12 @@ export const LinkMsg = ({ ele }) => {
           </Stack>
         </Stack>
       </Box>
-      <MessagesOptions></MessagesOptions>
+      {menu && <MessagesOptions></MessagesOptions>}
     </Stack>
   );
 };
 
-export const DocMessage = ({ ele }) => {
+export const DocMessage = ({ ele, menu }) => {
   const theme = useTheme();
   return (
     <Stack direction={"row"} justifyContent={ele.incoming ? "start" : "end"}>
@@ -217,7 +217,7 @@ export const DocMessage = ({ ele }) => {
           </Typography>
         </Stack>
       </Box>
-      <MessagesOptions></MessagesOptions>
+      {menu && <MessagesOptions></MessagesOptions>}
     </Stack>
   );
 };

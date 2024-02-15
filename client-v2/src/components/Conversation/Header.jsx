@@ -18,7 +18,7 @@ import {
 } from "phosphor-react";
 import StyledBadge from "./StyledBadge";
 import { useDispatch } from "react-redux";
-import { ToggleSideBar } from "../../Redux/Slices/AppSlice";
+import { ToggleSideBar, UpdateSidebarType } from "../../Redux/Slices/AppSlice";
 
 export default function Header() {
   const theme = useTheme();
@@ -43,8 +43,8 @@ export default function Header() {
         {/* Left avatar */}
         <Stack
           onClick={() => {
-            console.log("FF");
             dispatch(ToggleSideBar());
+            dispatch(UpdateSidebarType("CONTACT"));
           }}
           direction={"row"}
           spacing={2}
