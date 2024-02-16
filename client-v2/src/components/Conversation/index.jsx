@@ -16,6 +16,7 @@ export default function Conversation() {
 
       {/* Conversation MSG */}
       <Box
+        className="hideScrollBar"
         sx={{ height: "100%", width: "100%", overflowY: "scroll" }}
         flexGrow={1}
       >

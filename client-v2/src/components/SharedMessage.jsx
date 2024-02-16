@@ -74,6 +74,7 @@ export default function SharedMessage() {
 
         {/* Main Body */}
         <Stack
+          className="hideScrollBar"
           sx={{
             width: "100%",
             height: "100%",

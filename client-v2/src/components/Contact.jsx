@@ -139,6 +139,7 @@ export default function Contact() {
 
         {/* Main Body */}
         <Stack
+          className="hideScrollBar"
           sx={{
             height: "100%",
             position: "relative",

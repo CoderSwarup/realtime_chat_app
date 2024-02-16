@@ -179,6 +179,7 @@ export default function Chats() {
 
         <Stack
           spacing={2}
+          className="hideScrollBar"
           direction="column"
           sx={{ flexGrow: 1, overflowY: "scroll", height: "100%" }}
         >
