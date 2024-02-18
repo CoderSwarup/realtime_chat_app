@@ -23,6 +23,8 @@ const Settings = Loadable(lazy(() => import("../pages/dashboard/Settings")));
 
 const Login = Loadable(lazy(() => import("../pages/Auth/Login")));
 
+const GroupsPage = Loadable(lazy(() => import("../pages/dashboard/Groups")));
+
 const Page404 = Loadable(lazy(() => import("../pages/Page404")));
 export default function Router() {
   return useRoutes([
@@ -41,6 +43,7 @@ export default function Router() {
         { element: <Navigate to={DEFAULT_PATH} replace />, index: true },
         { path: "app", element: <GeneralApp /> },
         { path: "settings", element: <Settings /> },
+        { path: "group", element: <GroupsPage /> },
         { path: "404", element: <Page404 /> },
         { path: "*", element: <Navigate to="/404" replace /> },
       ],

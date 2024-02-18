@@ -5,7 +5,6 @@ import {
   Button,
   Divider,
   IconButton,
-  InputBase,
   Stack,
   Typography,
 } from "@mui/material";
@@ -16,7 +15,11 @@ import { Faker } from "@faker-js/faker";
 import { ChatList } from "../../data";
 import { SimpleBarStyle } from "../../components/Scrollbar";
 import { useTheme } from "@mui/material/styles";
-
+import Search, {
+  SearchIconWrapper,
+  StyledInputBase,
+} from "../../components/Search";
+import ChatElement from "../../components/ChatElement";
 // Chat Element
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -48,82 +51,6 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
   },
 }));
 
-const ChatElement = ({ id, name, img, msg, time, unread, online }) => {
-  const theme = useTheme();
-  return (
-    <Box
-      sx={{
-        width: "100%",
-        borderRadius: 1,
-        height: 60,
-        background:
-          theme.palette.mode == "light"
-            ? "#F8FAFE"
-            : theme.palette.background.paper,
-      }}
-      p={1}
-    >
-      <Stack direction="row" alignItems="center" justifyContent="space-between">
-        {/* Left side Avatar */}
-        <Stack direction="row" spacing={1} alignItems="center">
-          {/* Avatar */}
-          {online ? (
-            <StyledBadge
-              overlap="circular"
-              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-              variant="dot"
-            >
-              <Avatar src={img}></Avatar>
-            </StyledBadge>
-          ) : (
-            <Avatar src={img}></Avatar>
-          )}
-
-          {/* Text Name And Message  */}
-          <Stack spacing={0.3}>
-            <Typography variant="subtitle2">{name}</Typography>
-            <Typography variant="caption">{msg.slice(0, 20)}..</Typography>
-          </Stack>
-        </Stack>
-
-        {/* Time */}
-        <Stack spacing={2} alignItems="center">
-          <Typography sx={{ fontWeight: 600 }} variant="caption">
-            {time}
-          </Typography>
-          <Badge color="primary" badgeContent={unread}></Badge>
-        </Stack>
-      </Stack>
-    </Box>
-  );
-};
-const Search = styled("div")(({ theme }) => ({
-  position: "relative",
-  borderRadius: 20,
-  backgroundColor: alpha(theme.palette.background.default, 1),
-  marginRight: theme.spacing(2),
-  marginLeft: 0,
-  width: "100%",
-}));
-
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: "100%",
-  position: "absolute",
-  pointerEvents: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-}));
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    width: "100%",
-  },
-}));
 export default function Chats() {
   const theme = useTheme();
   return (
@@ -131,7 +58,6 @@ export default function Chats() {
       sx={{
         position: "relative",
         width: 320,
-
         background:
           theme.palette.mode == "light"
             ? "#F8FAFE"
