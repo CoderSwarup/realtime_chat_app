@@ -7,7 +7,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import Conversation from "../../components/Conversation";
 import { Chat, MagnifyingGlass, PlusCircle } from "phosphor-react";
 import Search, {
@@ -16,9 +16,16 @@ import Search, {
 } from "../../components/Search";
 import { ChatList } from "../../data";
 import ChatElement from "../../components/ChatElement";
+import CreateGroupChat from "../../Sections/main/CreateGroupChat";
 
 export default function Groups() {
   const theme = useTheme();
+
+  const [openCreateGroupchat, setOpenCreateGroupchat] = useState(false);
+
+  const handleCloseCreateGroupchat = () => {
+    setOpenCreateGroupchat(false);
+  };
   return (
     <>
       <Stack
@@ -79,14 +86,13 @@ export default function Groups() {
                 <Typography variant="subtitle2" component={Link}>
                   Create New Group
                 </Typography>
-                <IconButton>
+                <IconButton onClick={() => setOpenCreateGroupchat(true)}>
                   <PlusCircle sx={{ color: theme.palette.primary.main }} />
                 </IconButton>
               </Stack>
               <Divider />
             </Stack>
 
-            {/* Group Chats */}
             <Stack
               spacing={2}
               className="hideScrollBar"
@@ -132,6 +138,11 @@ export default function Groups() {
           <Conversation />
         </Box>
       </Stack>
+
+      <CreateGroupChat
+        open={openCreateGroupchat}
+        handleClose={handleCloseCreateGroupchat}
+      />
     </>
   );
 }
