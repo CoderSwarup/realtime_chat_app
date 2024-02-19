@@ -372,6 +372,108 @@ const Keyboard_Shortcuts = [
   },
 ];
 
+const Call_Logs_List = [
+  {
+    id: 0,
+    img: faker.image.avatar(),
+    name: faker.person.firstName(),
+    online: true,
+    missed: false,
+    incoming: true,
+  },
+  {
+    id: 1,
+    img: faker.image.avatar(),
+    name: faker.person.firstName(),
+    online: false,
+    missed: true,
+    incoming: false,
+  },
+  {
+    id: 2,
+    img: faker.image.avatar(),
+    name: faker.person.firstName(),
+    online: false,
+    missed: false,
+    incoming: false,
+  },
+  {
+    id: 3,
+    img: faker.image.avatar(),
+    name: faker.person.firstName(),
+    online: true,
+    missed: false,
+    incoming: true,
+  },
+  {
+    id: 4,
+    img: faker.image.avatar(),
+    name: faker.person.firstName(),
+    online: true,
+    missed: true,
+    incoming: false,
+  },
+  {
+    id: 5,
+    img: faker.image.avatar(),
+    name: faker.person.firstName(),
+    online: true,
+    missed: false,
+    incoming: true,
+  },
+  {
+    id: 6,
+    img: faker.image.avatar(),
+    name: faker.person.firstName(),
+    online: false,
+    missed: true,
+    incoming: true,
+  },
+];
+const Members_List = [
+  {
+    id: 0,
+    img: faker.image.avatar(),
+    name: faker.person.fullName(),
+    online: true,
+  },
+  {
+    id: 1,
+    img: faker.image.avatar(),
+    name: faker.person.fullName(),
+    online: false,
+  },
+  {
+    id: 2,
+    img: faker.image.avatar(),
+    name: faker.person.fullName(),
+    online: false,
+  },
+  {
+    id: 3,
+    img: faker.image.avatar(),
+    name: faker.person.fullName(),
+    online: true,
+  },
+  {
+    id: 4,
+    img: faker.image.avatar(),
+    name: faker.person.fullName(),
+    online: true,
+  },
+  {
+    id: 5,
+    img: faker.image.avatar(),
+    name: faker.person.fullName(),
+    online: true,
+  },
+  {
+    id: 6,
+    img: faker.image.avatar(),
+    name: faker.person.fullName(),
+    online: true,
+  },
+];
 export {
   Profile_Menu,
   Nav_Setting,
@@ -382,4 +484,6 @@ export {
   Shared_Links,
   Shared_Docs,
   Keyboard_Shortcuts,
+  Call_Logs_List,
+  Members_List,
 };
