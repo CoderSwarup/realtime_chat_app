@@ -15,10 +15,43 @@ import { Gear } from "phosphor-react";
 import { faker } from "@faker-js/faker";
 import CustomizedSwitches from "../../components/CustomizeSwitch";
 import { useTheme } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
+
+const Get_MenuItem_Path = (index) => {
+  switch (index) {
+    case 0:
+      return "/profile";
+    case 1:
+      return "/settings";
+    case 2:
+      return "/auth/login";
+
+    default:
+      "/app";
+  }
+};
+
+const GetRedirectPath = (index) => {
+  switch (index) {
+    case 0:
+      return "/app";
+    case 1:
+      return "/group";
+    case 2:
+      return "/call";
+    case 3:
+      return "/settings";
+    default:
+      "/app";
+  }
+};
 
 export default function Sidebar() {
   // Main APP theme
   const theme = useTheme();
+
+  //Navigate Hook
+  const navigate = useNavigate();
 
   // Selected Button
   const [selectedBtn, setSelectedBtn] = useState(0);
@@ -86,6 +119,7 @@ export default function Sidebar() {
                 <IconButton
                   onClick={() => {
                     setSelectedBtn(button.index);
+                    navigate(GetRedirectPath(button.index));
                   }}
                   key={button.index}
                   sx={{
@@ -125,6 +159,7 @@ export default function Sidebar() {
               <IconButton
                 onClick={() => {
                   setSelectedBtn(3);
+                  navigate(GetRedirectPath(3));
                 }}
                 sx={{
                   width: "max-content",
@@ -174,6 +209,9 @@ export default function Sidebar() {
                 return (
                   <MenuItem key={i} onClick={handleClose}>
                     <Stack
+                      onClick={() => {
+                        navigate(Get_MenuItem_Path(i));
+                      }}
                       sx={{ width: 80 }}
                       direction={"row"}
                       alignItems={"center"}

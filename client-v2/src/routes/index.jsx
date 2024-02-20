@@ -7,6 +7,7 @@ import AuthLayout from "../layouts/Auth";
 // config
 import LoadingScreen from "../components/LoadingScreen";
 import { DEFAULT_PATH } from "../config";
+import Profile from "../pages/dashboard/Profile";
 
 const Loadable = (Component) => (props) => {
   return (
@@ -47,6 +48,7 @@ export default function Router() {
         { path: "settings", element: <Settings /> },
         { path: "group", element: <GroupsPage /> },
         { path: "call", element: <CallPage /> },
+        { path: "profile", element: <Profile /> },
         { path: "404", element: <Page404 /> },
         { path: "*", element: <Navigate to="/404" replace /> },
       ],
