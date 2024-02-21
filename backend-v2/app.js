@@ -6,6 +6,9 @@ import ExpressMongoSanitize from "express-mongo-sanitize";
 import bodyParser from "body-parser";
 import xss from "xss";
 import cors from "cors";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 
@@ -25,9 +28,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //helmet Midddleware
 app.use(helmet());
 // morgan middleWare
-app.use(morgan("dev"));
 if (process.env.NODE_ENV == "development") {
-  console.log("devMode");
+  app.use(morgan("dev"));
 }
 
 //Rate limit MiddleWare
