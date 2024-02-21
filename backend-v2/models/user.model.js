@@ -90,12 +90,58 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+userSchema.pre("save", async function (next) {
+  // Only run this function if password was actually modified
+  if (!this.isModified("password") || !this.password) return next();
+
+  // Hash the password with cost of 12
+  this.password = await bcrypt.hash(this.password, 12);
+
+  //! Shift it to next hook // this.passwordChangedAt = Date.now() - 1000;
+
+  next();
+});
+
+userSchema.pre("save", function (next) {
+  if (!this.isModified("password") || !this.password) return next();
+
+  this.passwordChangedAt = new Date.now() - 1000;
+  next();
+});
+
 // Is Password Correct
 userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+// Password Reset Token Generetor
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  this.passwordResetExpires = new Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimeStamp) {
+  if (this.passwordChangedAt) {
+    const changedTimeStamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+    return JWTTimeStamp < changedTimeStamp;
+  }
+
+  // FALSE MEANS NOT CHANGED
+  return false;
 };
 
 const User = new mongoose.model("User", userSchema);

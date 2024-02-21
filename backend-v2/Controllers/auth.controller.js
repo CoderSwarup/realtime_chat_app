@@ -3,6 +3,7 @@ import filterObj from "../utils/FilterObject.js";
 import catchAsync from "../utils/catchAsync.js";
 import dotenv from "dotenv";
 import otpGenerator from "otp-generator";
+import crypto from "crypto";
 dotenv.config();
 
 // Return Sign Token
@@ -168,5 +169,90 @@ export const LoginController = catchAsync(async (req, res, next) => {
     message: "Logged in successfully!",
     token,
     user_id: user._id,
+  });
+});
+
+// Forgot Password Controller
+export const forgotPassword = catchAsync(async (req, res, next) => {
+  if (!req.body.email) {
+    return res.status(400).json({
+      status: "error",
+      message: "Email is Required",
+    });
+  }
+  // 1) Get user based on POSTed email
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return res.status(404).json({
+      status: "error",
+      message: "There is no user with email address.",
+    });
+  }
+
+  // 2) Generate the random reset token
+  const resetToken = user.createPasswordResetToken();
+  await user.save({ validateBeforeSave: false });
+
+  // 3) Send it to user's email
+  try {
+    const resetURL = `http://localhost:3000/auth/new-password?token=${resetToken}`;
+    // TODO => Send Email with this Reset URL to user's email address
+
+    console.log(resetURL);
+
+    res.status(200).json({
+      status: "success",
+      message: "Token sent to email!",
+    });
+  } catch (err) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    return res.status(500).json({
+      message: "There was an error sending the email. Try again later!",
+    });
+  }
+});
+
+// Reset Password
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  if (!req.body.password || !req.body.passwordConfirm) {
+    return res.status(400).json({
+      status: "error",
+      message: "Password Must Be Required",
+    });
+  }
+  // 1) Get user based on the token
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.body.token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  // 2) If token has not expired, and there is user, set the new password
+  if (!user) {
+    return res.status(400).json({
+      status: "error",
+      message: "Token is Invalid or Expired",
+    });
+  }
+  user.password = req.body.password;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  // 3) Update changedPasswordAt property for the user
+  // 4) Log the user in, send JWT
+  const token = signToken(user._id);
+
+  res.status(200).json({
+    status: "success",
+    message: "Password Reseted Successfully",
+    token,
   });
 });
