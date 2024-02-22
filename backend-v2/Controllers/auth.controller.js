@@ -4,6 +4,7 @@ import catchAsync from "../utils/catchAsync.js";
 import dotenv from "dotenv";
 import otpGenerator from "otp-generator";
 import crypto from "crypto";
+import { sendEmailService } from "../utils/Services/SendMailService.js";
 dotenv.config();
 
 // Return Sign Token
@@ -74,6 +75,20 @@ export const sendOTPController = catchAsync(async (req, res, next) => {
   console.log(new_otp);
 
   // TODO send mail
+  const emailSubject = "Your OTP for authentication";
+  const emailHtml = `<p>Your OTP is: ${new_otp}</p>`;
+  const emailAttachments = []; // No attachments in this case
+  const emailOptions = {
+    to: user.email,
+    subject: emailSubject,
+    html: emailHtml,
+    attachments: emailAttachments,
+  };
+
+  // Send email
+
+  await sendEmailService(emailOptions);
+  console.log("OTP email sent successfully!");
 
   res.status(200).json({
     status: "success",
@@ -173,7 +188,7 @@ export const LoginController = catchAsync(async (req, res, next) => {
 });
 
 // Forgot Password Controller
-export const forgotPassword = catchAsync(async (req, res, next) => {
+export const forgotPasswordController = catchAsync(async (req, res, next) => {
   if (!req.body.email) {
     return res.status(400).json({
       status: "error",
@@ -216,7 +231,7 @@ export const forgotPassword = catchAsync(async (req, res, next) => {
 });
 
 // Reset Password
-exports.resetPassword = catchAsync(async (req, res, next) => {
+export const resetPasswordController = catchAsync(async (req, res, next) => {
   if (!req.body.password || !req.body.passwordConfirm) {
     return res.status(400).json({
       status: "error",

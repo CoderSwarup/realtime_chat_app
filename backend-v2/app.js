@@ -7,6 +7,8 @@ import bodyParser from "body-parser";
 import xss from "xss";
 import cors from "cors";
 import dotenv from "dotenv";
+import AuthRouter from "./routes/auth.route.js";
+import UserRouter from "./routes/user.route.js";
 
 dotenv.config();
 
@@ -39,7 +41,7 @@ const limiter = rateLimit({
   message: "Too many Requests! Please try again after an hour",
 });
 
-app.use("/", limiter);
+app.use("/api", limiter);
 
 //Express urlEncoded MiddleWare
 app.use(express.urlencoded({ extended: true }));
@@ -50,7 +52,12 @@ app.use(ExpressMongoSanitize());
 // xss Middleware Use To Prevent XSS attacks Cross-site scripting
 // app.use(xss());
 
+// All Routes
 app.get("/", (req, res) => {
   res.send("Hello Server is start");
 });
+
+app.use("/api/v1/auth", AuthRouter);
+app.use("/api/v1/user", UserRouter);
+
 export default app;
