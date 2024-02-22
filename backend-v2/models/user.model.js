@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-
+import crypto from "crypto";
 const userSchema = new mongoose.Schema(
   {
     firstName: {
@@ -85,17 +85,18 @@ userSchema.pre("save", async function (next) {
   // Hash the otp with cost of 12
   this.otp = await bcrypt.hash(this.otp.toString(), 12);
 
-  console.log(this.otp.toString(), "FROM PRE SAVE HOOK");
+  // console.log(this.otp.toString(), "FROM PRE SAVE HOOK");
 
   next();
 });
 
 userSchema.pre("save", async function (next) {
   // Only run this function if password was actually modified
-  if (!this.isModified("password") || !this.password) return next();
 
-  // Hash the password with cost of 12
-  this.password = await bcrypt.hash(this.password, 12);
+  if (this.isModified("password")) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+  next();
 
   //! Shift it to next hook // this.passwordChangedAt = Date.now() - 1000;
 
@@ -105,9 +106,14 @@ userSchema.pre("save", async function (next) {
 userSchema.pre("save", function (next) {
   if (!this.isModified("password") || !this.password) return next();
 
-  this.passwordChangedAt = new Date.now() - 1000;
+  this.passwordChangedAt = Date.now() - 1000;
   next();
 });
+
+//Is OTP CORRECT
+userSchema.methods.correctOTP = async function (candidateOTP, userOTP) {
+  return await bcrypt.compare(candidateOTP, userOTP);
+};
 
 // Is Password Correct
 userSchema.methods.correctPassword = async function (
@@ -126,7 +132,7 @@ userSchema.methods.createPasswordResetToken = function () {
     .update(resetToken)
     .digest("hex");
 
-  this.passwordResetExpires = new Date.now() + 10 * 60 * 1000;
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
   return resetToken;
 };

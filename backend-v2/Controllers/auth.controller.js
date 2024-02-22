@@ -5,6 +5,9 @@ import dotenv from "dotenv";
 import otpGenerator from "otp-generator";
 import crypto from "crypto";
 import { sendEmailService } from "../utils/Services/SendMailService.js";
+import OTP_HTML from "../Templates/Otp_HTML.js";
+import jwt from "jsonwebtoken";
+
 dotenv.config();
 
 // Return Sign Token
@@ -34,19 +37,15 @@ export const RegisterController = catchAsync(async (req, res, next) => {
     });
   } else if (existing_user) {
     // if not verified than update prev one
-
-    await User.findByIdAndUpdate({ email: email }, filteredBody, {
-      new: true,
-      validateModifiedOnly: true,
-    });
-
+    // await User.findByIdAndUpdate(existing_user._id, filteredBody, {
+    //   new: true,
+    // });
     // generate an otp and send to email
     req.userId = existing_user._id;
     next();
   } else {
     // if user is not created before than create a new one
     const new_user = await User.create(filteredBody);
-
     // generate an otp and send to email
     req.userId = new_user._id;
     next();
@@ -62,7 +61,7 @@ export const sendOTPController = catchAsync(async (req, res, next) => {
     lowerCaseAlphabets: false,
   });
 
-  const otp_expiry_time = new Date.now() + 10 * 60 * 1000; // 10 Mins after otp is sent
+  const otp_expiry_time = Date.now() + 10 * 60 * 1000; // 10 Mins after otp is sent
 
   const user = await User.findByIdAndUpdate(userId, {
     otp_expiry_time: otp_expiry_time,
@@ -72,11 +71,11 @@ export const sendOTPController = catchAsync(async (req, res, next) => {
 
   await user.save({ new: true, validateModifiedOnly: true });
 
-  console.log(new_otp);
+  // console.log(new_otp);
 
   // TODO send mail
   const emailSubject = "Your OTP for authentication";
-  const emailHtml = `<p>Your OTP is: ${new_otp}</p>`;
+  const emailHtml = OTP_HTML(user.firstName, new_otp);
   const emailAttachments = []; // No attachments in this case
   const emailOptions = {
     to: user.email,
@@ -88,7 +87,7 @@ export const sendOTPController = catchAsync(async (req, res, next) => {
   // Send email
 
   await sendEmailService(emailOptions);
-  console.log("OTP email sent successfully!");
+  // console.log("OTP email sent successfully!");
 
   res.status(200).json({
     status: "success",
@@ -99,6 +98,10 @@ export const sendOTPController = catchAsync(async (req, res, next) => {
 export const verifyOTP = catchAsync(async (req, res, next) => {
   // verify otp and update user accordingly
   const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    throw new Error("All fields Are Required");
+  }
   const user = await User.findOne({
     email,
     otp_expiry_time: { $gt: Date.now() },
@@ -213,7 +216,7 @@ export const forgotPasswordController = catchAsync(async (req, res, next) => {
     const resetURL = `http://localhost:3000/auth/new-password?token=${resetToken}`;
     // TODO => Send Email with this Reset URL to user's email address
 
-    console.log(resetURL);
+    console.log(resetToken);
 
     res.status(200).json({
       status: "success",
@@ -236,6 +239,13 @@ export const resetPasswordController = catchAsync(async (req, res, next) => {
     return res.status(400).json({
       status: "error",
       message: "Password Must Be Required",
+    });
+  }
+
+  if (req.body.password !== req.body.passwordConfirm) {
+    return res.status(400).json({
+      status: "error",
+      message: "Password Not Match",
     });
   }
   // 1) Get user based on the token
