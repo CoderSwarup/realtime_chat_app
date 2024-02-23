@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { dispatch } from "../store";
+// import { dispatch } from "../store";
 
 const initialState = {
   sidebar: {
@@ -30,13 +30,13 @@ export default AppSlice.reducer;
 
 //Toggle Reducer
 export const ToggleSideBar = () => {
-  return async () => {
+  return async (dispatch, getState) => {
     dispatch(AppSlice.actions.toggleSideBar());
   };
 };
 
 export const UpdateSidebarType = (type) => {
-  return async () => {
+  return async (dispatch, getState) => {
     dispatch(AppSlice.actions.updateSideBarType({ type }));
   };
 };

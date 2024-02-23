@@ -165,7 +165,7 @@ export const LoginController = catchAsync(async (req, res, next) => {
   if (!user || !user.password) {
     res.status(400).json({
       status: "error",
-      message: "Incorrect password",
+      message: "Incorrect Email Or password",
     });
 
     return;
