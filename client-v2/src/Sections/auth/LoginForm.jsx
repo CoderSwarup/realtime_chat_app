@@ -31,8 +31,10 @@ export default function LoginForm() {
   });
 
   const defaultValues = {
-    email: "talklive@gmail.com",
-    password: "talklive123",
+    // email: "talklive@gmail.com",
+    // password: "talklive123",
+    email: "",
+    password: "",
   };
 
   const methods = useForm({

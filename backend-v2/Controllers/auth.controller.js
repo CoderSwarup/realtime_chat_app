@@ -7,6 +7,7 @@ import crypto from "crypto";
 import { sendEmailService } from "../utils/Services/SendMailService.js";
 import OTP_HTML from "../Templates/Otp_HTML.js";
 import jwt from "jsonwebtoken";
+import FORGOT_PASSWORD from "../Templates/FORGOT_PASSWORD.js";
 
 dotenv.config();
 
@@ -213,10 +214,23 @@ export const forgotPasswordController = catchAsync(async (req, res, next) => {
 
   // 3) Send it to user's email
   try {
-    const resetURL = `http://localhost:3000/auth/new-password?token=${resetToken}`;
+    const resetURL = `http://localhost:5173/auth/new-password?token=${resetToken}`;
     // TODO => Send Email with this Reset URL to user's email address
 
-    console.log(resetToken);
+    // console.log(resetToken);
+    const emailSubject = "Reset Password";
+    const emailHtml = FORGOT_PASSWORD(user.firstName, resetURL);
+    const emailAttachments = []; // No attachments in this case
+    const emailOptions = {
+      to: user.email,
+      subject: emailSubject,
+      html: emailHtml,
+      attachments: emailAttachments,
+    };
+
+    // Send email
+
+    await sendEmailService(emailOptions);
 
     res.status(200).json({
       status: "success",

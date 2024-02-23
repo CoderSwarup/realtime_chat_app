@@ -49,3 +49,51 @@ export function LoginUser(data) {
       });
   };
 }
+
+//Logout
+export function LogOutUser(data) {
+  return async (dispatch, getState) => {
+    dispatch(AuthSlice.actions.signout());
+  };
+}
+
+//Forgot Password
+export function ForgoutUserPassword(data) {
+  return async (dispatch, getState) => {
+    await AxiosInstance.post("/auth/forgot-password", data, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+}
+
+//Set New Password
+
+export function NewPassword(data) {
+  return async (dispatch, getState) => {
+    await AxiosInstance.post("/auth/reset-password", data, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        // console.log(res);
+        dispatch(
+          AuthSlice.actions.login({
+            isLoggedIn: true,
+            token: res.data.token,
+          })
+        );
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+}

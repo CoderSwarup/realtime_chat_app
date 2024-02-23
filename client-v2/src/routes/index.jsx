@@ -21,12 +21,15 @@ const GeneralApp = Loadable(
   lazy(() => import("../pages/dashboard/GeneralApp"))
 );
 const Settings = Loadable(lazy(() => import("../pages/dashboard/Settings")));
-
-const Login = Loadable(lazy(() => import("../pages/Auth/Login")));
-
 const GroupsPage = Loadable(lazy(() => import("../pages/dashboard/Groups")));
-
 const CallPage = Loadable(lazy(() => import("../pages/dashboard/CallPage")));
+
+// Auth
+const Login = Loadable(lazy(() => import("../pages/Auth/Login")));
+const ForgotPassword = Loadable(
+  lazy(() => import("../pages/Auth/ForgotPassword"))
+);
+const NewPassword = Loadable(lazy(() => import("../pages/Auth/NewPassword")));
 
 const Page404 = Loadable(lazy(() => import("../pages/Page404")));
 export default function Router() {
@@ -37,6 +40,8 @@ export default function Router() {
       children: [
         { path: "login", element: <Login /> },
         { path: "register", element: <Login /> },
+        { path: "forgot-password", element: <ForgotPassword /> },
+        { path: "new-password", element: <NewPassword /> },
       ],
     },
     {

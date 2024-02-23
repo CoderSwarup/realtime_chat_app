@@ -16,6 +16,8 @@ import { faker } from "@faker-js/faker";
 import CustomizedSwitches from "../../components/CustomizeSwitch";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { LogOutUser } from "../../Redux/Slices/AuthSlice";
 
 const Get_MenuItem_Path = (index) => {
   switch (index) {
@@ -47,6 +49,7 @@ const GetRedirectPath = (index) => {
 };
 
 export default function Sidebar() {
+  const dispatch = useDispatch();
   // Main APP theme
   const theme = useTheme();
 
@@ -210,7 +213,11 @@ export default function Sidebar() {
                   <MenuItem key={i} onClick={handleClose}>
                     <Stack
                       onClick={() => {
-                        navigate(Get_MenuItem_Path(i));
+                        if (i === 2) {
+                          dispatch(LogOutUser());
+                        } else {
+                          navigate(Get_MenuItem_Path(i));
+                        }
                       }}
                       sx={{ width: 80 }}
                       direction={"row"}
