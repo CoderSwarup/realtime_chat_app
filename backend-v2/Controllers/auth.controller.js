@@ -88,6 +88,8 @@ export const sendOTPController = catchAsync(async (req, res, next) => {
   // Send email
 
   await sendEmailService(emailOptions);
+
+  // console.log(new_otp);
   // console.log("OTP email sent successfully!");
 
   res.status(200).json({

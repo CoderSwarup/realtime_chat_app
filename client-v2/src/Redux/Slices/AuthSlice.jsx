@@ -5,11 +5,17 @@ const initialState = {
   isLoggedIn: false,
   token: "",
   isLoading: false,
+  email: "",
+  error: false,
 };
 const AuthSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
+    updateLoading(state, action) {
+      state.error = action.payload.error;
+      state.isLoading = action.payload.isLoading;
+    },
     login(state, action) {
       state.isLoggedIn = action.payload.isLoggedIn;
       state.token = action.payload.token;
@@ -17,6 +23,9 @@ const AuthSlice = createSlice({
     signout(state, action) {
       state.isLoggedIn = false;
       state.token = "";
+    },
+    updateRegisterEmail(state, actions) {
+      state.email = actions.payload.email;
     },
   },
 });
@@ -85,6 +94,75 @@ export function NewPassword(data) {
     })
       .then((res) => {
         // console.log(res);
+        dispatch(
+          AuthSlice.actions.login({
+            isLoggedIn: true,
+            token: res.data.token,
+          })
+        );
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+}
+
+//Register User
+export function RegisterUser(data) {
+  return async (dispatch, getState) => {
+    dispatch(
+      AuthSlice.actions.updateLoading({ isLoading: true, error: false })
+    );
+    await AxiosInstance.post(
+      "/auth/register",
+      {
+        ...data,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((res) => {
+        console.log(res);
+        dispatch(AuthSlice.actions.updateRegisterEmail({ email: data.email }));
+        dispatch(
+          AuthSlice.actions.updateLoading({ isLoading: false, error: false })
+        );
+        // window.location.href = "/auth/verify";
+      })
+      .catch((err) => {
+        // console.log(err);
+        dispatch(
+          AuthSlice.actions.updateLoading({ isLoading: false, error: true })
+        );
+      })
+      .finally(() => {
+        if (!getState().auth.error) {
+          window.location.href = "/auth/verify";
+        }
+        // console.log(getState().auth.error);
+      });
+  };
+}
+
+// verify Email OTP
+export function VerifyEmailOTP(data) {
+  return async (dispatch, getState) => {
+    await AxiosInstance.post(
+      "/auth/verify",
+      {
+        ...data,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((res) => {
+        console.log(res);
         dispatch(
           AuthSlice.actions.login({
             isLoggedIn: true,

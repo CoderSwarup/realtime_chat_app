@@ -30,6 +30,8 @@ const ForgotPassword = Loadable(
   lazy(() => import("../pages/Auth/ForgotPassword"))
 );
 const NewPassword = Loadable(lazy(() => import("../pages/Auth/NewPassword")));
+const RegisterPage = Loadable(lazy(() => import("../pages/Auth/Register")));
+const VerifyPage = Loadable(lazy(() => import("../pages/Auth/VerifyOTP")));
 
 const Page404 = Loadable(lazy(() => import("../pages/Page404")));
 export default function Router() {
@@ -39,9 +41,10 @@ export default function Router() {
       element: <AuthLayout />,
       children: [
         { path: "login", element: <Login /> },
-        { path: "register", element: <Login /> },
+        { path: "register", element: <RegisterPage /> },
         { path: "forgot-password", element: <ForgotPassword /> },
         { path: "new-password", element: <NewPassword /> },
+        { path: "verify", element: <VerifyPage /> },
       ],
     },
     {
