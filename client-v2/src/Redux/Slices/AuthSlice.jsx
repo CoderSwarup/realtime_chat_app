@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import AxiosInstance from "../../utils/Axios";
+import { ShowSnackbar } from "./AppSlice";
 
 const initialState = {
   isLoggedIn: false,
@@ -52,9 +53,11 @@ export function LoginUser(data) {
             token: res.data.token,
           })
         );
+        dispatch(ShowSnackbar("success", res.data.message));
       })
       .catch((err) => {
-        console.log(err);
+        // console.log(err);
+        dispatch(ShowSnackbar("error", err.response.data.message));
       });
   };
 }
@@ -63,6 +66,8 @@ export function LoginUser(data) {
 export function LogOutUser(data) {
   return async (dispatch, getState) => {
     dispatch(AuthSlice.actions.signout());
+
+    dispatch(ShowSnackbar("success", "Logout Successfully"));
   };
 }
 
@@ -75,10 +80,12 @@ export function ForgoutUserPassword(data) {
       },
     })
       .then((res) => {
-        console.log(res);
+        // console.log(res);
+        dispatch(ShowSnackbar("success", res.data.message));
       })
       .catch((err) => {
-        console.log(err);
+        // console.log(err);
+        dispatch(ShowSnackbar("error", err.response.data?.message));
       });
   };
 }
@@ -100,9 +107,11 @@ export function NewPassword(data) {
             token: res.data.token,
           })
         );
+        dispatch(ShowSnackbar("success", res.data.message));
       })
       .catch((err) => {
-        console.log(err);
+        // console.log(err);
+        dispatch(ShowSnackbar("error", err.response.data?.message));
       });
   };
 }
@@ -125,11 +134,12 @@ export function RegisterUser(data) {
       }
     )
       .then((res) => {
-        console.log(res);
+        // console.log(res);
         dispatch(AuthSlice.actions.updateRegisterEmail({ email: data.email }));
         dispatch(
           AuthSlice.actions.updateLoading({ isLoading: false, error: false })
         );
+        dispatch(ShowSnackbar("success", res.data.message));
         // window.location.href = "/auth/verify";
       })
       .catch((err) => {
@@ -137,6 +147,7 @@ export function RegisterUser(data) {
         dispatch(
           AuthSlice.actions.updateLoading({ isLoading: false, error: true })
         );
+        dispatch(ShowSnackbar("error", err.response.data?.message));
       })
       .finally(() => {
         if (!getState().auth.error) {
@@ -162,16 +173,18 @@ export function VerifyEmailOTP(data) {
       }
     )
       .then((res) => {
-        console.log(res);
+        // console.log(res);
         dispatch(
           AuthSlice.actions.login({
             isLoggedIn: true,
             token: res.data.token,
           })
         );
+        dispatch(ShowSnackbar("success", res.data.message));
       })
       .catch((err) => {
-        console.log(err);
+        // console.log(err);
+        dispatch(ShowSnackbar("error", err.response.data?.message));
       });
   };
 }

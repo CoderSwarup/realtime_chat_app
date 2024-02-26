@@ -19,3 +19,25 @@ export const updateMeController = catchAsync(async (req, res, next) => {
     message: "User Updated successfully",
   });
 });
+
+// get all users
+export const GetUsers = async (req, res) => {
+  const allUsers = await User.find({
+    verified: true,
+  }).select("firstName lastName _id");
+
+  const this_user = req.user;
+
+  const RemainingUsers = allUsers.filter(
+    (user) =>
+      !this_user.friends.includes(
+        user._id && user._id.toString() !== this_user._id.toString()
+      )
+  );
+
+  res.status(200).json({
+    status: "success",
+    data: RemainingUsers,
+    message: "UsersFound Successfully",
+  });
+};
