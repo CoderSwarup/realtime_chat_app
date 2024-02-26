@@ -53,6 +53,7 @@ export function LoginUser(data) {
             token: res.data.token,
           })
         );
+        window.localStorage.setItem("user_id", res.data.user_id);
         dispatch(ShowSnackbar("success", res.data.message));
       })
       .catch((err) => {
@@ -66,7 +67,7 @@ export function LoginUser(data) {
 export function LogOutUser(data) {
   return async (dispatch, getState) => {
     dispatch(AuthSlice.actions.signout());
-
+    window.localStorage.removeItem("user_id");
     dispatch(ShowSnackbar("success", "Logout Successfully"));
   };
 }
@@ -180,6 +181,7 @@ export function VerifyEmailOTP(data) {
             token: res.data.token,
           })
         );
+        window.localStorage.setItem("user_id", res.data.user_id);
         dispatch(ShowSnackbar("success", res.data.message));
       })
       .catch((err) => {

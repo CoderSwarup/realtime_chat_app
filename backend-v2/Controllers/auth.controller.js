@@ -128,6 +128,7 @@ export const verifyOTP = catchAsync(async (req, res, next) => {
     res.status(400).json({
       status: "error",
       message: "OTP is incorrect",
+      user_id: user._id,
     });
 
     return;

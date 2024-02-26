@@ -8,9 +8,14 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { ArchiveBox, CircleDashed, MagnifyingGlass } from "phosphor-react";
+import {
+  ArchiveBox,
+  CircleDashed,
+  MagnifyingGlass,
+  Users,
+} from "phosphor-react";
 import { styled, alpha } from "@mui/material/styles";
-import React from "react";
+import React, { useState } from "react";
 import { Faker } from "@faker-js/faker";
 import { ChatList } from "../../data";
 import { SimpleBarStyle } from "../../components/Scrollbar";
@@ -20,6 +25,7 @@ import Search, {
   StyledInputBase,
 } from "../../components/Search";
 import ChatElement from "../../components/ChatElement";
+import Friends from "../../Sections/main/Friends";
 // Chat Element
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -52,86 +58,110 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 }));
 
 export default function Chats() {
+  const [openDialog, setOpenDialog] = useState(false);
   const theme = useTheme();
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
   return (
-    <Box
-      sx={{
-        position: "relative",
-        width: 320,
-        background:
-          theme.palette.mode == "light"
-            ? "#F8FAFE"
-            : theme.palette.background.paper,
-        boxShadow: "0px 0px 2px rgba(0,0,0,0.25)",
-      }}
-    >
-      <Stack p={3} sx={{ height: "100vh" }} spacing={2}>
-        {/* Top Heading */}
-        <Stack
-          sx={{ justifyContent: "space-between", alignItems: "center" }}
-          direction="row"
-        >
-          <Typography variant="h5">Chats</Typography>
-          <IconButton>
-            <CircleDashed />
-          </IconButton>
-        </Stack>
-
-        {/* Search Component */}
-        <Stack direction="row" sx={{ width: "100%" }}>
-          <Search>
-            <SearchIconWrapper>
-              <MagnifyingGlass color="#709CE6" />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search"
-              inputProps={{ "aria-label": "search" }}
-            ></StyledInputBase>
-          </Search>
-        </Stack>
-
-        <Stack spacing={1}>
-          {/* Archive */}
-          <Stack direction="row" alignItems="center" spacing={1.5}>
-            <ArchiveBox size={24}></ArchiveBox>
-            <Button>Archive</Button>
+    <>
+      <Box
+        sx={{
+          position: "relative",
+          width: 320,
+          background:
+            theme.palette.mode == "light"
+              ? "#F8FAFE"
+              : theme.palette.background.paper,
+          boxShadow: "0px 0px 2px rgba(0,0,0,0.25)",
+        }}
+      >
+        <Stack p={3} sx={{ height: "100vh" }} spacing={2}>
+          {/* Top Heading */}
+          <Stack
+            sx={{ justifyContent: "space-between", alignItems: "center" }}
+            direction="row"
+          >
+            <Typography variant="h5">Chats</Typography>
+            <Stack direction={"row"} spacing={1} alignItems={"center"}>
+              <IconButton
+                onClick={() => {
+                  handleOpenDialog();
+                }}
+              >
+                <Users />
+              </IconButton>
+              <IconButton>
+                <CircleDashed />
+              </IconButton>
+            </Stack>
           </Stack>
 
-          {/* Devider */}
-          <Divider></Divider>
-        </Stack>
-
-        {/* Chat Element */}
-
-        <Stack
-          spacing={2}
-          className="hideScrollBar"
-          direction="column"
-          sx={{ flexGrow: 1, overflowY: "scroll", height: "100%" }}
-        >
-          {/* Pinned Chat */}
-          <Stack spacing={2.4}>
-            <Typography variant="subtitle2" sx={{ color: "#676767" }}>
-              Pinned
-            </Typography>
-
-            {ChatList.filter((e) => e.pinned).map((ele, i) => {
-              return <ChatElement key={i} {...ele} />;
-            })}
+          {/* Search Component */}
+          <Stack direction="row" sx={{ width: "100%" }}>
+            <Search>
+              <SearchIconWrapper>
+                <MagnifyingGlass color="#709CE6" />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="Search"
+                inputProps={{ "aria-label": "search" }}
+              ></StyledInputBase>
+            </Search>
           </Stack>
 
-          {/* all Chats */}
-          <Stack spacing={2.4}>
-            <Typography variant="subtitle2" sx={{ color: "#676767" }}>
-              All Chats
-            </Typography>
+          <Stack spacing={1}>
+            {/* Archive */}
+            <Stack direction="row" alignItems="center" spacing={1.5}>
+              <ArchiveBox size={24}></ArchiveBox>
+              <Button>Archive</Button>
+            </Stack>
 
-            {ChatList.filter((e) => !e.pinned).map((ele, i) => {
-              return <ChatElement key={i} {...ele} />;
-            })}
+            {/* Devider */}
+            <Divider></Divider>
+          </Stack>
+
+          {/* Chat Element */}
+
+          <Stack
+            spacing={2}
+            className="hideScrollBar"
+            direction="column"
+            sx={{ flexGrow: 1, overflowY: "scroll", height: "100%" }}
+          >
+            {/* Pinned Chat */}
+            <Stack spacing={2.4}>
+              <Typography variant="subtitle2" sx={{ color: "#676767" }}>
+                Pinned
+              </Typography>
+
+              {ChatList.filter((e) => e.pinned).map((ele, i) => {
+                return <ChatElement key={i} {...ele} />;
+              })}
+            </Stack>
+
+            {/* all Chats */}
+            <Stack spacing={2.4}>
+              <Typography variant="subtitle2" sx={{ color: "#676767" }}>
+                All Chats
+              </Typography>
+
+              {ChatList.filter((e) => !e.pinned).map((ele, i) => {
+                return <ChatElement key={i} {...ele} />;
+              })}
+            </Stack>
           </Stack>
         </Stack>
-      </Stack>
-    </Box>
+      </Box>
+
+      {openDialog && (
+        <Friends open={openDialog} handleclose={handleCloseDialog} />
+      )}
+    </>
   );
 }
