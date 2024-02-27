@@ -15,12 +15,6 @@ function App() {
   );
   return (
     <>
-      <ThemeProvider>
-        <ThemeSettings>
-          <Router></Router>
-        </ThemeSettings>
-      </ThemeProvider>
-
       {open && message ? (
         <Snackbar
           anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
@@ -45,6 +39,11 @@ function App() {
       ) : (
         <></>
       )}
+      <ThemeProvider>
+        <ThemeSettings>
+          <Router></Router>
+        </ThemeSettings>
+      </ThemeProvider>
     </>
   );
 }

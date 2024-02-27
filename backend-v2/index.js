@@ -40,11 +40,10 @@ io.on("connection", async (socket) => {
 
   //socket Event Listener +++++++
   socket.on("friend_request", async (data) => {
-    console.log(data.to);
+    // console.log(data.to);
 
     const user_to = await User.findById(data.to).select("socket_id");
     const from_user = await User.findById(data.from).select("socket_id");
-
     // create a Friend Request
     await FrientRequestModel.create({
       sender: data.from,
@@ -52,25 +51,30 @@ io.on("connection", async (socket) => {
     });
 
     // Emit event to the receiver's Socket ID
-    io.to(user_to?.socket_id).emit("new_friend_request", {
-      message: "New Friend Request Recieve",
+    io.to(user_to.socket_id).emit("new_friend_request", {
+      message: "New Friend Request Received",
     });
 
-    // emit Event To the Sender's Socket ID
-    io.to(from_user?.socket_id).emit("friend_request_send", {
-      message: "Friend Request Send Successfully",
+    // Emit event to the sender's Socket ID
+
+    io.to(from_user.socket_id).emit("friend_request_send", {
+      message: "Friend Request Sent Successfully",
     });
   });
 
   // accespt Request EventLsitener
   socket.on("accept_request", async (data) => {
+    // console.log("Accept request");
+    if (!data.request_id) {
+      return;
+    }
     const request_doc = await FrientRequestModel.findById(data.request_id);
-
+    console.log(request_doc);
     const sender = await User.findById(request_doc.sender);
     const receiver = await User.findById(request_doc.recipient);
 
     // add the Users To Their Friend List
-    sender.friends.push(request_doc.receiver);
+    sender.friends.push(request_doc.recipient);
     receiver.friends.push(request_doc.sender);
 
     // save User Data
@@ -81,10 +85,10 @@ io.on("connection", async (socket) => {
     await FrientRequestModel.findByIdAndDelete(data.request_id);
 
     // emit event request accepted to both
-    io.to(sender?.socket_id).emit("request_accepted", {
+    io.to(sender.socket_id).emit("request_accepted", {
       message: "Friend Request Accepted",
     });
-    io.to(receiver?.socket_id).emit("request_accepted", {
+    io.to(receiver.socket_id).emit("request_accepted", {
       message: "Friend Request Accepted",
     });
   });

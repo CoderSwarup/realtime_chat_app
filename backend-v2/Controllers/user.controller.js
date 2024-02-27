@@ -25,15 +25,14 @@ export const updateMeController = catchAsync(async (req, res, next) => {
 export const GetUsers = async (req, res) => {
   const allUsers = await User.find({
     verified: true,
-  }).select("firstName lastName _id");
+  }).select("firstName lastName _id status");
 
   const this_user = req.user;
 
   const RemainingUsers = allUsers.filter(
     (user) =>
-      !this_user.friends.includes(
-        user._id && user._id.toString() !== this_user._id.toString()
-      )
+      !this_user.friends.includes(user._id) &&
+      user._id.toString() !== this_user._id.toString()
   );
 
   res.status(200).json({
@@ -47,7 +46,7 @@ export const GetUsers = async (req, res) => {
 export const getFriends = catchAsync(async (req, res, next) => {
   const this_user = await User.findById(req.user._id).populate(
     "friends",
-    "_id firstName lastName"
+    "_id firstName lastName status"
   );
   res.status(200).json({
     status: "success",
@@ -58,9 +57,9 @@ export const getFriends = catchAsync(async (req, res, next) => {
 
 //get Friend Request
 export const getRequests = catchAsync(async (req, res, next) => {
-  const requests = await FrientRequestModel.find({ recipient: req.user._id })
-    .populate("sender")
-    .select("_id firstName lastName");
+  const requests = await FrientRequestModel.find({
+    recipient: req.user._id,
+  }).populate("sender", "_id firstName lastName status");
 
   res.status(200).json({
     status: "success",

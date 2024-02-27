@@ -1,4 +1,13 @@
-import { Dialog, DialogContent, Stack, Tab, Tabs } from "@mui/material";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -6,6 +15,12 @@ import {
   FetchFriendsList,
   FetchUsersList,
 } from "../../Redux/Slices/AppSlice";
+import {
+  FriendElement,
+  FriendRequestElement,
+  UserComponent,
+} from "../../components/FriendsComponent";
+import { XCircle } from "phosphor-react";
 
 // All Users List
 const UserListComponent = () => {
@@ -19,7 +34,7 @@ const UserListComponent = () => {
   return (
     <>
       {users.map((user, i) => {
-        return <></>;
+        return <UserComponent key={i} {...user} />;
       })}
     </>
   );
@@ -36,7 +51,7 @@ const FriendsListComponent = () => {
   return (
     <>
       {friends.map((user, i) => {
-        return <></>;
+        return <FriendElement key={i} {...user} />;
       })}
     </>
   );
@@ -53,7 +68,7 @@ const FriendRequestComponent = () => {
   return (
     <>
       {friendRequestList.map((user, i) => {
-        return <></>;
+        return <FriendRequestElement key={i} id={user._id} {...user.sender} />;
       })}
     </>
   );
@@ -71,9 +86,21 @@ export default function Friends({ open, handleclose }) {
       open={open}
       handleClose={handleclose}
       keepMounted
-      sx={{ p: 4 }}
+      sx={{ p: 1 }}
     >
-      <Stack width={"100%"} padding={2}>
+      <DialogTitle>
+        <Stack
+          direction={"row"}
+          justifyContent={"space-between"}
+          alignItems={"center"}
+        >
+          <Typography variant="h4">Manage Contacts</Typography>
+          <IconButton onClick={handleclose}>
+            <XCircle />
+          </IconButton>
+        </Stack>
+      </DialogTitle>
+      <Stack width={"100%"} padding={1}>
         <Tabs value={value} onChange={HandleChangeTab} centered>
           <Tab label="Explore"></Tab>
           <Tab label="Friends"></Tab>
@@ -84,7 +111,7 @@ export default function Friends({ open, handleclose }) {
       {/* All Dialog Content */}
       <DialogContent>
         <Stack height={"100%"} width={"100%"}>
-          <Stack spacing={2.5}>
+          <Stack spacing={1}>
             {(() => {
               switch (value) {
                 case 0: //All users

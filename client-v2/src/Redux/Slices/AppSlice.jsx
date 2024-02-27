@@ -15,6 +15,8 @@ const initialState = {
   users: [],
   friends: [],
   friendRequestList: [],
+  chat_type: null, // individual , group
+  room_id: null,
 };
 
 const AppSlice = createSlice({
@@ -60,6 +62,12 @@ const AppSlice = createSlice({
     updateFriendRequest(state, action) {
       state.friendRequestList = action.payload.friendRequestList;
     },
+
+    // set chat type
+    selectConversation(state, action) {
+      state.chat_type = "individual";
+      state.room_id = action.payload.room_id;
+    },
   },
 });
 
@@ -84,7 +92,6 @@ export const UpdateSidebarType = (type) => {
 export const ShowSnackbar = (severity, message) => {
   return async function (dispatch, getState) {
     dispatch(AppSlice.actions.openSnackbar({ severity, message }));
-
     await setTimeout(() => {
       dispatch(AppSlice.actions.closeSnackbar());
     }, 5000);
@@ -166,5 +173,12 @@ export const FetchFriendRequestList = () => {
       .catch((err) => {
         console.log(err);
       });
+  };
+};
+
+// select new conversation
+export const SelectConversation = ({ room_id }) => {
+  return async (dispatch, getState) => {
+    dispatch(AppSlice.actions.selectConversation({ room_id }));
   };
 };

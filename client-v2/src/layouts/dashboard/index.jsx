@@ -22,38 +22,32 @@ const DashboardLayout = () => {
         }
       };
 
-      // window.reload();
+      // window.onload();
 
       if (!socket) {
         connectSocket(user_id);
-      } else {
-        // Socket Listeners
-        socket.on("friend_request_send", (data) => {
-          dispatch(
-            ShowSnackbar({ severity: "success", message: data.message })
-          );
-        });
-        socket.on("new_friend_request", (data) => {
-          dispatch(
-            ShowSnackbar({ severity: "success", message: data.message })
-          );
-        });
-
-        socket.on("accept_request", (data) => {
-          dispatch(
-            ShowSnackbar({ severity: "success", message: data.message })
-          );
-        });
-
-        // clear listeners
-        return () => {
-          socket.off("friend_request_send");
-          socket.off("new_friend_request");
-          socket.off("accept_request");
-        };
       }
+      // Socket Listeners
+      socket.on("friend_request_send", (data) => {
+        dispatch(ShowSnackbar("success", data.message));
+      });
+      socket.on("new_friend_request", (data) => {
+        dispatch(ShowSnackbar("success", data.message));
+      });
+
+      socket.on("request_accepted", (data) => {
+        dispatch(ShowSnackbar("success", data.message));
+      });
+
+      // clear listeners
+      return () => {
+        socket.off("friend_request_send");
+        socket.off("new_friend_request");
+        socket.off("accept_request");
+      };
     }
   }, [isLoggedIn, socket]);
+
   if (!isLoggedIn) {
     return <Navigate to={"/auth/login"} />;
   }

@@ -1,16 +1,16 @@
 import React, { Suspense, lazy } from "react";
 import Chats from "./Chats";
-import { Box, Stack, useTheme } from "@mui/material";
+import { Box, Stack, Typography, useTheme } from "@mui/material";
 import Conversation from "../../components/Conversation";
 import Contact from "../../components/Contact";
 import { useSelector } from "react-redux";
 import SharedMessage from "../../components/SharedMessage";
 import StarredMessags from "../../components/StarredMessags";
 const Cat = lazy(() => import("../../components/Cat"));
-
+import NoChat from "../../assets/Illustration/NoChat";
 const GeneralApp = () => {
   const theme = useTheme();
-  const { sidebar } = useSelector((state) => state.app);
+  const { sidebar, room_id, chat_type } = useSelector((state) => state.app);
   return (
     <Stack direction="row" sx={{ width: "100%", position: "relative" }}>
       <Chats />
@@ -26,7 +26,22 @@ const GeneralApp = () => {
               : theme.palette.background.default,
         }}
       >
-        <Conversation />
+        {room_id !== null && chat_type == "individual" ? (
+          <Conversation />
+        ) : (
+          <Stack
+            width={"100%"}
+            height={"100%"}
+            spacing={3}
+            alignItems={"center"}
+            justifyContent={"center"}
+          >
+            <NoChat />{" "}
+            <Typography variant="subtitle">
+              Select a Chat To Start A conversation{" "}
+            </Typography>
+          </Stack>
+        )}
       </Box>
 
       {/* Contact Info */}
