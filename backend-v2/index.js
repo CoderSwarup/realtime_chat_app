@@ -6,6 +6,7 @@ import DBConnect from "./Config/DBConnect.js";
 import { Server } from "socket.io";
 import User from "./models/user.model.js";
 import FrientRequestModel from "./models/friendrequest.model.js";
+import OneToOneMessage from "./models/OneToOneMessage.model.js";
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ io.on("connection", async (socket) => {
   }
 
   //socket Event Listener +++++++
+  //  +++++++++++++++++++ FRIEND REQUEST EVENTS +++++++++++++++
   socket.on("friend_request", async (data) => {
     // console.log(data.to);
 
@@ -92,6 +94,104 @@ io.on("connection", async (socket) => {
       message: "Friend Request Accepted",
     });
   });
+
+  //  +++++++++++++++++++ FRIEND REQUEST EVENTS END+++++++++++++++
+
+  // +++++++++++++ Conversation ENVENTS ++++++++++++++++++++++++
+  socket.on("get_direct_conersation", async ({ user_id }, callback) => {
+    const existing_conversations = await OneToOneMessage.find({
+      participants: { $all: [user_id] },
+    }).populate("participants", "firstName lastName avatar _id email status");
+
+    // console.log(exist_conersations);
+    callback(existing_conversations);
+  });
+
+  socket.on("start_conversation", async (data) => {
+    const { to, from } = data;
+
+    // Check The Conversation Between this Users
+    const existing_conversations = await OneToOneMessage.find({
+      participants: {
+        $size: 2,
+        $all: [to, from],
+      },
+    }).populate("participants", "firstName lastName avatar _id email status");
+
+    // console.log(existing_conversations, "Existing Conversation");
+
+    // if no existing conversation
+    if (!existing_conversations || existing_conversations.length == 0) {
+      let new_chat = await OneToOneMessage.create({
+        participants: [to, from],
+      });
+      // console.log("CREATE");
+
+      new_chat = await OneToOneMessage.findOne({ _id: new_chat._id }).populate(
+        "participants",
+        "firstName lastName avatar _id email status"
+      );
+
+      console.log(new_chat);
+
+      // emit start chat event on the frontend
+      socket.emit("start_chat", new_chat);
+    } else {
+      // start chat event emmiting with the existsing one
+      socket.emit("start_chat", existing_conversations[0]);
+    }
+  });
+
+  //
+  socket.on("get_messages", async (data, callback) => {
+    const { messages } = await OneToOneMessage.findById(
+      data.conversation_id
+    ).select("messages");
+
+    callback(messages);
+  });
+
+  // Handle the text and link Message
+  socket.on("text_message", async (data) => {
+    console.log("Text Message Recieve ", data);
+
+    // data conatain {to ,from, message , conversation_id , type}
+    const { to, from, message, conversation_id, type } = data;
+
+    // access both users
+    const user_to = await User.findById(to).select("socket_id");
+    const from_user = await User.findById(from).select("socket_id");
+
+    if (!user_to || !from_user) {
+      return;
+    }
+
+    const new_message = {
+      to: user_to._id,
+      from: from_user._id,
+      type,
+      text: message,
+      created_at: Date.now(),
+    };
+
+    // create new message
+    const chat = await OneToOneMessage.findById(conversation_id);
+    chat.messages.push(new_message);
+    await chat.save();
+
+    // emit event to the frontend user to
+    io.to(user_to.socket_id).emit("new_message", {
+      conversation_id,
+      message: new_message,
+    });
+    // emit event to the frontend user from
+    io.to(from_user.socket_id).emit("new_message", {
+      conversation_id,
+      message: new_message,
+    });
+  });
+
+  // +++++++++++++ Conversation ENVENTS END ++++++++++++++++++++++++
 
   socket.on("end", () => {
     console.log(socket.id + " has disconnected");

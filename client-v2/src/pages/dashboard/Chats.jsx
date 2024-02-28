@@ -15,7 +15,7 @@ import {
   Users,
 } from "phosphor-react";
 import { styled, alpha } from "@mui/material/styles";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Faker } from "@faker-js/faker";
 import { ChatList } from "../../data";
 import { SimpleBarStyle } from "../../components/Scrollbar";
@@ -26,6 +26,8 @@ import Search, {
 } from "../../components/Search";
 import ChatElement from "../../components/ChatElement";
 import Friends from "../../Sections/main/Friends";
+import { socket } from "../../Socket";
+import { useSelector } from "react-redux";
 // Chat Element
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -60,6 +62,10 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 export default function Chats() {
   const [openDialog, setOpenDialog] = useState(false);
   const theme = useTheme();
+  const user_id = window.localStorage.getItem("user_id");
+  const { conversations } = useSelector(
+    (state) => state.conversation.direct_chat
+  );
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
@@ -68,6 +74,12 @@ export default function Chats() {
   const handleOpenDialog = () => {
     setOpenDialog(true);
   };
+
+  useEffect(() => {
+    socket.emit("get_direct_conersation", { user_id }, (converstionsist) => {
+      console.log(converstionsist);
+    });
+  }, []);
   return (
     <>
       <Box
@@ -151,9 +163,11 @@ export default function Chats() {
                 All Chats
               </Typography>
 
-              {ChatList.filter((e) => !e.pinned).map((ele, i) => {
-                return <ChatElement key={i} {...ele} />;
-              })}
+              {conversations
+                .filter((e) => !e.pinned)
+                .map((ele, i) => {
+                  return <ChatElement key={i} {...ele} />;
+                })}
             </Stack>
           </Stack>
         </Stack>
