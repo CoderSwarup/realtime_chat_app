@@ -4,8 +4,9 @@ import { Navigate, Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import { useDispatch, useSelector } from "react-redux";
 import { connectSocket, socket } from "../../Socket";
-import { ShowSnackbar } from "../../Redux/Slices/AppSlice";
+import { SelectConversation, ShowSnackbar } from "../../Redux/Slices/AppSlice";
 import {
+  AddDirectMessage,
   addDirectConversation,
   updateDirectConversation,
 } from "../../Redux/Slices/ConversationSlice";
@@ -14,7 +15,7 @@ import {
 const DashboardLayout = () => {
   const dispatch = useDispatch();
   const { isLoggedIn } = useSelector((state) => state.auth);
-  const { conversations } = useSelector(
+  const { conversations, current_conversation } = useSelector(
     (state) => state.conversation.direct_chat
   );
 
@@ -51,9 +52,28 @@ const DashboardLayout = () => {
         dispatch(ShowSnackbar("success", data.message));
       });
 
+      //Event Lsitener for the new message
+      socket.on("new_message", (data) => {
+        console.log(data);
+        const message = data.message;
+        // console.log(current_conversation, data);
+        // check if msg we got is from currently selected conversation
+        if (current_conversation?.id === data.conversation_id) {
+          dispatch(
+            AddDirectMessage({
+              id: message._id,
+              type: "msg",
+              subtype: message.type,
+              message: message.text,
+              incoming: message.to === user_id,
+              outgoing: message.from === user_id,
+            })
+          );
+        }
+      });
+
       // event listener for start new chat
       socket.on("start_chat", (data) => {
-        console.log(data);
         const existing_conversation = conversations.find(
           (ele) => ele.id === data._id
         );
@@ -66,17 +86,17 @@ const DashboardLayout = () => {
         }
 
         // update the selected Chat
-        dispatch(setSelectedConversation({ room_id: data._id }));
+        dispatch(SelectConversation({ room_id: data._id }));
       });
-
-      return () => {
-        socket.off("friend_request_send");
-        socket.off("new_friend_request");
-        socket.off("accept_request");
-        socket.off("start_chat");
-      };
     }
     // clear listeners
+    return () => {
+      socket?.off("friend_request_send");
+      socket?.off("new_friend_request");
+      socket?.off("accept_request");
+      socket?.off("start_chat");
+      socket?.off("new_message");
+    };
   }, [isLoggedIn, socket]);
 
   if (!isLoggedIn) {

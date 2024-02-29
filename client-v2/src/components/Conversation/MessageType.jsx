@@ -170,7 +170,7 @@ export const LinkMsg = ({ ele, menu }) => {
               variant="body2"
               color={ele.incoming ? theme.palette.text : "#fff"}
             >
-              {ele.message}
+              <div dangerouslySetInnerHTML={{ __html: ele.message }}></div>
             </Typography>
           </Stack>
         </Stack>

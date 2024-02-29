@@ -8,6 +8,7 @@ import User from "./models/user.model.js";
 import FrientRequestModel from "./models/friendrequest.model.js";
 import OneToOneMessage from "./models/OneToOneMessage.model.js";
 
+import path from "path";
 dotenv.config();
 
 // DEFINE THE PORT
@@ -132,19 +133,19 @@ io.on("connection", async (socket) => {
         "firstName lastName avatar _id email status"
       );
 
-      console.log(new_chat);
-
+      console.log("new chat is :  ", new_chat);
       // emit start chat event on the frontend
       socket.emit("start_chat", new_chat);
     } else {
       // start chat event emmiting with the existsing one
       socket.emit("start_chat", existing_conversations[0]);
+      console.log("exiting chat :  ", existing_conversations[0]);
     }
   });
 
   //
   socket.on("get_messages", async (data, callback) => {
-    const { messages } = await OneToOneMessage.findById(
+    const messages = await OneToOneMessage.findById(
       data.conversation_id
     ).select("messages");
 
@@ -178,7 +179,7 @@ io.on("connection", async (socket) => {
     const chat = await OneToOneMessage.findById(conversation_id);
     chat.messages.push(new_message);
     await chat.save();
-
+    // console.log(user_to, from_user);
     // emit event to the frontend user to
     io.to(user_to.socket_id).emit("new_message", {
       conversation_id,
@@ -189,6 +190,20 @@ io.on("connection", async (socket) => {
       conversation_id,
       message: new_message,
     });
+  });
+
+  // Hanlde the Media Messages
+  socket.on("media_message", (data) => {
+    console.log("media message recieve");
+
+    // get the File Extension
+    const fileExtension = path.extname(data.file.name);
+
+    const GenerateFileName = `${Date.now()}_${Math.floor(
+      Math.random() * 100000
+    )}${fileExtension}`;
+
+    // Upload the File on cloudinary
   });
 
   // +++++++++++++ Conversation ENVENTS END ++++++++++++++++++++++++

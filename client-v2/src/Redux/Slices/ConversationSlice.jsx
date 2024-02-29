@@ -86,6 +86,30 @@ const ConversationSlice = createSlice({
         pinned: false,
       });
     },
+
+    // set current conversation
+    setCurrentConversation(state, action) {
+      state.direct_chat.current_conversation = action.payload;
+    },
+
+    // fetch current conversation messages reducer
+    fetchCurrentMessages(state, action) {
+      const messages = action.payload.messages;
+      const formatted_messages = messages.map((el) => ({
+        id: el._id,
+        type: "msg",
+        subtype: el.type,
+        message: el.text,
+        incoming: el.to === user_id,
+        outgoing: el.from === user_id,
+      }));
+      state.direct_chat.current_messages = formatted_messages;
+    },
+
+    // add new incoming message
+    addDirectMessage(state, action) {
+      state.direct_chat.current_messages.push(action.payload.message);
+    },
   },
 });
 
@@ -111,11 +135,36 @@ export const updateDirectConversation = ({ conversation }) => {
 
 // add direct conversation thunk
 export const addDirectConversation = ({ conversation }) => {
+  console.log(conversation);
   return async (dispatch, getState) => {
     dispatch(
       ConversationSlice.actions.adddirectConversationReducer({
         conversation,
       })
     );
+  };
+};
+
+// set urrent Conversation
+export const SetCurrentConversation = (current_conversation) => {
+  console.log(current_conversation);
+  return async (dispatch, getState) => {
+    dispatch(
+      ConversationSlice.actions.setCurrentConversation(current_conversation)
+    );
+  };
+};
+
+//fetch current messages  of a particular conversation
+export const FetchCurrentMessages = ({ messages }) => {
+  return async (dispatch, getState) => {
+    dispatch(ConversationSlice.actions.fetchCurrentMessages({ messages }));
+  };
+};
+
+// add the new Message that send
+export const AddDirectMessage = (message) => {
+  return async (dispatch, getState) => {
+    dispatch(ConversationSlice.actions.addDirectMessage({ message }));
   };
 };

@@ -22,6 +22,9 @@ import {
 import styled from "@emotion/styled";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
+import { useSelector } from "react-redux";
+import { useRef } from "react";
+import { socket } from "../../Socket";
 
 const StyledInput = styled(TextField)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -64,12 +67,53 @@ const Actions = [
   },
 ];
 
+function linkify(text) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.replace(
+    urlRegex,
+    (url) => `<a href="${url}" target="_blank">${url}</a>`
+  );
+}
+
+function containsUrl(text) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return urlRegex.test(text);
+}
+
 export default function Footer() {
   const theme = useTheme();
 
   const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
 
   const [openActions, setOpenActions] = useState(false);
+
+  const user_id = window.localStorage.getItem("user_id");
+
+  const { sideBar, room_id } = useSelector((state) => state.app);
+  const { current_conversation } = useSelector(
+    (state) => state.conversation.direct_chat
+  );
+
+  const [value, setValue] = useState("");
+  const inputRef = useRef(null);
+
+  function handleEmojiClick(emoji) {
+    const input = inputRef.current;
+
+    if (input) {
+      const selectionStart = input.selectionStart;
+      const selectionEnd = input.selectionEnd;
+
+      setValue(
+        value.substring(0, selectionStart) +
+          emoji +
+          value.substring(selectionEnd)
+      );
+
+      // Move the cursor to the end of the inserted emoji
+      input.selectionStart = input.selectionEnd = selectionStart + 1;
+    }
+  }
   return (
     <Box
       p={2}
@@ -96,13 +140,21 @@ export default function Footer() {
             <Picker
               theme={theme.palette.mode}
               data={data}
-              onEmojiSelect={console.log}
+              // onEmojiSelect={console.log}
+              onEmojiSelect={(emoji) => {
+                handleEmojiClick(emoji.native);
+              }}
             ></Picker>
           </Box>
 
           {/* Chat Input */}
           <StyledInput
             fullWidth
+            value={value}
+            inputRef={inputRef}
+            onChange={(event) => {
+              setValue(event.target.value);
+            }}
             placeholder="Write a Message......."
             variant="filled"
             InputProps={{
@@ -170,7 +222,19 @@ export default function Footer() {
               justifyContent: "center",
             }}
           >
-            <IconButton>
+            <IconButton
+              onClick={() => {
+                if (value === "") return;
+                socket.emit("text_message", {
+                  message: linkify(value),
+                  conversation_id: room_id,
+                  from: user_id,
+                  to: current_conversation.user_id,
+                  type: containsUrl(value) ? "Link" : "Text",
+                });
+                setValue("");
+              }}
+            >
               <PaperPlaneTilt color="#fff" />
             </IconButton>
           </Stack>
