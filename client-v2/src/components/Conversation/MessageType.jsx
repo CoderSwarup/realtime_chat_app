@@ -10,8 +10,9 @@ import {
   useTheme,
 } from "@mui/material";
 import { DotsThreeVertical, DownloadSimple, Image } from "phosphor-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Message_options } from "../../data";
+import fetchLinkPreview from "../../utils/LinkPreview";
 
 export const TextMsg = ({ ele, menu }) => {
   const theme = useTheme();
@@ -71,6 +72,7 @@ export const MediaMessage = ({ ele, menu }) => {
 
 export const ReplyMessage = ({ ele, menu }) => {
   const theme = useTheme();
+
   return (
     <Stack direction={"row"} justifyContent={ele.incoming ? "start" : "end"}>
       <Box
@@ -129,6 +131,26 @@ export const TimeLine = ({ ele }) => {
 
 export const LinkMsg = ({ ele, menu }) => {
   const theme = useTheme();
+  const [preview, setPreview] = useState({});
+  useEffect(() => {
+    const regex = /href="([^"]*)"/; // Regular expression to match href attribute
+    const match = ele.message.match(regex);
+    if (match) {
+      const href = match[1]; // Extracted href value
+      setPreview({
+        title: href,
+        image: "",
+        url: href,
+      });
+
+      // get all The Preview of the Link
+      // fetchLinkPreview(href).then((preview) => {
+      //   // console.log("Link Preview:", preview);
+      //   setPreview(preview);
+      // });
+    }
+  }, [ele]);
+
   return (
     <Stack direction={"row"} justifyContent={ele.incoming ? "start" : "end"}>
       <Box
@@ -150,22 +172,21 @@ export const LinkMsg = ({ ele, menu }) => {
             sx={{ background: theme.palette.background.paper, borderRadius: 1 }}
           >
             <img
-              src={ele.preview}
-              alt={ele.message}
-              style={{ maxHeight: 210, borderRadius: "10px" }}
+              src={preview?.image}
+              alt={preview?.title}
+              style={{ maxWidth: 300, maxHeight: 210, borderRadius: "10px" }}
             />
             <Stack spacing={2}>
-              <Typography variant="body2">Creating Chat app</Typography>
+              {/* <Typography variant="body2">Creating Chat app</Typography> */}
               <Typography
                 variant="subtitle2"
                 sx={{ color: theme.palette.primary.main }}
                 component={Link}
-                to="//https://www.youtube.com"
+                to={preview?.url}
               >
-                www.youtube.com
+                {preview?.title}
               </Typography>
             </Stack>
-
             <Typography
               variant="body2"
               color={ele.incoming ? theme.palette.text : "#fff"}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Box,
   Fab,
@@ -23,8 +23,9 @@ import styled from "@emotion/styled";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { useSelector } from "react-redux";
-import { useRef } from "react";
 import { socket } from "../../Socket";
+import * as path from "path"; // Import path module for file extension extraction
+import FileSelectionDialog from "../../Sections/main/FileDialog";
 
 const StyledInput = styled(TextField)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -34,36 +35,42 @@ const StyledInput = styled(TextField)(({ theme }) => ({
 }));
 
 // Actions
+
 const Actions = [
   {
     color: "#4da5fe",
     icon: <Image size={24} />,
     y: 102,
     title: "Photo/Video",
+    type: "photo_video", // Add type for file selection mode
   },
   {
     color: "#4da5fe",
     icon: <Sticker size={24} />,
     y: 172,
     title: "Stickers",
+    type: "sticker", // Add type for file selection mode
   },
-  {
-    color: "#4da5fe",
-    icon: <Camera size={24} />,
-    y: 242,
-    title: "Image",
-  },
+  // {
+  //   color: "#4da5fe",
+  //   icon: <Camera size={24} />,
+  //   y: 242,
+  //   title: "Image",
+  //   type: "image", // Add type for file selection mode
+  // },
   {
     color: "#4da5fe",
     icon: <File size={24} />,
-    y: 312,
+    y: 242,
     title: "Document",
+    type: "document", // Add type for file selection mode
   },
   {
     color: "#4da5fe",
     icon: <User size={24} />,
-    y: 382,
+    y: 312,
     title: "Contact",
+    type: "contact", // Add type for file selection mode
   },
 ];
 
@@ -84,7 +91,6 @@ export default function Footer() {
   const theme = useTheme();
 
   const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
-
   const [openActions, setOpenActions] = useState(false);
 
   const user_id = window.localStorage.getItem("user_id");
@@ -114,6 +120,42 @@ export default function Footer() {
       input.selectionStart = input.selectionEnd = selectionStart + 1;
     }
   }
+
+  function handleActionClick(type) {
+    setFileSelectionMode(type); // Set file selection mode based on action type
+  }
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [fileSelectionMode, setFileSelectionMode] = useState(null); // State for file selection mode
+
+  // Function to handle opening the dialog
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  // Function to handle closing the dialog
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    clearSelectedFile();
+  };
+
+  // Function to handle file selection
+  const handleFileSelection = (file) => {
+    setSelectedFile(file);
+    setOpenDialog(false); // Close the dialog after selecting the file
+  };
+
+  // Function to handle submitting the form with the selected file
+  const handleSubmit = () => {
+    // Here you can perform any action with the selected file
+    console.log("Selected file:", selectedFile);
+  };
+
+  function clearSelectedFile() {
+    setSelectedFile(null);
+    setFileSelectionMode(null);
+  }
+
   return (
     <Box
       p={2}
@@ -140,7 +182,6 @@ export default function Footer() {
             <Picker
               theme={theme.palette.mode}
               data={data}
-              // onEmojiSelect={console.log}
               onEmojiSelect={(emoji) => {
                 handleEmojiClick(emoji.native);
               }}
@@ -148,6 +189,7 @@ export default function Footer() {
           </Box>
 
           {/* Chat Input */}
+
           <StyledInput
             fullWidth
             value={value}
@@ -179,6 +221,7 @@ export default function Footer() {
                             size="small"
                             color="secondary"
                             aria-label="add"
+                            onClick={() => handleActionClick(ele.type)} // Handle click event
                           >
                             {ele.icon}
                           </Fab>
@@ -204,6 +247,14 @@ export default function Footer() {
               ),
             }}
           />
+
+          <FileSelectionDialog
+            open={fileSelectionMode !== null}
+            fileSelectionMode={fileSelectionMode}
+            onClose={handleCloseDialog}
+            onDone={handleFileSelection}
+            setFileSelectionMode={setFileSelectionMode}
+          />
         </Stack>
 
         <Box
@@ -225,6 +276,10 @@ export default function Footer() {
             <IconButton
               onClick={() => {
                 if (value === "") return;
+
+                // If in file selection mode and a file is selected, send the file
+
+                // Otherwise, send the text message
                 socket.emit("text_message", {
                   message: linkify(value),
                   conversation_id: room_id,
@@ -232,6 +287,7 @@ export default function Footer() {
                   to: current_conversation.user_id,
                   type: containsUrl(value) ? "Link" : "Text",
                 });
+
                 setValue("");
               }}
             >

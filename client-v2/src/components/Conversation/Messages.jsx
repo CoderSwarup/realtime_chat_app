@@ -26,11 +26,10 @@ export default function Messages({ menu = true }) {
 
   useEffect(() => {
     const current = conversations.find((el) => el?.id === room_id);
-    console.log("current is ,", current);
     socket.emit("get_messages", { conversation_id: current?.id }, (data) => {
       // data => list of messages
-      console.log(data, "List of messages");
-      dispatch(FetchCurrentMessages({ messages: data }));
+      // console.log(data, "List of messages");
+      dispatch(FetchCurrentMessages({ messages: data.messages }));
     });
 
     dispatch(SetCurrentConversation(current));

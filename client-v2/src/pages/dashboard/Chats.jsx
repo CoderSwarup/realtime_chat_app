@@ -27,7 +27,8 @@ import Search, {
 import ChatElement from "../../components/ChatElement";
 import Friends from "../../Sections/main/Friends";
 import { socket } from "../../Socket";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { FetchDirectConversations } from "../../Redux/Slices/ConversationSlice";
 // Chat Element
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -60,6 +61,7 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 }));
 
 export default function Chats() {
+  const dispatch = useDispatch();
   const [openDialog, setOpenDialog] = useState(false);
   const theme = useTheme();
   const user_id = window.localStorage.getItem("user_id");
@@ -77,7 +79,8 @@ export default function Chats() {
 
   useEffect(() => {
     socket.emit("get_direct_conersation", { user_id }, (converstionsist) => {
-      console.log(converstionsist);
+      // console.log(converstionsist);
+      dispatch(FetchDirectConversations({ conversations: converstionsist }));
     });
   }, []);
   return (

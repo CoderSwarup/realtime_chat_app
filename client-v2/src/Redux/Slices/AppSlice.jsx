@@ -132,7 +132,7 @@ export const FetchUsersList = () => {
 // fetch Friends List
 export const FetchFriendsList = () => {
   return async (dispatch, getState) => {
-    console.log(getState().auth);
+    // console.log(getState().auth);
     await AxiosInstance.get("/user/get-friends", {
       headers: {
         "Content-Type": "application/json",

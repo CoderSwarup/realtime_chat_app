@@ -37,6 +37,7 @@ io.on("connection", async (socket) => {
   if (Boolean(user_id)) {
     await User.findByIdAndUpdate(user_id, {
       socket_id,
+      status: "Online",
     });
   }
 
@@ -135,11 +136,11 @@ io.on("connection", async (socket) => {
 
       console.log("new chat is :  ", new_chat);
       // emit start chat event on the frontend
-      socket.emit("start_chat", new_chat);
+      // socket.emit("start_chat", new_chat);
     } else {
       // start chat event emmiting with the existsing one
       socket.emit("start_chat", existing_conversations[0]);
-      console.log("exiting chat :  ", existing_conversations[0]);
+      // console.log("exiting chat :  ", existing_conversations[0]);
     }
   });
 
@@ -148,13 +149,13 @@ io.on("connection", async (socket) => {
     const messages = await OneToOneMessage.findById(
       data.conversation_id
     ).select("messages");
-
+    // console.log(messages);
     callback(messages);
   });
 
   // Handle the text and link Message
   socket.on("text_message", async (data) => {
-    console.log("Text Message Recieve ", data);
+    // console.log("Text Message Recieve ", data);
 
     // data conatain {to ,from, message , conversation_id , type}
     const { to, from, message, conversation_id, type } = data;
@@ -194,15 +195,15 @@ io.on("connection", async (socket) => {
 
   // Hanlde the Media Messages
   socket.on("media_message", (data) => {
-    console.log("media message recieve");
+    console.log("media message recieve", data);
 
     // get the File Extension
-    const fileExtension = path.extname(data.file.name);
+    const fileExtension = path.extname(data.filename);
 
     const GenerateFileName = `${Date.now()}_${Math.floor(
       Math.random() * 100000
     )}${fileExtension}`;
-
+    console.log(GenerateFileName);
     // Upload the File on cloudinary
   });
 

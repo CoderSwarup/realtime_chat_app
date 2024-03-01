@@ -118,7 +118,9 @@ export default ConversationSlice.reducer;
 // thunk actions
 export const FetchDirectConversations = ({ conversations }) => {
   return async (dispatch, getState) => {
-    dispatch(ConversationSlice.getDirectConversations({ conversations }));
+    dispatch(
+      ConversationSlice.actions.getDirectConversations({ conversations })
+    );
   };
 };
 
@@ -147,7 +149,7 @@ export const addDirectConversation = ({ conversation }) => {
 
 // set urrent Conversation
 export const SetCurrentConversation = (current_conversation) => {
-  console.log(current_conversation);
+  // console.log(current_conversation);
   return async (dispatch, getState) => {
     dispatch(
       ConversationSlice.actions.setCurrentConversation(current_conversation)

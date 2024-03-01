@@ -11,7 +11,7 @@ import { HideSnackBar } from "./Redux/Slices/AppSlice";
 function App() {
   const dispatch = useDispatch();
   const { open, message, severity } = useSelector(
-    (state) => state.app.snackbar
+    (state) => state.app?.snackbar
   );
   return (
     <>
