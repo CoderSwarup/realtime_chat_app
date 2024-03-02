@@ -42,15 +42,22 @@ const Actions = [
     icon: <Image size={24} />,
     y: 102,
     title: "Photo/Video",
-    type: "photo_video", // Add type for file selection mode
+    type: "Media", // Add type for file selection mode
   },
   {
     color: "#4da5fe",
-    icon: <Sticker size={24} />,
+    icon: <File size={24} />,
     y: 172,
-    title: "Stickers",
-    type: "sticker", // Add type for file selection mode
+    title: "Document",
+    type: "Document", // Add type for file selection mode
   },
+  // {
+  //   color: "#4da5fe",
+  //   icon: <Sticker size={24} />,
+  //   y: 282,
+  //   title: "Stickers",
+  //   type: "sticker", // Add type for file selection mode
+  // },
   // {
   //   color: "#4da5fe",
   //   icon: <Camera size={24} />,
@@ -58,20 +65,14 @@ const Actions = [
   //   title: "Image",
   //   type: "image", // Add type for file selection mode
   // },
-  {
-    color: "#4da5fe",
-    icon: <File size={24} />,
-    y: 242,
-    title: "Document",
-    type: "document", // Add type for file selection mode
-  },
-  {
-    color: "#4da5fe",
-    icon: <User size={24} />,
-    y: 312,
-    title: "Contact",
-    type: "contact", // Add type for file selection mode
-  },
+
+  // {
+  //   color: "#4da5fe",
+  //   icon: <User size={24} />,
+  //   y: 312,
+  //   title: "Contact",
+  //   type: "contact", // Add type for file selection mode
+  // },
 ];
 
 function linkify(text) {

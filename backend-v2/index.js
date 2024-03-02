@@ -2,6 +2,7 @@ import app from "./app.js";
 import http from "http";
 import dotenv from "dotenv";
 import DBConnect from "./Config/DBConnect.js";
+import fs from "fs";
 
 import { Server } from "socket.io";
 import User from "./models/user.model.js";
@@ -9,6 +10,7 @@ import FrientRequestModel from "./models/friendrequest.model.js";
 import OneToOneMessage from "./models/OneToOneMessage.model.js";
 
 import path from "path";
+import { uploadFileOnCloudinary } from "./utils/Services/CloudinaryServices.js";
 dotenv.config();
 
 // DEFINE THE PORT
@@ -194,9 +196,9 @@ io.on("connection", async (socket) => {
   });
 
   // Hanlde the Media Messages
-  socket.on("media_message", (data) => {
-    console.log("media message recieve", data);
-
+  socket.on("media_message", async (data, callback) => {
+    // console.log("media message recieve", data);
+    const { conversation_id, from, to, file, type, message } = data;
     // get the File Extension
     const fileExtension = path.extname(data.filename);
 
@@ -204,13 +206,84 @@ io.on("connection", async (socket) => {
       Math.random() * 100000
     )}${fileExtension}`;
     console.log(GenerateFileName);
+
+    let fileBuffer = Buffer.from(file);
+
+    // Define the file path where you want to store the buffer data
+    const filePath = `./Public/Temp/${GenerateFileName}`;
+
+    // Write the buffer data to the file
+    fs.writeFile(filePath, fileBuffer, async (err) => {
+      if (err) {
+        // console.error("Error writing file:", err);
+        return callback({ success: false });
+      }
+    });
+
+    const user_to = await User.findById(to).select("socket_id");
+    const from_user = await User.findById(from).select("socket_id");
+    if (!user_to || !from_user) {
+      return;
+    }
+
     // Upload the File on cloudinary
+
+    const res = await uploadFileOnCloudinary(filePath);
+    // console.log(res);
+    if (res === null) return callback({ success: false });
+
+    const new_message = {
+      to: user_to._id,
+      from: from_user._id,
+      type,
+      text: message,
+      created_at: Date.now(),
+      file: {
+        public_id: res?.public_id,
+        url: res?.url,
+      },
+    };
+
+    // create new message
+    const chat = await OneToOneMessage.findById(conversation_id);
+    chat.messages.push(new_message);
+    await chat.save();
+
+    io.to(user_to.socket_id).emit("new_message", {
+      conversation_id,
+      message: new_message,
+    });
+    // emit event to the frontend user from
+    io.to(from_user.socket_id).emit("new_message", {
+      conversation_id,
+      message: new_message,
+    });
+
+    callback({ success: true });
+
+    fs.unlinkSync(filePath);
   });
 
   // +++++++++++++ Conversation ENVENTS END ++++++++++++++++++++++++
 
-  socket.on("end", () => {
+  socket.on("disconnect", async () => {
     console.log(socket.id + " has disconnected");
+
+    // make User Offine
+    const user = await User.findOne({
+      socket_id: socket.id,
+    });
+    // console.log(user);
+
+    if (!user) return;
+
+    user.status = "Offline";
+
+    await user.save();
+
+    // send the event to the al users
+    io.emit("user_offline", { user: user._id });
+
     socket.disconnect(0);
   });
 });

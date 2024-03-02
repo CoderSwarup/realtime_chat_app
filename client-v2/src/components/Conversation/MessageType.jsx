@@ -9,7 +9,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { DotsThreeVertical, DownloadSimple, Image } from "phosphor-react";
+import { DotsThreeVertical, DownloadSimple, File, Image } from "phosphor-react";
 import { useEffect, useState } from "react";
 import { Message_options } from "../../data";
 import fetchLinkPreview from "../../utils/LinkPreview";
@@ -203,6 +203,16 @@ export const LinkMsg = ({ ele, menu }) => {
 
 export const DocMessage = ({ ele, menu }) => {
   const theme = useTheme();
+
+  const downloadFile = (url, filename) => {
+    // Create a temporary anchor tag
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", filename); // Set the download attribute (HTML5)
+    document.body.appendChild(link); // Append to the document to make it work on Firefox
+    link.click(); // Programmatically click the link to trigger the download
+    document.body.removeChild(link); // Remove the link when done
+  };
   return (
     <Stack direction={"row"} justifyContent={ele.incoming ? "start" : "end"}>
       <Box
@@ -223,9 +233,15 @@ export const DocMessage = ({ ele, menu }) => {
             alignItems={"center"}
             sx={{ background: theme.palette.background.paper, borderRadius: 1 }}
           >
-            <Image size={49} />
-            <Typography variant="caption">png.png</Typography>
-            <IconButton>
+            <File size={49} />
+            <Typography variant="caption">
+              {ele?.file.public_id.replace("Talk_Live/", "") || "FILE"}
+            </Typography>
+            <IconButton
+              onClick={() => {
+                downloadFile(ele?.file.url, ele?.file.public_id);
+              }}
+            >
               <DownloadSimple />
             </IconButton>
           </Stack>

@@ -3,13 +3,22 @@ import StyledBadge from "./Conversation/StyledBadge";
 import { useDispatch } from "react-redux";
 import { SelectConversation } from "../Redux/Slices/AppSlice";
 
-const ChatElement = ({ id, name, img, msg, time, unread, online }) => {
+const ChatElement = ({
+  id,
+  name,
+  img,
+  msg,
+  time,
+  unread,
+  online,
+  chat_type,
+}) => {
   const theme = useTheme();
   const dispatch = useDispatch();
   return (
     <Box
       onClick={() => {
-        dispatch(SelectConversation({ room_id: id }));
+        dispatch(SelectConversation({ room_id: id, chat_type }));
       }}
       sx={{
         width: "100%",

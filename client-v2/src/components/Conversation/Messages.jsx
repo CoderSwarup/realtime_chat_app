@@ -43,9 +43,9 @@ export default function Messages({ menu = true }) {
               return <TimeLine key={i} ele={ele} menu={menu} />;
             case "msg":
               switch (ele.subtype) {
-                case "img":
+                case "Media":
                   return <MediaMessage key={i} ele={ele} menu={menu} />;
-                case "doc":
+                case "Document":
                   return <DocMessage key={i} ele={ele} menu={menu} />;
                 case "Link":
                   return <LinkMsg key={i} ele={ele} menu={menu} />;

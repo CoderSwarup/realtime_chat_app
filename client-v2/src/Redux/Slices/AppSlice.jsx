@@ -25,7 +25,6 @@ const AppSlice = createSlice({
   reducers: {
     // toggle side Bar
     toggleSideBar(state, actions) {
-      console.log(state);
       state.sidebar.open = !state.sidebar.open;
     },
 
@@ -65,7 +64,7 @@ const AppSlice = createSlice({
 
     // set chat type
     selectConversation(state, action) {
-      state.chat_type = "individual";
+      state.chat_type = action.payload.chat_type;
       state.room_id = action.payload.room_id;
     },
   },
@@ -177,8 +176,8 @@ export const FetchFriendRequestList = () => {
 };
 
 // select new conversation
-export const SelectConversation = ({ room_id }) => {
+export const SelectConversation = ({ room_id, chat_type }) => {
   return async (dispatch, getState) => {
-    dispatch(AppSlice.actions.selectConversation({ room_id }));
+    dispatch(AppSlice.actions.selectConversation({ room_id, chat_type }));
   };
 };

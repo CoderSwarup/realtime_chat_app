@@ -12,17 +12,29 @@ import {
 } from "@mui/material";
 import {
   CaretDown,
+  CaretLeft,
   MagnifyingGlass,
   PhoneCall,
   VideoCamera,
 } from "phosphor-react";
 import StyledBadge from "./StyledBadge";
-import { useDispatch } from "react-redux";
-import { ToggleSideBar, UpdateSidebarType } from "../../Redux/Slices/AppSlice";
-
+import { useDispatch, useSelector } from "react-redux";
+import {
+  SelectConversation,
+  ToggleSideBar,
+  UpdateSidebarType,
+} from "../../Redux/Slices/AppSlice";
+import {
+  FetchCurrentMessages,
+  SetCurrentConversation,
+} from "../../Redux/Slices/ConversationSlice";
 export default function Header() {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const { current_conversation } = useSelector(
+    (state) => state.conversation.direct_chat
+  );
+
   return (
     <Box
       p={2}
@@ -41,29 +53,39 @@ export default function Header() {
         sx={{ height: "100%", width: "100%" }}
       >
         {/* Left avatar */}
-        <Stack
-          onClick={() => {
-            dispatch(ToggleSideBar());
-            dispatch(UpdateSidebarType("CONTACT"));
-          }}
-          direction={"row"}
-          spacing={2}
-        >
-          <StyledBadge
-            overlap="circular"
-            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-            variant="dot"
+        <Stack direction={"row"} spacing={2}>
+          <IconButton
+            onClick={() => {
+              dispatch(SelectConversation({ room_id: null, chat_type: null }));
+              dispatch(SetCurrentConversation(null));
+              dispatch(FetchCurrentMessages({ messages: [] }));
+            }}
+          >
+            <CaretLeft />
+          </IconButton>
+
+          <Stack
+            onClick={() => {
+              dispatch(ToggleSideBar());
+              dispatch(UpdateSidebarType("CONTACT"));
+            }}
+            direction={"row"}
+            spacing={2}
           >
             <Avatar
-              src={faker.image.avatar()}
-              alt={faker.name.fullName()}
+              src={current_conversation?.img}
+              alt={current_conversation?.name}
             ></Avatar>
-          </StyledBadge>
-          <Stack spacing={0.2}>
-            <Typography variant="subtitle2">{faker.name.fullName()}</Typography>
-            <Typography variant="caption">ONLINE</Typography>
+
+            <Stack spacing={0.2}>
+              <Typography variant="subtitle2">
+                {current_conversation?.name}
+              </Typography>
+              <Typography variant="caption">About ....</Typography>
+            </Stack>
           </Stack>
         </Stack>
+
         {/* Right Side Icons*/}
         <Stack direction={"row"} alignItems={"center"} spacing={1}>
           <IconButton>

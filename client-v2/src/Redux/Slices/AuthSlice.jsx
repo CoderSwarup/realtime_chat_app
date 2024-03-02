@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import AxiosInstance from "../../utils/Axios";
-import { ShowSnackbar } from "./AppSlice";
+import { SelectConversation, ShowSnackbar } from "./AppSlice";
 
 const initialState = {
   isLoggedIn: false,
@@ -69,6 +69,7 @@ export function LogOutUser(data) {
     dispatch(AuthSlice.actions.signout());
     window.localStorage.removeItem("user_id");
     dispatch(ShowSnackbar("success", "Logout Successfully"));
+    dispatch(SelectConversation({ room_id: null, chat_type: null }));
   };
 }
 

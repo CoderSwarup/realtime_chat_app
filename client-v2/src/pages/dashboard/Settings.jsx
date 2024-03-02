@@ -21,10 +21,15 @@ import {
 } from "phosphor-react";
 import { faker } from "@faker-js/faker";
 import Shortcuts from "../../Sections/Settings/Shortcuts";
+import { useSelector } from "react-redux";
 
 export default function Settings() {
   const theme = useTheme();
   const [openShortcuts, setOpenShortcuts] = useState(false);
+  const { current_conversation } = useSelector(
+    (state) => state.conversation.direct_chat
+  );
+
   const handleOpenShortcuts = () => {
     setOpenShortcuts(!openShortcuts);
   };
@@ -115,14 +120,14 @@ export default function Settings() {
             <Stack direction={"row"} alignItems={"center"} spacing={3}>
               <Avatar
                 sx={{ width: 56, height: 56 }}
-                src={faker.image.url()}
-                alt={faker.person.fullName()}
+                src={current_conversation?.img}
+                alt={current_conversation?.name}
               ></Avatar>
               <Stack spacing={0.5}>
                 <Typography variant="article">
-                  {faker.person.fullName()}
+                  {current_conversation?.name}
                 </Typography>
-                <Typography variant="body2">{faker.hacker.noun()}</Typography>
+                <Typography variant="body2">{"About .."}</Typography>
               </Stack>
             </Stack>
 

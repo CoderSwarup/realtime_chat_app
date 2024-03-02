@@ -23,12 +23,12 @@ const DashboardLayout = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      window.onload = function () {
-        if (!window.location.hash) {
-          window.location = window.location + "#loaded";
-          window.location.reload();
-        }
-      };
+      // window.onload = function () {
+      //   if (!window.location.hash) {
+      //     window.location = window.location + "#loaded";
+      //     window.location.reload();
+      //   }
+      // };
 
       // window.onload();
 
@@ -54,7 +54,7 @@ const DashboardLayout = () => {
 
       //Event Lsitener for the new message
       socket.on("new_message", (data) => {
-        console.log(data);
+        // console.log(data);
         const message = data.message;
         // console.log(current_conversation, data);
         // check if msg we got is from currently selected conversation
@@ -67,6 +67,8 @@ const DashboardLayout = () => {
               message: message.text,
               incoming: message.to === user_id,
               outgoing: message.from === user_id,
+              file: message?.file,
+              img: message?.file?.url,
             })
           );
         }
@@ -88,7 +90,13 @@ const DashboardLayout = () => {
         // update the selected Chat
         dispatch(SelectConversation({ room_id: data._id }));
       });
+
+      // user Offline
+      socket.on("user_offline", (data) => {
+        console.log(data, "USER OFFLINE");
+      });
     }
+
     // clear listeners
     return () => {
       socket?.off("friend_request_send");
@@ -96,6 +104,8 @@ const DashboardLayout = () => {
       socket?.off("accept_request");
       socket?.off("start_chat");
       socket?.off("new_message");
+      socket?.off("new_media_message");
+      socket?.off("user_offline");
     };
   }, [isLoggedIn, socket]);
 

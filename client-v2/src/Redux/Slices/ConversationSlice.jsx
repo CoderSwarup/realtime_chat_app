@@ -22,7 +22,6 @@ const ConversationSlice = createSlice({
         const this_user = ele.participants.find(
           (ele) => ele._id.toString() !== user_id
         );
-
         return {
           id: ele._id,
           user_id: this_user._id,
@@ -102,6 +101,8 @@ const ConversationSlice = createSlice({
         message: el.text,
         incoming: el.to === user_id,
         outgoing: el.from === user_id,
+        file: el?.file,
+        img: el?.file?.url,
       }));
       state.direct_chat.current_messages = formatted_messages;
     },

@@ -7,6 +7,8 @@ import {
   Button,
   Typography,
   Input,
+  Stack,
+  TextField,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { ShowSnackbar } from "../../Redux/Slices/AppSlice";
@@ -28,6 +30,7 @@ const FileSelectionDialog = ({
     (state) => state.conversation.direct_chat
   );
 
+  const [message, setMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
 
   // Function to handle file selection
@@ -49,12 +52,12 @@ const FileSelectionDialog = ({
         <img
           src={URL.createObjectURL(selectedFile)}
           alt="Preview"
-          style={{ maxWidth: "100%", maxHeight: "100%" }}
+          style={{ maxWidth: "300px", maxHeight: "300px" }}
         />
       );
     } else if (fileType === "video") {
       return (
-        <video controls style={{ maxWidth: "100%", maxHeight: "100%" }}>
+        <video controls style={{ maxWidth: "300px", maxHeight: "300px" }}>
           <source
             src={URL.createObjectURL(selectedFile)}
             type={selectedFile.type}
@@ -74,16 +77,36 @@ const FileSelectionDialog = ({
   const handleDoneClick = () => {
     // Emit the file to the backend
     if (fileSelectionMode && selectedFile) {
-      socket.emit("media_message", {
-        file: selectedFile,
-        filename: selectedFile.name,
-        conversation_id: room_id,
-        from: user_id,
-        to: current_conversation.user_id,
-      });
-      onDone(selectedFile);
-      setFileSelectionMode(null); // Reset selected file state after sending
-      setSelectedFile(null);
+      socket.emit(
+        "media_message",
+        {
+          file: selectedFile,
+          filename: selectedFile.name,
+          conversation_id: room_id,
+          type: fileSelectionMode,
+          message,
+          from: user_id,
+          to: current_conversation.user_id,
+        },
+        (data) => {
+          // console.log(data.success);
+          if (!data.success) {
+            dispacth(
+              ShowSnackbar(
+                "error",
+                "Failed To Send File Please Send After Some Time"
+              )
+            );
+          }
+
+          if (data.success) {
+            onDone(selectedFile);
+            setFileSelectionMode(null); // Reset selected file state after sending
+            setSelectedFile(null);
+            setMessage("");
+          }
+        }
+      );
     }
   };
 
@@ -91,19 +114,37 @@ const FileSelectionDialog = ({
     <Dialog maxWidth="xs" fullWidth open={open} onClose={onClose}>
       <DialogTitle>Selected {fileSelectionMode} File Preview</DialogTitle>
       <DialogContent>
-        <Input
-          type="file"
-          accept="image/*, video/*"
-          onChange={handleFileChange}
-          sx={{ display: "none" }} // Hide the default file input
-          id="file-input" // Add an id to associate with the label
-        />
-        <label htmlFor="file-input">
-          <Button variant="contained" component="span">
-            Select File
-          </Button>
-        </label>
-        {renderPreview()}
+        <Stack
+          my={3}
+          direction={"column"}
+          spacing={3}
+          width={"100%"}
+          alignItems={"center"}
+          justifyContent={"center"}
+        >
+          <TextField
+            id="outlined-basic"
+            label="Message"
+            sx={{ width: "100%" }}
+            placeholder="Place Your Message"
+            variant="outlined"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+          <Input
+            type="file"
+            accept="image/*, video/*"
+            onChange={handleFileChange}
+            sx={{ display: "none" }} // Hide the default file input
+            id="file-input" // Add an id to associate with the label
+          />
+          <label htmlFor="file-input">
+            <Button variant="contained" component="span">
+              Select File
+            </Button>
+          </label>
+          {renderPreview()}
+        </Stack>
       </DialogContent>
 
       <DialogActions>

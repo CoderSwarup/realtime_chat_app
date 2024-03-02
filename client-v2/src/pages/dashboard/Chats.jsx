@@ -69,6 +69,8 @@ export default function Chats() {
     (state) => state.conversation.direct_chat
   );
 
+  const [chatList, setChatList] = useState([]);
+
   const handleCloseDialog = () => {
     setOpenDialog(false);
   };
@@ -83,6 +85,21 @@ export default function Chats() {
       dispatch(FetchDirectConversations({ conversations: converstionsist }));
     });
   }, []);
+
+  useEffect(() => {
+    setChatList(conversations);
+  }, [conversations]);
+
+  const handleSearch = (e) => {
+    const search_value = e.target.value;
+    if (search_value === "") {
+      setChatList(conversations);
+    }
+    const serachFilterList = conversations.filter((user) => {
+      return user.name.toLowerCase().includes(search_value.toLowerCase());
+    });
+    setChatList(serachFilterList);
+  };
   return (
     <>
       <Box
@@ -124,6 +141,9 @@ export default function Chats() {
                 <MagnifyingGlass color="#709CE6" />
               </SearchIconWrapper>
               <StyledInputBase
+                onChange={(e) => {
+                  handleSearch(e);
+                }}
                 placeholder="Search"
                 inputProps={{ "aria-label": "search" }}
               ></StyledInputBase>
@@ -150,7 +170,7 @@ export default function Chats() {
             sx={{ flexGrow: 1, overflowY: "scroll", height: "100%" }}
           >
             {/* Pinned Chat */}
-            <Stack spacing={2.4}>
+            {/* <Stack spacing={2.4}>
               <Typography variant="subtitle2" sx={{ color: "#676767" }}>
                 Pinned
               </Typography>
@@ -158,7 +178,7 @@ export default function Chats() {
               {ChatList.filter((e) => e.pinned).map((ele, i) => {
                 return <ChatElement key={i} {...ele} />;
               })}
-            </Stack>
+            </Stack> */}
 
             {/* all Chats */}
             <Stack spacing={2.4}>
@@ -166,10 +186,12 @@ export default function Chats() {
                 All Chats
               </Typography>
 
-              {conversations
+              {chatList
                 .filter((e) => !e.pinned)
                 .map((ele, i) => {
-                  return <ChatElement key={i} {...ele} />;
+                  return (
+                    <ChatElement key={i} {...ele} chat_type="individual" />
+                  );
                 })}
             </Stack>
           </Stack>
