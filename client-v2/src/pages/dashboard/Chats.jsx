@@ -89,7 +89,6 @@ export default function Chats() {
   useEffect(() => {
     setChatList(conversations);
   }, [conversations]);
-
   const handleSearch = (e) => {
     const search_value = e.target.value;
     if (search_value === "") {

@@ -25,6 +25,7 @@ const ConversationSlice = createSlice({
         return {
           id: ele._id,
           user_id: this_user._id,
+          email: this_user?.email,
           name: `${this_user.firstName} ${this_user.lastName}`,
           img: faker.image.url(),
           msg: faker.music.songName(),

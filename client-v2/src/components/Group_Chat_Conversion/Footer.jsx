@@ -38,31 +38,45 @@ const Actions = [
     icon: <Image size={24} />,
     y: 102,
     title: "Photo/Video",
+    type: "Media", // Add type for file selection mode
   },
   {
-    color: "#1b8cfe",
-    icon: <Sticker size={24} />,
-    y: 172,
-    title: "Stickers",
-  },
-  {
-    color: "#0172e4",
-    icon: <Camera size={24} />,
-    y: 242,
-    title: "Image",
-  },
-  {
-    color: "#0159b2",
+    color: "#4da5fe",
     icon: <File size={24} />,
-    y: 312,
+    y: 172,
     title: "Document",
+    type: "Document", // Add type for file selection mode
   },
-  {
-    color: "#013f7f",
-    icon: <User size={24} />,
-    y: 382,
-    title: "Contact",
-  },
+  // {
+  //   color: "#4da5fe",
+  //   icon: <Image size={24} />,
+  //   y: 102,
+  //   title: "Photo/Video",
+  // },
+  // {
+  //   color: "#1b8cfe",
+  //   icon: <Sticker size={24} />,
+  //   y: 172,
+  //   title: "Stickers",
+  // },
+  // {
+  //   color: "#0172e4",
+  //   icon: <Camera size={24} />,
+  //   y: 242,
+  //   title: "Image",
+  // },
+  // {
+  //   color: "#0159b2",
+  //   icon: <File size={24} />,
+  //   y: 312,
+  //   title: "Document",
+  // },
+  // {
+  //   color: "#013f7f",
+  //   icon: <User size={24} />,
+  //   y: 382,
+  //   title: "Contact",
+  // },
 ];
 
 const ChatInput = ({ openPicker, setOpenPicker }) => {
@@ -153,7 +167,7 @@ const Footer = () => {
           backgroundColor:
             theme.palette.mode === "light"
               ? "#F8FAFF"
-              : theme.palette.background,
+              : theme.palette.background.paper,
           boxShadow: "0px 0px 2px rgba(0, 0, 0, 0.25)",
         }}
       >

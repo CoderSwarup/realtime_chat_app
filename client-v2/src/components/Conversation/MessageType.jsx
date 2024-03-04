@@ -235,7 +235,7 @@ export const DocMessage = ({ ele, menu }) => {
           >
             <File size={49} />
             <Typography variant="caption">
-              {ele?.file.public_id.replace("Talk_Live/", "") || "FILE"}
+              {ele?.file?.public_id.replace("Talk_Live/", "") || "FILE"}
             </Typography>
             <IconButton
               onClick={() => {

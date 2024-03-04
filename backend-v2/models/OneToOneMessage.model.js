@@ -39,10 +39,6 @@ const oneToOneMessageSchema = new mongoose.Schema(
         },
       },
     ],
-    is_group: {
-      type: Boolean,
-      default: false,
-    },
   },
   {
     versionKey: false,

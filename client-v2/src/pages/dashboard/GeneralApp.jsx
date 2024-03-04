@@ -2,10 +2,9 @@ import React, { Suspense, lazy } from "react";
 import Chats from "./Chats";
 import { Box, Stack, Typography, useTheme } from "@mui/material";
 import Conversation from "../../components/Conversation";
-import Contact from "../../components/Contact";
+
 import { useSelector } from "react-redux";
-import SharedMessage from "../../components/SharedMessage";
-import StarredMessags from "../../components/StarredMessags";
+
 const Cat = lazy(() => import("../../components/Cat"));
 import NoChat from "../../assets/Illustration/NoChat";
 const GeneralApp = () => {
@@ -43,19 +42,6 @@ const GeneralApp = () => {
           </Stack>
         )}
       </Box>
-
-      {/* Contact Info */}
-      {sidebar.open &&
-        (() => {
-          switch (sidebar.type) {
-            case "STARRED":
-              return <StarredMessags />;
-            case "SHARED":
-              return <SharedMessage />;
-            default:
-              return <Contact />;
-          }
-        })()}
     </Stack>
   );
 };

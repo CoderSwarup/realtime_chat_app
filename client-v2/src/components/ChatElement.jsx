@@ -1,6 +1,6 @@
 import { Avatar, Badge, Box, Stack, Typography, useTheme } from "@mui/material";
 import StyledBadge from "./Conversation/StyledBadge";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { SelectConversation } from "../Redux/Slices/AppSlice";
 
 const ChatElement = ({
@@ -15,6 +15,10 @@ const ChatElement = ({
 }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
+
+  const { current_conversation } = useSelector(
+    (state) => state.conversation.direct_chat
+  );
   return (
     <Box
       onClick={() => {
@@ -25,9 +29,11 @@ const ChatElement = ({
         borderRadius: 1,
         height: 60,
         background:
-          theme.palette.mode == "light"
-            ? "#F8FAFE"
-            : theme.palette.background.paper,
+          current_conversation?.id !== id
+            ? theme.palette.background.paper
+            : theme.palette.mode === "light"
+            ? "lightblue"
+            : theme.palette.primary.main,
       }}
       p={1}
     >

@@ -7,17 +7,28 @@ import Header from "./Header";
 import Footer from "./Footer";
 import Messages from "./Messages";
 import { useSelector } from "react-redux";
+import Contact from "../../components/Contact";
+import SharedMessage from "../../components/SharedMessage";
+import StarredMessags from "../../components/StarredMessags";
 
 export default function Conversation() {
   const theme = useTheme();
 
   // Scrolling Effect
   const messageListRef = useRef(null);
-
+  const { sidebar } = useSelector((state) => state.app);
   const { current_messages } = useSelector(
     (state) => state.conversation.direct_chat
   );
+  // Filter the media File
+  const FiltertedMedia = current_messages?.filter((msg) => {
+    return msg?.subtype === "Media";
+  });
 
+  // Filter the Link MSG
+  const FiltertedLink = current_messages?.filter((msg) => {
+    return msg?.subtype === "Link";
+  });
   useEffect(() => {
     // Scroll to the bottom of the message list when new messages are added
     messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
@@ -39,6 +50,24 @@ export default function Conversation() {
 
       {/* Footer */}
       <Footer />
+
+      {/* Contact Info */}
+      {sidebar.open &&
+        (() => {
+          switch (sidebar.type) {
+            case "STARRED":
+              return <StarredMessags />;
+            case "SHARED":
+              return (
+                <SharedMessage
+                  FiltertedLink={FiltertedLink}
+                  FiltertedMedia={FiltertedMedia}
+                />
+              );
+            default:
+              return <Contact FiltertedMedia={FiltertedMedia} />;
+          }
+        })()}
     </Stack>
   );
 }

@@ -16,7 +16,7 @@ import { faker } from "@faker-js/faker";
 import { Shared_Docs, Shared_Links } from "../data";
 import { DocMessage, LinkMsg } from "./Conversation/MessageType";
 
-export default function SharedMessage() {
+export default function SharedMessage({ FiltertedLink, FiltertedMedia }) {
   const theme = useTheme();
   const dispatch = useDispatch();
   const [value, setValue] = useState(0);
@@ -91,20 +91,17 @@ export default function SharedMessage() {
               case 0:
                 return (
                   <Grid container spacing={2}>
-                    {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((image, i) => {
+                    {FiltertedMedia?.map((image, i) => {
                       return (
                         <Grid key={i} item xs={4}>
-                          <img
-                            src={faker.image.url()}
-                            alt={faker.person.fullName()}
-                          />
+                          <img src={image?.img} alt={image?.img} />
                         </Grid>
                       );
                     })}
                   </Grid>
                 );
               case 1:
-                return Shared_Links.map((ele) => {
+                return FiltertedLink?.map((ele) => {
                   return <LinkMsg ele={ele} />;
                 });
               case 2:

@@ -26,7 +26,7 @@ import {
   X,
 } from "phosphor-react";
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ToggleSideBar, UpdateSidebarType } from "../Redux/Slices/AppSlice";
 import { faker } from "@faker-js/faker";
 import AntSwitch from "./AntSwitch";
@@ -80,9 +80,12 @@ const DeleteDialog = ({ open, handleClose }) => {
   );
 };
 
-export default function Contact() {
+export default function Contact({ FiltertedMedia }) {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const { current_conversation, current_messages } = useSelector(
+    (state) => state.conversation.direct_chat
+  );
 
   //Dialog
   const [openBlock, setOpenBlock] = useState(false);
@@ -96,6 +99,7 @@ export default function Contact() {
   const handleCloseDelete = () => {
     setOpenDelete(false);
   };
+
   return (
     <Box
       sx={{
@@ -152,16 +156,16 @@ export default function Contact() {
           {/* Simple Info Name and Contact number */}
           <Stack direction={"row"} alignItems={"center"} spacing={2}>
             <Avatar
-              src={faker.image.url()}
-              alt={faker.person.fullName()}
+              src={current_conversation?.img}
+              alt={current_conversation?.name}
             ></Avatar>
 
             <Stack spacing={0.5}>
               <Typography variant="article" fontWeight={600}>
-                {faker.person.fullName()}
+                {current_conversation?.name}
               </Typography>
               <Typography variant="body2" fontWeight={500}>
-                +91 8309876545
+                {current_conversation?.email}
               </Typography>
             </Stack>
           </Stack>
@@ -215,20 +219,20 @@ export default function Contact() {
                 }}
                 endIcon={<CaretRight />}
               >
-                401
+                {FiltertedMedia?.length}
               </Button>
             </Stack>
 
             {/* Media Images */}
 
             <Stack direction={"row"} spacing={2} alignItems={"center"}>
-              {[1, 2, 3].map((e) => {
+              {FiltertedMedia?.slice(
+                FiltertedMedia.length - 4,
+                FiltertedMedia.length - 1
+              ).map((e) => {
                 return (
                   <Box>
-                    <img
-                      src={faker.image.url()}
-                      alt={faker.person.fullName()}
-                    ></img>
+                    <img src={e.img} alt={faker.person.fullName()}></img>
                   </Box>
                 );
               })}

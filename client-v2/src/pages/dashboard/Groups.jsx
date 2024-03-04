@@ -17,14 +17,26 @@ import Search, {
 import { ChatList } from "../../data";
 import ChatElement from "../../components/ChatElement";
 import CreateGroupChat from "../../Sections/main/CreateGroupChat";
+import GroupChatConversion from "../../components/Group_Chat_Conversion";
 
 export default function Groups() {
   const theme = useTheme();
 
   const [openCreateGroupchat, setOpenCreateGroupchat] = useState(false);
-
+  const [chatList, setChatList] = useState(ChatList);
   const handleCloseCreateGroupchat = () => {
     setOpenCreateGroupchat(false);
+  };
+
+  const handleSearch = (e) => {
+    const SearchValue = e.target.value;
+    if (SearchValue === "") return setChatList(ChatList);
+    const FilteredSearchChatList = ChatList.filter((chat) => {
+      return chat.name
+        .toLocaleLowerCase()
+        .includes(SearchValue.toLocaleLowerCase());
+    });
+    setChatList(FilteredSearchChatList);
   };
   return (
     <>
@@ -71,6 +83,7 @@ export default function Groups() {
                 <StyledInputBase
                   placeholder="Search Groups"
                   inputProps={{ "aria-label": "search" }}
+                  onChange={(e) => handleSearch(e)}
                 ></StyledInputBase>
               </Search>
             </Stack>
@@ -100,7 +113,7 @@ export default function Groups() {
               sx={{ flexGrow: 1, overflowY: "scroll", height: "100%" }}
             >
               {/* Pinned Chat  */}
-              <Stack spacing={2}>
+              {/* <Stack spacing={2}>
                 <Typography variant="subtitle2" sx={{ color: "#676767" }}>
                   Pinned
                 </Typography>
@@ -108,7 +121,7 @@ export default function Groups() {
                 {ChatList.filter((e) => e.pinned).map((ele, i) => {
                   return <ChatElement key={i} {...ele} />;
                 })}
-              </Stack>
+              </Stack> */}
 
               {/* All Group Chats */}
               <Stack spacing={2}>
@@ -116,9 +129,11 @@ export default function Groups() {
                   All Groups
                 </Typography>
 
-                {ChatList.filter((e) => !e.pinned).map((ele, i) => {
-                  return <ChatElement key={i} {...ele} />;
-                })}
+                {chatList
+                  .filter((e) => !e.pinned)
+                  .map((ele, i) => {
+                    return <ChatElement key={i} {...ele} />;
+                  })}
               </Stack>
             </Stack>
           </Stack>
@@ -135,7 +150,7 @@ export default function Groups() {
                 : theme.palette.background.default,
           }}
         >
-          <Conversation />
+          <GroupChatConversion />
         </Box>
       </Stack>
 
