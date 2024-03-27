@@ -13,6 +13,10 @@ import { DotsThreeVertical, DownloadSimple, File, Image } from "phosphor-react";
 import { useEffect, useState } from "react";
 import { Message_options } from "../../data";
 import fetchLinkPreview from "../../utils/LinkPreview";
+import { socket } from "../../Socket";
+import { useDispatch, useSelector } from "react-redux";
+import { DeleteMessage } from "../../Redux/Slices/ConversationSlice";
+import { ShowSnackbar } from "../../Redux/Slices/AppSlice";
 
 export const TextMsg = ({ ele, menu }) => {
   const theme = useTheme();
@@ -35,7 +39,7 @@ export const TextMsg = ({ ele, menu }) => {
           {ele.message}
         </Typography>
       </Box>
-      {menu && <MessagesOptions></MessagesOptions>}
+      {menu && <MessagesOptions msg={ele}></MessagesOptions>}
     </Stack>
   );
 };
@@ -65,7 +69,7 @@ export const MediaMessage = ({ ele, menu }) => {
           </Typography>
         </Stack>
       </Box>
-      {menu && <MessagesOptions></MessagesOptions>}
+      {menu && <MessagesOptions msg={ele}></MessagesOptions>}
     </Stack>
   );
 };
@@ -106,7 +110,7 @@ export const ReplyMessage = ({ ele, menu }) => {
           {ele.reply}
         </Typography>
       </Box>
-      {menu && <MessagesOptions></MessagesOptions>}
+      {menu && <MessagesOptions msg={ele}></MessagesOptions>}
     </Stack>
   );
 };
@@ -196,7 +200,7 @@ export const LinkMsg = ({ ele, menu }) => {
           </Stack>
         </Stack>
       </Box>
-      {menu && <MessagesOptions></MessagesOptions>}
+      {menu && <MessagesOptions msg={ele}></MessagesOptions>}
     </Stack>
   );
 };
@@ -254,19 +258,54 @@ export const DocMessage = ({ ele, menu }) => {
           </Typography>
         </Stack>
       </Box>
-      {menu && <MessagesOptions></MessagesOptions>}
+      {menu && <MessagesOptions msg={ele}></MessagesOptions>}
     </Stack>
   );
 };
 
-export const MessagesOptions = () => {
+export const MessagesOptions = ({ msg }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const dispatch = useDispatch();
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const { room_id } = useSelector((state) => state.app);
+  const user_id = localStorage.getItem("user_id");
+  const handleType = (id) => {
+    switch (id) {
+      case 5:
+        delMessage();
+        break;
+      default:
+        handleClose();
+    }
+  };
+
+  // delete essage
+  const delMessage = async () => {
+    if (!window.confirm("Are you sure to delete this message?")) {
+      handleClose();
+      return;
+    }
+
+    socket.emit(
+      "delete_message",
+      {
+        conversation_id: room_id,
+        message_id: msg.id,
+        from: user_id,
+      },
+      (data) => {
+        dispatch(ShowSnackbar("success", data));
+      }
+    );
+
+    handleClose();
   };
   return (
     <>
@@ -291,7 +330,12 @@ export const MessagesOptions = () => {
         <Stack spacing={1} p={1}>
           {Message_options.map((ele, i) => {
             return (
-              <MenuItem key={i} onClick={handleClose}>
+              <MenuItem
+                key={i}
+                onClick={() => {
+                  handleType(i);
+                }}
+              >
                 {ele.title}
               </MenuItem>
             );

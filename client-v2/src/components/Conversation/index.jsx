@@ -29,6 +29,10 @@ export default function Conversation() {
   const FiltertedLink = current_messages?.filter((msg) => {
     return msg?.subtype === "Link";
   });
+
+  const FiltertedDocs = current_messages?.filter((msg) => {
+    return msg?.subtype === "Document";
+  });
   useEffect(() => {
     // Scroll to the bottom of the message list when new messages are added
     messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
@@ -62,6 +66,7 @@ export default function Conversation() {
                 <SharedMessage
                   FiltertedLink={FiltertedLink}
                   FiltertedMedia={FiltertedMedia}
+                  FiltertedDocs={FiltertedDocs}
                 />
               );
             default:

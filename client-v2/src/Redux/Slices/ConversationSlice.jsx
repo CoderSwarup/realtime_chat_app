@@ -22,6 +22,11 @@ const ConversationSlice = createSlice({
         const this_user = ele.participants.find(
           (ele) => ele._id.toString() !== user_id
         );
+
+        const dateObject = new Date(this_user.updatedAt);
+        const hours = dateObject.getHours();
+        const minutes = dateObject.getMinutes();
+
         return {
           id: ele._id,
           user_id: this_user._id,
@@ -29,7 +34,7 @@ const ConversationSlice = createSlice({
           name: `${this_user.firstName} ${this_user.lastName}`,
           img: faker.image.url(),
           msg: faker.music.songName(),
-          time: "9:30",
+          time: hours + ":" + minutes,
           online: this_user.status === "Online",
           unread: 0,
           pinned: false,
@@ -112,6 +117,17 @@ const ConversationSlice = createSlice({
     addDirectMessage(state, action) {
       state.direct_chat.current_messages.push(action.payload.message);
     },
+
+    // delete The Message
+    deleteMessage(state, action) {
+      const indexToDelete = state.direct_chat.current_messages.findIndex(
+        (msg) => msg.id === action.payload.message_id
+      );
+      if (indexToDelete === -1) {
+        return;
+      }
+      state.direct_chat.current_messages.splice(indexToDelete, 1);
+    },
   },
 });
 
@@ -170,5 +186,12 @@ export const FetchCurrentMessages = ({ messages }) => {
 export const AddDirectMessage = (message) => {
   return async (dispatch, getState) => {
     dispatch(ConversationSlice.actions.addDirectMessage({ message }));
+  };
+};
+
+// Delete the message
+export const DeleteMessage = (message_id) => {
+  return async (dispatch, getState) => {
+    dispatch(ConversationSlice.actions.deleteMessage({ message_id }));
   };
 };

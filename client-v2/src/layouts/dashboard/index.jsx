@@ -7,6 +7,7 @@ import { connectSocket, socket } from "../../Socket";
 import { SelectConversation, ShowSnackbar } from "../../Redux/Slices/AppSlice";
 import {
   AddDirectMessage,
+  DeleteMessage,
   addDirectConversation,
   updateDirectConversation,
 } from "../../Redux/Slices/ConversationSlice";
@@ -95,6 +96,11 @@ const DashboardLayout = () => {
       socket.on("user_offline", (data) => {
         console.log(data, "USER OFFLINE");
       });
+
+      // Delete Message
+      socket.on("delete-message", (data) => {
+        dispatch(DeleteMessage(data.message_id));
+      });
     }
 
     // clear listeners
@@ -106,6 +112,7 @@ const DashboardLayout = () => {
       socket?.off("new_message");
       socket?.off("new_media_message");
       socket?.off("user_offline");
+      socket?.off("delete-message");
     };
   }, [isLoggedIn, socket]);
 

@@ -13,10 +13,14 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { UpdateSidebarType } from "../Redux/Slices/AppSlice";
 import { faker } from "@faker-js/faker";
-import { Shared_Docs, Shared_Links } from "../data";
+// import { Shared_Docs, Shared_Links } from "../data";
 import { DocMessage, LinkMsg } from "./Conversation/MessageType";
 
-export default function SharedMessage({ FiltertedLink, FiltertedMedia }) {
+export default function SharedMessage({
+  FiltertedLink,
+  FiltertedMedia,
+  FiltertedDocs,
+}) {
   const theme = useTheme();
   const dispatch = useDispatch();
   const [value, setValue] = useState(0);
@@ -105,7 +109,7 @@ export default function SharedMessage({ FiltertedLink, FiltertedMedia }) {
                   return <LinkMsg ele={ele} />;
                 });
               case 2:
-                return Shared_Docs.map((ele) => {
+                return FiltertedDocs.map((ele) => {
                   return <DocMessage ele={ele} />;
                 });
               default:

@@ -105,7 +105,10 @@ io.on("connection", async (socket) => {
   socket.on("get_direct_conersation", async ({ user_id }, callback) => {
     const existing_conversations = await OneToOneMessage.find({
       participants: { $all: [user_id] },
-    }).populate("participants", "firstName lastName avatar _id email status");
+    }).populate(
+      "participants",
+      "firstName lastName avatar _id email status updatedAt"
+    );
 
     // console.log(exist_conersations);
     callback(existing_conversations);
@@ -262,6 +265,35 @@ io.on("connection", async (socket) => {
     callback({ success: true });
 
     fs.unlinkSync(filePath);
+  });
+
+  // handle Delete the Message
+  socket.on("delete_message", async (data, callback) => {
+    const { conversation_id, message_id, from } = data;
+
+    const msgdelete = await OneToOneMessage.findByIdAndUpdate(
+      conversation_id,
+      { $pull: { messages: { _id: message_id } } },
+      { multi: false }
+    ).populate("participants", "socket_id");
+
+    // // emit Event
+
+    if (!msgdelete) {
+      return;
+    }
+
+    io.to(msgdelete?.participants[0].socket_id).emit("delete-message", {
+      conversation_id,
+      message_id: message_id,
+    });
+
+    io.to(msgdelete?.participants[1].socket_id).emit("delete-message", {
+      conversation_id,
+      message_id: message_id,
+    });
+
+    callback("Message Delete");
   });
 
   // +++++++++++++ Conversation ENVENTS END ++++++++++++++++++++++++
