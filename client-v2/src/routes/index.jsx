@@ -21,7 +21,9 @@ const GeneralApp = Loadable(
   lazy(() => import("../pages/dashboard/GeneralApp"))
 );
 const Settings = Loadable(lazy(() => import("../pages/dashboard/Settings")));
-const GroupsPage = Loadable(lazy(() => import("../pages/dashboard/Groups")));
+const GroupsPage = Loadable(
+  lazy(() => import("../pages/dashboard/GroupGeneralApp"))
+);
 const CallPage = Loadable(lazy(() => import("../pages/dashboard/CallPage")));
 
 // Auth

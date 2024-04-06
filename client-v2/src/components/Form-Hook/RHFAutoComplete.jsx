@@ -24,19 +24,21 @@ export default function RHFAutoComplete({ name, helperText, lable, ...other }) {
           <Autocomplete
             {...field}
             fullWidth
-            onChange={(e, newValue) =>
-              setValue(name, newValue, { shouldValidate: true })
-            }
+            onChange={(e, newValue) => {
+              setValue(name, newValue, { shouldValidate: true });
+            }}
             {...other}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                lable={lable}
-                placeholder="Favorites"
-                error={!!error}
-                helperText={error ? error.message : helperText}
-              />
-            )}
+            renderInput={(params) => {
+              return (
+                <TextField
+                  {...params}
+                  lable={lable}
+                  placeholder="Members"
+                  error={!!error}
+                  helperText={error ? error.message : helperText}
+                />
+              );
+            }}
           />
         );
       }}

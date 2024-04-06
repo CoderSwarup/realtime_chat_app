@@ -10,29 +10,43 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as Yup from "yup";
 import FormProvider from "../../components/Form-Hook/FormProvider";
 import { RHFTextField } from "../../components/Form-Hook";
 import RHFAutoComplete from "../../components/Form-Hook/RHFAutoComplete";
 import { XCircle } from "phosphor-react";
-
+import RHFImageUpload from "../../components/Form-Hook/RHFImageUpload";
+import { useDispatch, useSelector } from "react-redux";
+import { FetchFriendsList, ShowSnackbar } from "../../Redux/Slices/AppSlice";
+import { socket } from "../../Socket";
+import { addNewGroupCreatedConversation } from "../../Redux/Slices/ConversationSlice";
 const DUMMY_MEMBERLIST = ["NAME 1", "NAME 2", "NAME 3"];
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const CreateGroupChatForm = () => {
+const CreateGroupChatForm = ({ handleClose }) => {
+  const { friends } = useSelector((state) => state.app);
+  const dispatch = useDispatch();
+  const admin = window.localStorage.getItem("user_id");
+
+  useEffect(() => {
+    dispatch(FetchFriendsList());
+  }, []);
+
   const CreateGroupSchema = Yup.object().shape({
     title: Yup.string().required("Title is Required"),
-    menbers: Yup.array().min(2, "At least Two Member is Required"),
+    members: Yup.array().min(0, "At least Two Members are Required"),
+    image: Yup.mixed().required("Image is Required").nullable(),
   });
 
   const defaultValues = {
     title: "",
-    menbers: [],
+    members: [],
+    image: null,
   };
 
   const methods = useForm({
@@ -50,6 +64,29 @@ const CreateGroupChatForm = () => {
 
   const onSubmit = (data) => {
     try {
+      const { title, image } = data;
+      let membersIdList = [];
+      data.members.map((mem) => {
+        friends?.filter((f) => {
+          if (f.firstName === mem) {
+            membersIdList.push(f._id);
+          }
+        });
+      });
+
+      socket.emit(
+        "create_group",
+        { title, image, membersIdList, admin },
+        (data) => {
+          dispatch(
+            addNewGroupCreatedConversation({ conversation: data.conversation })
+          );
+          handleClose();
+          dispatch(ShowSnackbar("success", "Group Created"));
+          reset();
+          membersIdList = [];
+        }
+      );
     } catch (error) {
       console.log(error);
       reset();
@@ -63,14 +100,20 @@ const CreateGroupChatForm = () => {
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)} p={2}>
       <Stack spacing={3} my={1}>
-        <RHFTextField name="title" label="Group Chat Name"></RHFTextField>
+        <RHFTextField name="title" label="Group Chat Name" />
         <RHFAutoComplete
-          name={"menbers"}
-          lable={"Members"}
+          name={"members"}
+          label={"Members"}
           multiple
-          options={DUMMY_MEMBERLIST.map((opt) => opt)}
+          options={friends?.map((opt) => opt.firstName)}
           ChipProps={{ size: "medium" }}
         />
+        <RHFImageUpload
+          name="image" // Provide a unique name for the image upload field
+          label="Upload Image" // Specify the label for the image upload field
+          helperText="Please select an image file" // Provide helper text for the image upload field
+        />
+        {errors.img && <p>{errors.img.message}</p>}
       </Stack>
 
       <Stack
@@ -79,13 +122,14 @@ const CreateGroupChatForm = () => {
         justifyContent={"flex-end"}
         alignItems={"center"}
       >
-        <Button variant="contained" onClick={onSubmit}>
+        <Button variant="contained" type="submit">
           Create
         </Button>
       </Stack>
     </FormProvider>
   );
 };
+
 export default function CreateGroupChat({ open, handleClose }) {
   return (
     <>
@@ -115,7 +159,7 @@ export default function CreateGroupChat({ open, handleClose }) {
         </DialogTitle>
         <DialogContent className="hideScrollBar" sx={{ mt: 2 }}>
           {/* Form */}
-          <CreateGroupChatForm />
+          <CreateGroupChatForm handleClose={handleClose} />
         </DialogContent>
       </Dialog>
     </>

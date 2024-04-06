@@ -11,6 +11,7 @@ import OneToOneMessage from "./models/OneToOneMessage.model.js";
 
 import path from "path";
 import { uploadFileOnCloudinary } from "./utils/Services/CloudinaryServices.js";
+import GroupMessage from "./models/GroupMessages.js";
 dotenv.config();
 
 // DEFINE THE PORT
@@ -298,6 +299,48 @@ io.on("connection", async (socket) => {
 
   // +++++++++++++ Conversation ENVENTS END ++++++++++++++++++++++++
 
+  // ++++++++++++++ Group Conversations Events +++++++++++++++++++
+
+  socket.on("get_group_conersation", async ({ user_id }, callback) => {
+    const existing_conversations = await GroupMessage.find({
+      participants: { $all: [user_id] },
+    }).populate(
+      "participants",
+      "firstName lastName avatar _id email status updatedAt"
+    );
+
+    callback(existing_conversations);
+  });
+
+  // create a Group
+  socket.on("create_group", async (data, callback) => {
+    const { title, image, membersIdList, admin } = data;
+
+    const newGroup = await GroupMessage({
+      groupName: title,
+      admins: [admin],
+      participants: [...membersIdList, admin],
+    });
+
+    await newGroup.save();
+
+    callback({
+      status: true,
+      message: "Group Created",
+      conversation: newGroup,
+    });
+  });
+
+  socket.on("get_group_messages", async (data, callback) => {
+    // console.log(data);
+    const messages = await GroupMessage.findById(data.conversation_id).select(
+      "messages"
+    );
+
+    callback(messages);
+  });
+
+  // ++++++++++++++ Group Conversations Events END +++++++++++++++++++
   socket.on("disconnect", async () => {
     console.log(socket.id + " has disconnected");
 

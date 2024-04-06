@@ -12,14 +12,36 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 
 import { socket } from "../../Socket";
+import {
+  FetchCurrentGroupChatMessages,
+  SetCurrentGroupConversation,
+} from "../../Redux/Slices/ConversationSlice";
 
 export default function Messages({ menu = true }) {
   const dispatch = useDispatch();
+  const { conversations, current_messages } = useSelector(
+    (state) => state.conversation.group_chat
+  );
+  const { room_id } = useSelector((state) => state.app);
+
+  useEffect(() => {
+    const current = conversations.find((el) => el?.id === room_id);
+    socket.emit(
+      "get_group_messages",
+      { conversation_id: current?.id },
+      (data) => {
+        // data => list of messages
+        // console.log(data, "List of messages");
+        dispatch(FetchCurrentGroupChatMessages({ messages: data.messages }));
+      }
+    );
+    dispatch(SetCurrentGroupConversation(current));
+  }, [room_id]);
 
   return (
     <Box p={3}>
       <Stack spacing={3}>
-        {Chat_History.map((ele, i) => {
+        {current_messages?.map((ele, i) => {
           switch (ele.type) {
             case "divider":
               return <TimeLine key={i} ele={ele} menu={menu} />;

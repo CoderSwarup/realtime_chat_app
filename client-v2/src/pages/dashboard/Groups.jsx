@@ -7,7 +7,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Conversation from "../../components/Conversation";
 import { Chat, MagnifyingGlass, PlusCircle } from "phosphor-react";
 import Search, {
@@ -18,26 +18,48 @@ import { ChatList } from "../../data";
 import ChatElement from "../../components/ChatElement";
 import CreateGroupChat from "../../Sections/main/CreateGroupChat";
 import GroupChatConversion from "../../components/Group_Chat_Conversion";
-
+import { socket } from "../../Socket";
+import { useDispatch } from "react-redux";
+import { FetchGroupConversations } from "../../Redux/Slices/ConversationSlice";
+import { useSelector } from "react-redux";
+import GroupChatElement from "../../components/Group_Chat_Conversion/GroupChatElement";
+import NoChat from "../../assets/Illustration/NoChat";
 export default function Groups() {
   const theme = useTheme();
-
+  const dispatch = useDispatch();
   const [openCreateGroupchat, setOpenCreateGroupchat] = useState(false);
   const [chatList, setChatList] = useState(ChatList);
+  const { sidebar, room_id, chat_type } = useSelector((state) => state.app);
+
+  const { conversations } = useSelector(
+    (state) => state.conversation.group_chat
+  );
   const handleCloseCreateGroupchat = () => {
     setOpenCreateGroupchat(false);
   };
 
   const handleSearch = (e) => {
     const SearchValue = e.target.value;
-    if (SearchValue === "") return setChatList(ChatList);
-    const FilteredSearchChatList = ChatList.filter((chat) => {
+    if (SearchValue === "") return setChatList(conversations);
+    const FilteredSearchChatList = conversations.filter((chat) => {
       return chat.name
         .toLocaleLowerCase()
         .includes(SearchValue.toLocaleLowerCase());
     });
     setChatList(FilteredSearchChatList);
   };
+
+  // get All Groups Chat
+  const user_id = window.localStorage.getItem("user_id");
+  useEffect(() => {
+    socket.emit("get_group_conersation", { user_id }, (conversations) => {
+      dispatch(FetchGroupConversations({ conversations }));
+    });
+  }, []);
+
+  useEffect(() => {
+    setChatList(conversations);
+  }, [conversations]);
   return (
     <>
       <Stack
@@ -130,27 +152,19 @@ export default function Groups() {
                 </Typography>
 
                 {chatList
-                  .filter((e) => !e.pinned)
+                  ?.filter((e) => !e.pinned)
                   .map((ele, i) => {
-                    return <ChatElement key={i} {...ele} />;
+                    return (
+                      <GroupChatElement
+                        key={i}
+                        {...ele}
+                        chat_type="group_chat"
+                      />
+                    );
                   })}
               </Stack>
             </Stack>
           </Stack>
-        </Box>
-
-        {/* Right Conversation  */}
-        <Box
-          sx={{
-            height: "100%",
-            width: "calc(100vw - 410px)", // if we need sidebar -720px
-            background:
-              theme.palette.mode == "light"
-                ? "#F0F4FE"
-                : theme.palette.background.default,
-          }}
-        >
-          <GroupChatConversion />
         </Box>
       </Stack>
 

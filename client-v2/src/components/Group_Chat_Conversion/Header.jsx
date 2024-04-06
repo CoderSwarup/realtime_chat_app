@@ -13,11 +13,20 @@ import {
   Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { CaretDown, MagnifyingGlass, Phone, VideoCamera } from "phosphor-react";
+import {
+  CaretDown,
+  MagnifyingGlass,
+  Phone,
+  CaretLeft,
+  VideoCamera,
+} from "phosphor-react";
 import { faker } from "@faker-js/faker";
 import { useSearchParams } from "react-router-dom";
 import useResponsive from "../../hooks/useResponsive";
-
+import { useSelector } from "react-redux";
+import { SelectConversation } from "../../Redux/Slices/AppSlice";
+import { SetCurrentGroupConversation } from "../../Redux/Slices/ConversationSlice";
+import { useDispatch } from "react-redux";
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
     backgroundColor: "#44b700",
@@ -66,7 +75,7 @@ const ChatHeader = () => {
   const isMobile = useResponsive("between", "md", "xs", "sm");
   const [searchParams, setSearchParams] = useSearchParams();
   const theme = useTheme();
-
+  const dispatch = useDispatch();
   const [conversationMenuAnchorEl, setConversationMenuAnchorEl] =
     React.useState(null);
   const openConversationMenu = Boolean(conversationMenuAnchorEl);
@@ -76,6 +85,10 @@ const ChatHeader = () => {
   const handleCloseConversationMenu = () => {
     setConversationMenuAnchorEl(null);
   };
+
+  const { current_conversation } = useSelector(
+    (s) => s.conversation.group_chat
+  );
 
   return (
     <Box
@@ -95,29 +108,37 @@ const ChatHeader = () => {
         sx={{ width: "100%", height: "100%" }}
         justifyContent="space-between"
       >
-        <Stack
-          onClick={() => {
-            searchParams.set("open", true);
-            setSearchParams(searchParams);
-          }}
-          spacing={2}
-          direction="row"
-        >
-          <Box>
-            <StyledBadge
-              overlap="circular"
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right",
-              }}
-              variant="dot"
-            >
-              <Avatar alt={faker.name.fullName()} src={faker.image.avatar()} />
-            </StyledBadge>
-          </Box>
-          <Stack spacing={0.2}>
-            <Typography variant="subtitle2">{faker.name.fullName()}</Typography>
-            <Typography variant="caption">Online</Typography>
+        <Stack direction={"row"} spacing={2}>
+          <IconButton
+            onClick={() => {
+              console.log("d");
+              dispatch(SelectConversation({ room_id: null, chat_type: null }));
+              dispatch(SetCurrentGroupConversation(null));
+              // dispatch(FetchCurrentMessages({ messages: [] }));
+            }}
+          >
+            <CaretLeft />
+          </IconButton>
+
+          <Stack
+            // onClick={() => {
+            //   dispatch(ToggleSideBar());
+            //   dispatch(UpdateSidebarType("CONTACT"));
+            // }}
+            direction={"row"}
+            spacing={2}
+          >
+            <Avatar
+              src={current_conversation?.img}
+              alt={current_conversation?.name}
+            ></Avatar>
+
+            <Stack spacing={0.2}>
+              <Typography variant="subtitle2">
+                {current_conversation?.name}
+              </Typography>
+              <Typography variant="caption">About ....</Typography>
+            </Stack>
           </Stack>
         </Stack>
         <Stack direction={"row"} alignItems="center" spacing={isMobile ? 1 : 3}>

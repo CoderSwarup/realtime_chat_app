@@ -1,10 +1,8 @@
 import { Avatar, Badge, Box, Stack, Typography, useTheme } from "@mui/material";
-import StyledBadge from "./Conversation/StyledBadge";
-import { useDispatch, useSelector } from "react-redux";
-import { SelectConversation } from "../Redux/Slices/AppSlice";
-import { useEffect } from "react";
-
-const ChatElement = ({
+import StyledBadge from "../Conversation/StyledBadge";
+import { useSelector, useDispatch } from "react-redux";
+import { SelectConversation } from "../../Redux/Slices/AppSlice";
+const GroupChatElement = ({
   id,
   name,
   img,
@@ -18,7 +16,7 @@ const ChatElement = ({
   const dispatch = useDispatch();
 
   const { current_conversation } = useSelector((state) => {
-    return state.conversation.direct_chat;
+    return state.conversation.group_chat;
   });
 
   return (
@@ -74,4 +72,4 @@ const ChatElement = ({
   );
 };
 
-export default ChatElement;
+export default GroupChatElement;

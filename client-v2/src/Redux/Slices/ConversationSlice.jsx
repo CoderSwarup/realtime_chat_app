@@ -9,13 +9,18 @@ const initialState = {
     current_conversation: null,
     current_messages: [],
   },
-  group_chat: {},
+  group_chat: {
+    conversations: [],
+    current_conversation: null,
+    current_messages: [],
+  },
 };
 
 const ConversationSlice = createSlice({
   name: "conversation",
   initialState,
   reducers: {
+    // ++++++++++++++ DIRECT CHAT +++++++++++++++++++++++
     // fetch direct conversations
     getDirectConversations(state, action) {
       const list = action.payload.conversations.map((ele) => {
@@ -128,6 +133,67 @@ const ConversationSlice = createSlice({
       }
       state.direct_chat.current_messages.splice(indexToDelete, 1);
     },
+
+    // ++++++++++++++ DIRECT CHAT END+++++++++++++++++++++++
+
+    // ++++++++++++++ Group CHAT +++++++++++++++++++++++
+    getGroupConversations(state, action) {
+      const list = action.payload.conversations.map((ele) => {
+        const dateObject = new Date(ele.updatedAt);
+        const hours = dateObject.getHours();
+        const minutes = dateObject.getMinutes();
+
+        return {
+          id: ele._id,
+          name: ele.groupName,
+          img: faker.image.url(),
+          msg: faker.music.songName(),
+          time: hours + ":" + minutes,
+          unread: 0,
+          pinned: false,
+        };
+      });
+
+      state.group_chat.conversations = list;
+    },
+
+    // add new direct conversation
+    addGroupConversationReducer(state, action) {
+      console.log("Sfdfdsfsdfsdff");
+      const this_conversation = action.payload.conversation;
+      const dateObject = new Date(this_conversation.updatedAt);
+      const hours = dateObject.getHours();
+      const minutes = dateObject.getMinutes();
+
+      state.group_chat.conversations.push({
+        id: this_conversation._id,
+        name: this_conversation.groupName,
+        img: faker.image.url(),
+        msg: faker.music.songName(),
+        time: hours + ":" + minutes,
+        unread: 0,
+        pinned: false,
+      });
+    },
+    // fetch Group Message
+    fetchCurrentGroupChatMessages(state, action) {
+      const messages = action.payload.messages;
+      const formatted_messages = messages.map((el) => ({
+        id: el._id,
+        type: "msg",
+        subtype: el.type,
+        message: el.text,
+        incoming: el.to === user_id,
+        outgoing: el.from === user_id,
+        file: el?.file,
+        img: el?.file?.url,
+      }));
+      state.direct_chat.current_messages = formatted_messages;
+    },
+
+    setCurrentGroupConversation(state, action) {
+      state.group_chat.current_conversation = action.payload;
+    },
   },
 });
 
@@ -137,7 +203,9 @@ export default ConversationSlice.reducer;
 export const FetchDirectConversations = ({ conversations }) => {
   return async (dispatch, getState) => {
     dispatch(
-      ConversationSlice.actions.getDirectConversations({ conversations })
+      ConversationSlice.actions.getDirectConversations({
+        conversations,
+      })
     );
   };
 };
@@ -193,5 +261,46 @@ export const AddDirectMessage = (message) => {
 export const DeleteMessage = (message_id) => {
   return async (dispatch, getState) => {
     dispatch(ConversationSlice.actions.deleteMessage({ message_id }));
+  };
+};
+
+//  +++++++++++++++++ GROUP CHAT ACTIONS +++++++
+
+export const FetchGroupConversations = ({ conversations }) => {
+  return async (dispatch, getState) => {
+    dispatch(
+      ConversationSlice.actions.getGroupConversations({
+        conversations,
+      })
+    );
+  };
+};
+
+export const addNewGroupCreatedConversation = ({ conversation }) => {
+  console.log(conversation);
+  return async (dispatch, getState) => {
+    dispatch(
+      ConversationSlice.actions.addGroupConversationReducer({
+        conversation,
+      })
+    );
+  };
+};
+
+export const FetchCurrentGroupChatMessages = ({ messages }) => {
+  return async (dispatch, getState) => {
+    dispatch(
+      ConversationSlice.actions.fetchCurrentGroupChatMessages({ messages })
+    );
+  };
+};
+export const SetCurrentGroupConversation = (current_conversation) => {
+  // console.log(current_conversation);
+  return async (dispatch, getState) => {
+    dispatch(
+      ConversationSlice.actions.setCurrentGroupConversation(
+        current_conversation
+      )
+    );
   };
 };
