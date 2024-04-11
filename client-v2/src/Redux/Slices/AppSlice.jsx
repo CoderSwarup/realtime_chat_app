@@ -6,10 +6,12 @@ const initialState = {
   sidebar: {
     open: false,
     type: "CONTACT", // CONTACT , STARMSG , MEDIA
+    chat_type: null, // SINGLE , GROUP
   },
   snackbar: {
     open: false,
     message: null,
+
     severity: null,
   },
   users: [],
@@ -23,6 +25,10 @@ const AppSlice = createSlice({
   name: "app",
   initialState,
   reducers: {
+    // set sidebar chat type
+    setSidebarChatType(state, action) {
+      state.sidebar.chat_type = action.payload.chat_type;
+    },
     // toggle side Bar
     toggleSideBar(state, actions) {
       state.sidebar.open = !state.sidebar.open;
@@ -73,6 +79,12 @@ const AppSlice = createSlice({
 // Export Reducer
 export default AppSlice.reducer;
 
+export const SetSideBarChatType = (chat_type) => {
+  return async (dispatch, getstate) => {
+    dispatch(AppSlice.actions.setSidebarChatType({ chat_type }));
+  };
+};
+
 //Toggle Reducer
 export const ToggleSideBar = () => {
   return async (dispatch, getState) => {
@@ -115,7 +127,6 @@ export const FetchUsersList = () => {
       },
     })
       .then((res) => {
-        console.log(res);
         dispatch(
           AppSlice.actions.updateUsers({
             users: res.data.data,

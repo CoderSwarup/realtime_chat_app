@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Box,
@@ -18,7 +18,7 @@ import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { LogOutUser } from "../../Redux/Slices/AuthSlice";
-
+import { useSelector } from "react-redux";
 const Get_MenuItem_Path = (index) => {
   switch (index) {
     case 0:
@@ -58,7 +58,7 @@ export default function Sidebar() {
 
   // Selected Button
   const [selectedBtn, setSelectedBtn] = useState(0);
-
+  const { chat_type } = useSelector((s) => s.app);
   // console.log(theme);
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -69,6 +69,19 @@ export default function Sidebar() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  useEffect(() => {
+    if (chat_type === "individual") {
+      setSelectedBtn(0);
+      navigate("/app");
+    } else if (chat_type === "group_chat") {
+      setSelectedBtn(1);
+      navigate("/group");
+    } else {
+      navigate("/app");
+      setSelectedBtn(0);
+    }
+  }, []);
 
   return (
     <Box

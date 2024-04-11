@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import { Box, Stack, Typography, useTheme } from "@mui/material";
 
 import { useSelector } from "react-redux";
@@ -7,9 +7,15 @@ const Cat = lazy(() => import("../../components/Cat"));
 import NoChat from "../../assets/Illustration/NoChat";
 import GroupChatConversion from "../../components/Group_Chat_Conversion";
 import Groups from "./Groups";
+import { useDispatch } from "react-redux";
+import { SetSideBarChatType } from "../../Redux/Slices/AppSlice";
 const GroupGeneralApp = () => {
+  const dispatch = useDispatch();
   const theme = useTheme();
   const { sidebar, room_id, chat_type } = useSelector((state) => state.app);
+  useEffect(() => {
+    dispatch(SetSideBarChatType("group"));
+  }, []);
   return (
     <Stack direction="row" sx={{ width: "100%", position: "relative" }}>
       <Groups />

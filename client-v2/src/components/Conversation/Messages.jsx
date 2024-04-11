@@ -16,7 +16,7 @@ import {
 } from "../../Redux/Slices/ConversationSlice";
 import { socket } from "../../Socket";
 
-export default function Messages({ menu = true }) {
+export default function Messages({ menu = true, type }) {
   const dispatch = useDispatch();
 
   const { conversations, current_messages } = useSelector(
@@ -33,7 +33,7 @@ export default function Messages({ menu = true }) {
     });
 
     dispatch(SetCurrentConversation(current));
-  }, []);
+  }, [room_id]);
   return (
     <Box p={3}>
       <Stack spacing={3}>

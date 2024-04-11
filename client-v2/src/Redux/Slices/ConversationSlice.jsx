@@ -124,14 +124,14 @@ const ConversationSlice = createSlice({
     },
 
     // delete The Message
-    deleteMessage(state, action) {
-      const indexToDelete = state.direct_chat.current_messages.findIndex(
+    deleteGroupMessage(state, action) {
+      const indexToDelete = state.group_chat.current_messages.findIndex(
         (msg) => msg.id === action.payload.message_id
       );
       if (indexToDelete === -1) {
         return;
       }
-      state.direct_chat.current_messages.splice(indexToDelete, 1);
+      state.group_chat.current_messages.splice(indexToDelete, 1);
     },
 
     // ++++++++++++++ DIRECT CHAT END+++++++++++++++++++++++
@@ -151,6 +151,9 @@ const ConversationSlice = createSlice({
           time: hours + ":" + minutes,
           unread: 0,
           pinned: false,
+
+          participants: ele?.participants,
+          admins: ele?.admins,
         };
       });
 
@@ -159,7 +162,6 @@ const ConversationSlice = createSlice({
 
     // add new direct conversation
     addGroupConversationReducer(state, action) {
-      console.log("Sfdfdsfsdfsdff");
       const this_conversation = action.payload.conversation;
       const dateObject = new Date(this_conversation.updatedAt);
       const hours = dateObject.getHours();
@@ -173,6 +175,8 @@ const ConversationSlice = createSlice({
         time: hours + ":" + minutes,
         unread: 0,
         pinned: false,
+        participants: this_conversation?.participants,
+        admins: this_conversation.admins,
       });
     },
     // fetch Group Message
@@ -183,16 +187,30 @@ const ConversationSlice = createSlice({
         type: "msg",
         subtype: el.type,
         message: el.text,
-        incoming: el.to === user_id,
+        incoming: el.from !== user_id,
         outgoing: el.from === user_id,
         file: el?.file,
         img: el?.file?.url,
       }));
-      state.direct_chat.current_messages = formatted_messages;
+      state.group_chat.current_messages = formatted_messages;
     },
 
     setCurrentGroupConversation(state, action) {
       state.group_chat.current_conversation = action.payload;
+    },
+
+    addDirectGroupMessage(state, action) {
+      state.group_chat.current_messages.push(action.payload.message);
+    },
+
+    deleteMessage(state, action) {
+      const indexToDelete = state.direct_chat.current_messages.findIndex(
+        (msg) => msg.id === action.payload.message_id
+      );
+      if (indexToDelete === -1) {
+        return;
+      }
+      state.direct_chat.current_messages.splice(indexToDelete, 1);
     },
   },
 });
@@ -223,7 +241,6 @@ export const updateDirectConversation = ({ conversation }) => {
 
 // add direct conversation thunk
 export const addDirectConversation = ({ conversation }) => {
-  console.log(conversation);
   return async (dispatch, getState) => {
     dispatch(
       ConversationSlice.actions.adddirectConversationReducer({
@@ -302,5 +319,17 @@ export const SetCurrentGroupConversation = (current_conversation) => {
         current_conversation
       )
     );
+  };
+};
+
+export const AddDirectGroupMessage = (message) => {
+  return async (dispatch, getState) => {
+    dispatch(ConversationSlice.actions.addDirectGroupMessage({ message }));
+  };
+};
+
+export const DeleteGroupMessage = (message_id) => {
+  return async (dispatch, getState) => {
+    dispatch(ConversationSlice.actions.deleteGroupMessage({ message_id }));
   };
 };

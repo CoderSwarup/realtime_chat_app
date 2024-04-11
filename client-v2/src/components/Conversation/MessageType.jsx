@@ -276,10 +276,13 @@ export const MessagesOptions = ({ msg }) => {
 
   const { room_id } = useSelector((state) => state.app);
   const user_id = localStorage.getItem("user_id");
+
+  const { chat_type } = useSelector((state) => state.app);
   const handleType = (id) => {
     switch (id) {
       case 5:
         delMessage();
+
         break;
       default:
         handleClose();
@@ -292,18 +295,31 @@ export const MessagesOptions = ({ msg }) => {
       handleClose();
       return;
     }
-
-    socket.emit(
-      "delete_message",
-      {
-        conversation_id: room_id,
-        message_id: msg.id,
-        from: user_id,
-      },
-      (data) => {
-        dispatch(ShowSnackbar("success", data));
-      }
-    );
+    if (chat_type === "individual") {
+      socket.emit(
+        "delete_message",
+        {
+          conversation_id: room_id,
+          message_id: msg.id,
+          from: user_id,
+        },
+        (data) => {
+          dispatch(ShowSnackbar("success", data));
+        }
+      );
+    } else if (chat_type === "group_chat") {
+      socket.emit(
+        "delete_group_message",
+        {
+          room_id,
+          message_id: msg.id,
+          from: user_id,
+        },
+        (data) => {
+          dispatch(ShowSnackbar("success", data));
+        }
+      );
+    }
 
     handleClose();
   };

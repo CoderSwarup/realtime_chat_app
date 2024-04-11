@@ -16,7 +16,7 @@ export default function Conversation() {
 
   // Scrolling Effect
   const messageListRef = useRef(null);
-  const { sidebar } = useSelector((state) => state.app);
+  const { sidebar, chat_type } = useSelector((state) => state.app);
   const { current_messages } = useSelector(
     (state) => state.conversation.direct_chat
   );
@@ -37,6 +37,7 @@ export default function Conversation() {
     // Scroll to the bottom of the message list when new messages are added
     messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
   }, [current_messages]);
+
   return (
     <Stack height="100%" maxHeight="100vh" width="auto">
       {/* Chat Header */}
@@ -57,6 +58,7 @@ export default function Conversation() {
 
       {/* Contact Info */}
       {sidebar.open &&
+        sidebar?.chat_type === "individual" &&
         (() => {
           switch (sidebar.type) {
             case "STARRED":

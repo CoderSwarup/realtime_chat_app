@@ -24,7 +24,11 @@ import { faker } from "@faker-js/faker";
 import { useSearchParams } from "react-router-dom";
 import useResponsive from "../../hooks/useResponsive";
 import { useSelector } from "react-redux";
-import { SelectConversation } from "../../Redux/Slices/AppSlice";
+import {
+  SelectConversation,
+  ToggleSideBar,
+  UpdateSidebarType,
+} from "../../Redux/Slices/AppSlice";
 import { SetCurrentGroupConversation } from "../../Redux/Slices/ConversationSlice";
 import { useDispatch } from "react-redux";
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -111,7 +115,6 @@ const ChatHeader = () => {
         <Stack direction={"row"} spacing={2}>
           <IconButton
             onClick={() => {
-              console.log("d");
               dispatch(SelectConversation({ room_id: null, chat_type: null }));
               dispatch(SetCurrentGroupConversation(null));
               // dispatch(FetchCurrentMessages({ messages: [] }));
@@ -121,10 +124,10 @@ const ChatHeader = () => {
           </IconButton>
 
           <Stack
-            // onClick={() => {
-            //   dispatch(ToggleSideBar());
-            //   dispatch(UpdateSidebarType("CONTACT"));
-            // }}
+            onClick={() => {
+              dispatch(ToggleSideBar());
+              dispatch(UpdateSidebarType("CONTACT"));
+            }}
             direction={"row"}
             spacing={2}
           >

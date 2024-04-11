@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Stack } from "@mui/material";
 import { Navigate, Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
@@ -6,7 +6,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { connectSocket, socket } from "../../Socket";
 import { SelectConversation, ShowSnackbar } from "../../Redux/Slices/AppSlice";
 import {
+  AddDirectGroupMessage,
   AddDirectMessage,
+  DeleteGroupMessage,
   DeleteMessage,
   addDirectConversation,
   updateDirectConversation,
@@ -19,6 +21,11 @@ const DashboardLayout = () => {
   const { conversations, current_conversation } = useSelector(
     (state) => state.conversation.direct_chat
   );
+  const { conversations: GC, current_conversation: GCC } = useSelector(
+    (state) => state.conversation.group_chat
+  );
+
+  const { room_id } = useSelector((s) => s.app);
 
   const user_id = window.localStorage.getItem("user_id");
 
@@ -57,9 +64,9 @@ const DashboardLayout = () => {
       socket.on("new_message", (data) => {
         // console.log(data);
         const message = data.message;
-        // console.log(current_conversation, data);
+        // console.log(room_id);
         // check if msg we got is from currently selected conversation
-        if (current_conversation?.id === data.conversation_id) {
+        if (room_id === data.conversation_id) {
           dispatch(
             AddDirectMessage({
               id: message._id,
@@ -101,6 +108,30 @@ const DashboardLayout = () => {
       socket.on("delete-message", (data) => {
         dispatch(DeleteMessage(data.message_id));
       });
+
+      // Group Enevnts
+      socket.on("group_message_receive", (data) => {
+        const { message } = data;
+
+        if (room_id === data.room_id) {
+          dispatch(
+            AddDirectGroupMessage({
+              id: data.room_id,
+              type: "msg",
+              subtype: message.type,
+              message: message.text,
+              incoming: message.from !== user_id,
+              outgoing: message.from === user_id,
+              file: message?.file,
+              img: message?.file?.url,
+            })
+          );
+        }
+      });
+
+      socket.on("delete-group-message", (data) => {
+        dispatch(DeleteGroupMessage(data.message_id));
+      });
     }
 
     // clear listeners
@@ -113,8 +144,9 @@ const DashboardLayout = () => {
       socket?.off("new_media_message");
       socket?.off("user_offline");
       socket?.off("delete-message");
+      socket?.off("group_message_receive");
     };
-  }, [isLoggedIn, socket]);
+  }, [isLoggedIn, socket, room_id]);
 
   if (!isLoggedIn) {
     return <Navigate to={"/auth/login"} />;

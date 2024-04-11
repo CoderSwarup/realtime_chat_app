@@ -18,19 +18,19 @@ import { ChatList } from "../../data";
 import ChatElement from "../../components/ChatElement";
 import CreateGroupChat from "../../Sections/main/CreateGroupChat";
 import GroupChatConversion from "../../components/Group_Chat_Conversion";
-import { socket } from "../../Socket";
 import { useDispatch } from "react-redux";
-import { FetchGroupConversations } from "../../Redux/Slices/ConversationSlice";
 import { useSelector } from "react-redux";
 import GroupChatElement from "../../components/Group_Chat_Conversion/GroupChatElement";
 import NoChat from "../../assets/Illustration/NoChat";
+import { socket } from "../../Socket";
+import { FetchGroupConversations } from "../../Redux/Slices/ConversationSlice";
 export default function Groups() {
   const theme = useTheme();
   const dispatch = useDispatch();
   const [openCreateGroupchat, setOpenCreateGroupchat] = useState(false);
   const [chatList, setChatList] = useState(ChatList);
   const { sidebar, room_id, chat_type } = useSelector((state) => state.app);
-
+  const user_id = window.localStorage.getItem("user_id");
   const { conversations } = useSelector(
     (state) => state.conversation.group_chat
   );
@@ -49,17 +49,16 @@ export default function Groups() {
     setChatList(FilteredSearchChatList);
   };
 
-  // get All Groups Chat
-  const user_id = window.localStorage.getItem("user_id");
-  useEffect(() => {
-    socket.emit("get_group_conersation", { user_id }, (conversations) => {
-      dispatch(FetchGroupConversations({ conversations }));
-    });
-  }, []);
-
   useEffect(() => {
     setChatList(conversations);
   }, [conversations]);
+
+  useEffect(() => {
+    socket.emit("get_group_conversation", { user_id }, (converstionsist) => {
+      // console.log(converstionsist);
+      dispatch(FetchGroupConversations({ conversations: converstionsist }));
+    });
+  }, []);
   return (
     <>
       <Stack

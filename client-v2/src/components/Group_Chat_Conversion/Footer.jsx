@@ -18,12 +18,14 @@ import {
   User,
 } from "phosphor-react";
 import { useTheme, styled } from "@mui/material/styles";
-import React from "react";
+import React, { useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import useResponsive from "../../hooks/useResponsive";
 
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
+import { socket } from "../../Socket";
+import { useSelector } from "react-redux";
 
 const StyledInput = styled(TextField)(({ theme }) => ({
   "& .MuiInputBase-input": {
@@ -79,14 +81,25 @@ const Actions = [
   // },
 ];
 
-const ChatInput = ({ openPicker, setOpenPicker }) => {
+const ChatInput = ({
+  openPicker,
+  setOpenPicker,
+  setTextMsg,
+  textMsg,
+  inputRef,
+}) => {
   const [openActions, setOpenActions] = React.useState(false);
 
   return (
     <StyledInput
       fullWidth
+      inputRef={inputRef}
       placeholder="Write a message..."
       variant="filled"
+      value={textMsg}
+      onChange={(e) => {
+        setTextMsg(e.target.value);
+      }}
       InputProps={{
         disableUnderline: true,
         startAdornment: (
@@ -153,6 +166,29 @@ const Footer = () => {
   const [searchParams] = useSearchParams();
 
   const [openPicker, setOpenPicker] = React.useState(false);
+
+  const { room_id } = useSelector((state) => state.app);
+  const [textMsg, setTextMsg] = useState("");
+  const user_id = window.localStorage.getItem("user_id");
+  const inputRef = useRef(null);
+
+  function handleEmojiClick(emoji) {
+    const input = inputRef.current;
+
+    if (input) {
+      const selectionStart = input.selectionStart;
+      const selectionEnd = input.selectionEnd;
+
+      setTextMsg(
+        textMsg.substring(0, selectionStart) +
+          emoji +
+          textMsg.substring(selectionEnd)
+      );
+
+      // Move the cursor to the end of the inserted emoji
+      input.selectionStart = input.selectionEnd = selectionStart + 1;
+    }
+  }
   return (
     <Box
       sx={{
@@ -189,11 +225,19 @@ const Footer = () => {
               <Picker
                 theme={theme.palette.mode}
                 data={data}
-                onEmojiSelect={console.log}
+                onEmojiSelect={(e) => {
+                  handleEmojiClick(e.native);
+                }}
               />
             </Box>
             {/* Chat Input */}
-            <ChatInput openPicker={openPicker} setOpenPicker={setOpenPicker} />
+            <ChatInput
+              inputRef={inputRef}
+              openPicker={openPicker}
+              setOpenPicker={setOpenPicker}
+              setTextMsg={setTextMsg}
+              textMsg={textMsg}
+            />
           </Stack>
           <Box
             sx={{
@@ -208,7 +252,19 @@ const Footer = () => {
               alignItems={"center"}
               justifyContent="center"
             >
-              <IconButton>
+              <IconButton
+                onClick={() => {
+                  if (textMsg.trim() === "") return;
+                  socket.emit("send_group_message", {
+                    type: "Text",
+                    from: user_id,
+                    room_id,
+                    message: textMsg,
+                  });
+
+                  setTextMsg("");
+                }}
+              >
                 <PaperPlaneTilt color="#ffffff" />
               </IconButton>
             </Stack>

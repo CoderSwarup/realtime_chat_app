@@ -1,15 +1,22 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import Chats from "./Chats";
 import { Box, Stack, Typography, useTheme } from "@mui/material";
 import Conversation from "../../components/Conversation";
 
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { SetSideBarChatType } from "../../Redux/Slices/AppSlice";
 
 const Cat = lazy(() => import("../../components/Cat"));
 import NoChat from "../../assets/Illustration/NoChat";
 const GeneralApp = () => {
   const theme = useTheme();
   const { sidebar, room_id, chat_type } = useSelector((state) => state.app);
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(SetSideBarChatType("individual"));
+  }, []);
   return (
     <Stack direction="row" sx={{ width: "100%", position: "relative" }}>
       <Chats />

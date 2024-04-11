@@ -165,7 +165,7 @@ io.on("connection", async (socket) => {
 
     // data conatain {to ,from, message , conversation_id , type}
     const { to, from, message, conversation_id, type } = data;
-
+    console.log(conversation_id);
     // access both users
     const user_to = await User.findById(to).select("socket_id");
     const from_user = await User.findById(from).select("socket_id");
@@ -205,7 +205,7 @@ io.on("connection", async (socket) => {
     const { conversation_id, from, to, file, type, message } = data;
     // get the File Extension
     const fileExtension = path.extname(data.filename);
-
+    console.log(conversation_id);
     const GenerateFileName = `${Date.now()}_${Math.floor(
       Math.random() * 100000
     )}${fileExtension}`;
@@ -301,16 +301,19 @@ io.on("connection", async (socket) => {
 
   // ++++++++++++++ Group Conversations Events +++++++++++++++++++
 
-  socket.on("get_group_conersation", async ({ user_id }, callback) => {
-    const existing_conversations = await GroupMessage.find({
-      participants: { $all: [user_id] },
-    }).populate(
-      "participants",
-      "firstName lastName avatar _id email status updatedAt"
-    );
+  socket.on(
+    "get_group_conversation",
+    async ({ user_id, room_id }, callback) => {
+      const existing_conversations = await GroupMessage.find({
+        participants: { $all: [user_id] },
+      }).populate(
+        "participants admins",
+        "firstName lastName avatar _id email status updatedAt"
+      );
 
-    callback(existing_conversations);
-  });
+      callback(existing_conversations);
+    }
+  );
 
   // create a Group
   socket.on("create_group", async (data, callback) => {
@@ -336,10 +339,66 @@ io.on("connection", async (socket) => {
     const messages = await GroupMessage.findById(data.conversation_id).select(
       "messages"
     );
+    socket.join(data.room_id);
 
     callback(messages);
   });
 
+  // send the Message
+  socket.on("send_group_message", async (data) => {
+    const { from, type, room_id, message } = data;
+    console.log(room_id);
+    const new_message = {
+      from,
+      type,
+      text: message,
+      created_at: Date.now(),
+    };
+
+    const Groupchat = await GroupMessage.findById(room_id).populate(
+      "participants",
+      "socket_id"
+    );
+    if (!Groupchat) {
+      console.log("NO GROUP FOUND");
+      return;
+    }
+    Groupchat.messages.push(new_message);
+    await Groupchat.save();
+
+    Groupchat.participants.map((participant) => {
+      io.to(participant?.socket_id).emit("group_message_receive", {
+        room_id,
+        message: new_message,
+      });
+    });
+  });
+
+  //Delete Group Messages
+  socket.on("delete_group_message", async (data, callback) => {
+    const { room_id, message_id, from } = data;
+
+    const msgdelete = await GroupMessage.findByIdAndUpdate(
+      room_id,
+      { $pull: { messages: { _id: message_id } } },
+      { multi: false }
+    ).populate("participants", "socket_id");
+
+    // // emit Event
+
+    if (!msgdelete) {
+      return;
+    }
+
+    msgdelete.participants.map((participant) => {
+      io.to(participant?.socket_id).emit("delete-group-message", {
+        room_id,
+        message_id: message_id,
+      });
+    });
+
+    callback("Message Delete");
+  });
   // ++++++++++++++ Group Conversations Events END +++++++++++++++++++
   socket.on("disconnect", async () => {
     console.log(socket.id + " has disconnected");

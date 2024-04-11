@@ -58,7 +58,6 @@ export default function Header() {
             onClick={() => {
               dispatch(SelectConversation({ room_id: null, chat_type: null }));
               dispatch(SetCurrentConversation(null));
-              dispatch(FetchCurrentMessages({ messages: [] }));
             }}
           >
             <CaretLeft />

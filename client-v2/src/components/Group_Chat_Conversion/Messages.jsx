@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { socket } from "../../Socket";
 import {
   FetchCurrentGroupChatMessages,
+  FetchGroupConversations,
   SetCurrentGroupConversation,
 } from "../../Redux/Slices/ConversationSlice";
 
@@ -28,7 +29,7 @@ export default function Messages({ menu = true }) {
     const current = conversations.find((el) => el?.id === room_id);
     socket.emit(
       "get_group_messages",
-      { conversation_id: current?.id },
+      { conversation_id: current?.id, room_id },
       (data) => {
         // data => list of messages
         // console.log(data, "List of messages");
