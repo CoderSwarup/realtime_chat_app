@@ -134,6 +134,12 @@ const ConversationSlice = createSlice({
       state.group_chat.current_messages.splice(indexToDelete, 1);
     },
 
+    deleteOneOnOneChat(state, action) {
+      const FilteredList = state.direct_chat.conversations.filter(
+        (item) => item.id !== action.payload.room_id
+      );
+      state.direct_chat.conversations = FilteredList;
+    },
     // ++++++++++++++ DIRECT CHAT END+++++++++++++++++++++++
 
     // ++++++++++++++ Group CHAT +++++++++++++++++++++++
@@ -212,6 +218,13 @@ const ConversationSlice = createSlice({
       }
       state.direct_chat.current_messages.splice(indexToDelete, 1);
     },
+
+    removeGroup(state, action) {
+      const FilteredList = state.group_chat.conversations.filter(
+        (item) => item.id !== action.payload.room_id
+      );
+      state.group_chat.conversations = FilteredList;
+    },
   },
 });
 
@@ -280,6 +293,11 @@ export const DeleteMessage = (message_id) => {
     dispatch(ConversationSlice.actions.deleteMessage({ message_id }));
   };
 };
+export const DeleteOneOnOneChat = (room_id) => {
+  return async (disoacth, getstate) => {
+    disoacth(ConversationSlice.actions.deleteOneOnOneChat({ room_id }));
+  };
+};
 
 //  +++++++++++++++++ GROUP CHAT ACTIONS +++++++
 
@@ -294,7 +312,6 @@ export const FetchGroupConversations = ({ conversations }) => {
 };
 
 export const addNewGroupCreatedConversation = ({ conversation }) => {
-  console.log(conversation);
   return async (dispatch, getState) => {
     dispatch(
       ConversationSlice.actions.addGroupConversationReducer({
@@ -331,5 +348,11 @@ export const AddDirectGroupMessage = (message) => {
 export const DeleteGroupMessage = (message_id) => {
   return async (dispatch, getState) => {
     dispatch(ConversationSlice.actions.deleteGroupMessage({ message_id }));
+  };
+};
+
+export const RemoveTheGroup = (room_id) => {
+  return async (disoacth, getstate) => {
+    disoacth(ConversationSlice.actions.removeGroup({ room_id }));
   };
 };

@@ -26,6 +26,8 @@ import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import { socket } from "../../Socket";
 import { useSelector } from "react-redux";
+import { containsUrl, linkify } from "../Conversation/Footer";
+import FileSelectionDialog from "../../Sections/main/FileDialog";
 
 const StyledInput = styled(TextField)(({ theme }) => ({
   "& .MuiInputBase-input": {
@@ -87,6 +89,7 @@ const ChatInput = ({
   setTextMsg,
   textMsg,
   inputRef,
+  handleActionClick,
 }) => {
   const [openActions, setOpenActions] = React.useState(false);
 
@@ -114,6 +117,7 @@ const ChatInput = ({
                 <Tooltip placement="right" title={el.title}>
                   <Fab
                     onClick={() => {
+                      handleActionClick(el.type);
                       setOpenActions(!openActions);
                     }}
                     sx={{
@@ -189,6 +193,41 @@ const Footer = () => {
       input.selectionStart = input.selectionEnd = selectionStart + 1;
     }
   }
+
+  function handleActionClick(type) {
+    setFileSelectionMode(type); // Set file selection mode based on action type
+  }
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [fileSelectionMode, setFileSelectionMode] = useState(null); // State for file selection mode
+
+  // Function to handle opening the dialog
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  // Function to handle closing the dialog
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    clearSelectedFile();
+  };
+
+  // Function to handle file selection
+  const handleFileSelection = (file) => {
+    setSelectedFile(file);
+    setOpenDialog(false); // Close the dialog after selecting the file
+  };
+
+  // Function to handle submitting the form with the selected file
+  const handleSubmit = () => {
+    // Here you can perform any action with the selected file
+    console.log("Selected file:", selectedFile);
+  };
+
+  function clearSelectedFile() {
+    setSelectedFile(null);
+    setFileSelectionMode(null);
+  }
   return (
     <Box
       sx={{
@@ -237,6 +276,15 @@ const Footer = () => {
               setOpenPicker={setOpenPicker}
               setTextMsg={setTextMsg}
               textMsg={textMsg}
+              handleActionClick={handleActionClick}
+            />
+
+            <FileSelectionDialog
+              open={fileSelectionMode !== null}
+              fileSelectionMode={fileSelectionMode}
+              onClose={handleCloseDialog}
+              onDone={handleFileSelection}
+              setFileSelectionMode={setFileSelectionMode}
             />
           </Stack>
           <Box
@@ -255,11 +303,12 @@ const Footer = () => {
               <IconButton
                 onClick={() => {
                   if (textMsg.trim() === "") return;
+
                   socket.emit("send_group_message", {
-                    type: "Text",
+                    type: containsUrl(textMsg) ? "Link" : "Text",
                     from: user_id,
                     room_id,
-                    message: textMsg,
+                    message: linkify(textMsg),
                   });
 
                   setTextMsg("");

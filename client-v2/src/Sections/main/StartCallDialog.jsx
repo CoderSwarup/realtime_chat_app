@@ -33,7 +33,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const CreateGroupChatForm = () => {
   const CreateGroupSchema = Yup.object().shape({
     title: Yup.string().required("Title is Required"),
-    menbers: Yup.array().min(2, "At least Two Member is Required"),
+    menbers: Yup.array().min(3, "At least Two Member is Required"),
   });
 
   const defaultValues = {

@@ -22,14 +22,25 @@ import {
   Prohibit,
   Star,
   Trash,
+  TrashSimple,
+  UserCircle,
   VideoCamera,
   X,
 } from "phosphor-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ToggleSideBar, UpdateSidebarType } from "../Redux/Slices/AppSlice";
+import {
+  SelectConversation,
+  ToggleSideBar,
+  UpdateSidebarType,
+} from "../Redux/Slices/AppSlice";
 import { faker } from "@faker-js/faker";
 import AntSwitch from "./AntSwitch";
+import { socket } from "../Socket";
+import {
+  RemoveTheGroup,
+  SetCurrentGroupConversation,
+} from "../Redux/Slices/ConversationSlice";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -43,7 +54,7 @@ const BlockDialog = ({ open, handleClose }) => {
       onClose={handleClose}
       aria-describedby="alert-dialog-slide-description"
     >
-      <DialogTitle>{"Block This Contact"}</DialogTitle>
+      <DialogTitle>{"Block This Groupp"}</DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-slide-description">
           Are You Sure you wnat to block this Group ?
@@ -51,13 +62,23 @@ const BlockDialog = ({ open, handleClose }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleClose}>Confirm</Button>
+        <Button
+          onClick={() => {
+            handleClose();
+          }}
+        >
+          Confirm
+        </Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-const DeleteDialog = ({ open, handleClose }) => {
+const DeleteDialog = ({ open, handleClose, type }) => {
+  const { room_id } = useSelector((state) => state.app);
+  const user_id = window.localStorage.getItem("user_id");
+  const dispatch = useDispatch();
+
   return (
     <Dialog
       open={open}
@@ -66,15 +87,42 @@ const DeleteDialog = ({ open, handleClose }) => {
       onClose={handleClose}
       aria-describedby="alert-dialog-slide-description"
     >
-      <DialogTitle>{"Delete This Contact"}</DialogTitle>
+      <DialogTitle>
+        {type === "exit" ? "Exit From This Group" : "Delete Group"}
+      </DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-slide-description">
-          Are You Sure you wnat to Exit From this Group ?
+          Are You Sure you want to{" "}
+          {type === "exit" ? "Exit From this Group ?" : "Delete This Group"}
         </DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleClose}>Confirm</Button>
+        <Button
+          onClick={() => {
+            dispatch(SelectConversation({ room_id: null, chat_type: null }));
+            dispatch(SetCurrentGroupConversation(null));
+
+            if (type === "exit") {
+              socket.emit("exit_group", { room_id, user_id }, (data) => {
+                if (data.success) {
+                  dispatch(RemoveTheGroup(data.room_id));
+                }
+              });
+            }
+            if (type === "delete") {
+              socket.emit("delete_group", { room_id, user_id }, (data) => {
+                if (data.success) {
+                  dispatch(RemoveTheGroup(data.room_id));
+                }
+              });
+            }
+
+            handleClose();
+          }}
+        >
+          Confirm
+        </Button>
       </DialogActions>
     </Dialog>
   );
@@ -86,7 +134,8 @@ export default function GroupChatInfo({ FiltertedMedia }) {
   const { current_conversation, current_messages } = useSelector(
     (state) => state.conversation.group_chat
   );
-
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [type, setType] = useState("");
   //Dialog
   const [openBlock, setOpenBlock] = useState(false);
 
@@ -99,7 +148,13 @@ export default function GroupChatInfo({ FiltertedMedia }) {
   const handleCloseDelete = () => {
     setOpenDelete(false);
   };
-
+  useEffect(() => {
+    current_conversation?.admins.forEach((admin) => {
+      if (admin._id === localStorage.getItem("user_id")) {
+        setIsAdmin(true);
+      }
+    });
+  }, [current_conversation]);
   return (
     <Box
       sx={{
@@ -204,6 +259,25 @@ export default function GroupChatInfo({ FiltertedMedia }) {
 
           {/* Divider */}
           <Divider width="100%"></Divider>
+
+          {/* Add and Remove Members */}
+          {isAdmin && (
+            <Stack>
+              <Stack
+                direction={"row"}
+                alignItems={"center"}
+                justifyContent={"space-evenly"}
+                spacing={2}
+              >
+                <Button startIcon={<Prohibit />} fullWidth variant="outlined">
+                  Remove Members
+                </Button>
+                <Button startIcon={<UserCircle />} fullWidth variant="outlined">
+                  Add Members
+                </Button>
+              </Stack>
+            </Stack>
+          )}
 
           {/* Media Link Docs */}
           <Stack spacing={3}>
@@ -327,7 +401,7 @@ export default function GroupChatInfo({ FiltertedMedia }) {
                 Group Members
               </Typography>
               <Typography variant="body1" fontWeight={700} color={"gray"}>
-                {current_conversation.participants?.length}
+                {current_conversation?.participants?.length}
               </Typography>
             </Stack>
 
@@ -376,7 +450,10 @@ export default function GroupChatInfo({ FiltertedMedia }) {
                 Block
               </Button>
               <Button
-                onClick={() => setOpenDelete(true)}
+                onClick={() => {
+                  setType("exit");
+                  setOpenDelete(true);
+                }}
                 startIcon={<Trash />}
                 fullWidth
                 variant="outlined"
@@ -384,6 +461,22 @@ export default function GroupChatInfo({ FiltertedMedia }) {
                 Exit
               </Button>
             </Stack>
+
+            {isAdmin && (
+              <Box>
+                <Button
+                  onClick={() => {
+                    setType("delete");
+                    setOpenDelete(true);
+                  }}
+                  startIcon={<TrashSimple />}
+                  fullWidth
+                  variant="outlined"
+                >
+                  Delete Group
+                </Button>
+              </Box>
+            )}
           </Stack>
         </Stack>
       </Stack>
@@ -392,6 +485,7 @@ export default function GroupChatInfo({ FiltertedMedia }) {
       )}
       {openDelete && (
         <DeleteDialog
+          type={type}
           open={openDelete}
           handleClose={handleCloseDelete}
         ></DeleteDialog>

@@ -184,6 +184,7 @@ io.on("connection", async (socket) => {
 
     // create new message
     const chat = await OneToOneMessage.findById(conversation_id);
+    if (!chat) return;
     chat.messages.push(new_message);
     await chat.save();
     // console.log(user_to, from_user);
@@ -223,7 +224,8 @@ io.on("connection", async (socket) => {
         return callback({ success: false });
       }
     });
-
+    const chat = await OneToOneMessage.findById(conversation_id);
+    if (!chat) return;
     const user_to = await User.findById(to).select("socket_id");
     const from_user = await User.findById(from).select("socket_id");
     if (!user_to || !from_user) {
@@ -249,7 +251,6 @@ io.on("connection", async (socket) => {
     };
 
     // create new message
-    const chat = await OneToOneMessage.findById(conversation_id);
     chat.messages.push(new_message);
     await chat.save();
 
@@ -297,10 +298,20 @@ io.on("connection", async (socket) => {
     callback("Message Delete");
   });
 
+  // Delete the Chat
+  socket.on("delete_chat", async ({ room_id }, callback) => {
+    const chatDelete = await OneToOneMessage.findByIdAndDelete(room_id);
+
+    if (!chatDelete) return callback({ success: false, room_id });
+
+    callback({ success: true, room_id });
+  });
+
   // +++++++++++++ Conversation ENVENTS END ++++++++++++++++++++++++
 
   // ++++++++++++++ Group Conversations Events +++++++++++++++++++
 
+  // get Users Groups
   socket.on(
     "get_group_conversation",
     async ({ user_id, room_id }, callback) => {
@@ -347,7 +358,7 @@ io.on("connection", async (socket) => {
   // send the Message
   socket.on("send_group_message", async (data) => {
     const { from, type, room_id, message } = data;
-    console.log(room_id);
+
     const new_message = {
       from,
       type,
@@ -360,7 +371,6 @@ io.on("connection", async (socket) => {
       "socket_id"
     );
     if (!Groupchat) {
-      console.log("NO GROUP FOUND");
       return;
     }
     Groupchat.messages.push(new_message);
@@ -372,6 +382,67 @@ io.on("connection", async (socket) => {
         message: new_message,
       });
     });
+  });
+
+  //Send Group Media message
+  socket.on("group_media_message", async (data, callback) => {
+    // console.log("media message recieve", data);
+    const { conversation_id, from, file, type, message } = data;
+    // get the File Extension
+    const fileExtension = path.extname(data.filename);
+    const GenerateFileName = `${Date.now()}_${Math.floor(
+      Math.random() * 100000
+    )}${fileExtension}`;
+
+    let fileBuffer = Buffer.from(file);
+
+    const filePath = `./Public/Temp/${GenerateFileName}`;
+
+    fs.writeFile(filePath, fileBuffer, async (err) => {
+      if (err) {
+        return callback({ success: false });
+      }
+    });
+
+    const from_user = await User.findById(from);
+    if (!from_user) {
+      return;
+    }
+    const GroupChat = await GroupMessage.findById(conversation_id).populate(
+      "participants",
+      "socket_id"
+    );
+    if (!GroupChat) return;
+
+    // Upload the File on cloudinary
+    const res = await uploadFileOnCloudinary(filePath);
+    if (res === null) return callback({ success: false });
+
+    const new_message = {
+      from: from_user._id,
+      type,
+      text: message,
+      created_at: Date.now(),
+      file: {
+        public_id: res?.public_id,
+        url: res?.url,
+      },
+    };
+
+    // create new message
+
+    GroupChat.messages.push(new_message);
+    await GroupChat.save();
+
+    GroupChat.participants.map((participant) => {
+      io.to(participant?.socket_id).emit("group_message_receive", {
+        room_id: conversation_id,
+        message: new_message,
+      });
+    });
+    callback({ success: true });
+
+    fs.unlinkSync(filePath);
   });
 
   //Delete Group Messages
@@ -399,6 +470,35 @@ io.on("connection", async (socket) => {
 
     callback("Message Delete");
   });
+
+  // Exit From the Group
+  socket.on("exit_group", async (data, callback) => {
+    const { room_id, user_id } = data;
+    let groupChat = await GroupMessage.findById(room_id);
+
+    if (!groupChat) return callback({ success: false });
+
+    // Remove the user from the participants array
+    groupChat.participants.pull(user_id);
+
+    // Remove the user from the admins array
+    groupChat.admins.pull(user_id);
+
+    // Save the updated groupChat
+    await groupChat.save();
+
+    callback({ success: true, room_id });
+  });
+
+  socket.on("delete_group", async (data, callback) => {
+    const { room_id, user_id } = data;
+    let groupChat = await GroupMessage.findByIdAndDelete(room_id);
+
+    if (!groupChat) return callback({ success: false });
+
+    callback({ success: true, room_id });
+  });
+
   // ++++++++++++++ Group Conversations Events END +++++++++++++++++++
   socket.on("disconnect", async () => {
     console.log(socket.id + " has disconnected");

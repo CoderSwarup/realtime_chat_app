@@ -8,6 +8,7 @@ const initialState = {
   isLoading: false,
   email: "",
   error: false,
+  userdetails: null,
 };
 const AuthSlice = createSlice({
   name: "auth",
@@ -20,6 +21,7 @@ const AuthSlice = createSlice({
     login(state, action) {
       state.isLoggedIn = action.payload.isLoggedIn;
       state.token = action.payload.token;
+      state.userdetails = action.payload.user;
     },
     signout(state, action) {
       state.isLoggedIn = false;
@@ -51,6 +53,7 @@ export function LoginUser(data) {
           AuthSlice.actions.login({
             isLoggedIn: true,
             token: res.data.token,
+            user: res.data.user,
           })
         );
         window.localStorage.setItem("user_id", res.data.user_id);

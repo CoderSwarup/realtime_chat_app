@@ -25,7 +25,7 @@ const FileSelectionDialog = ({
 
   const user_id = window.localStorage.getItem("user_id");
 
-  const { room_id } = useSelector((state) => state.app);
+  const { room_id, chat_type } = useSelector((state) => state.app);
   const { current_conversation } = useSelector(
     (state) => state.conversation.direct_chat
   );
@@ -74,39 +74,59 @@ const FileSelectionDialog = ({
     setSelectedFile(null);
   };
   // Function to handle "Done" button click
+
+  const OnResponse = (response) => {
+    if (!response.success) {
+      dispacth(
+        ShowSnackbar("error", "Failed To Send File Please Send After Some Time")
+      );
+    }
+
+    if (response.success) {
+      onDone(selectedFile);
+      setFileSelectionMode(null); // Reset selected file state after sending
+      setSelectedFile(null);
+      setMessage("");
+    }
+  };
+
   const handleDoneClick = () => {
     // Emit the file to the backend
     if (fileSelectionMode && selectedFile) {
-      socket.emit(
-        "media_message",
-        {
-          file: selectedFile,
-          filename: selectedFile.name,
-          conversation_id: room_id,
-          type: fileSelectionMode,
-          message,
-          from: user_id,
-          to: current_conversation.user_id,
-        },
-        (data) => {
-          // console.log(data.success);
-          if (!data.success) {
-            dispacth(
-              ShowSnackbar(
-                "error",
-                "Failed To Send File Please Send After Some Time"
-              )
-            );
+      if (chat_type === "group_chat") {
+        socket.emit(
+          "group_media_message",
+          {
+            file: selectedFile,
+            filename: selectedFile.name,
+            conversation_id: room_id,
+            type: fileSelectionMode,
+            message,
+            from: user_id,
+          },
+          (data) => {
+            // console.log(data.success);
+            OnResponse(data);
           }
-
-          if (data.success) {
-            onDone(selectedFile);
-            setFileSelectionMode(null); // Reset selected file state after sending
-            setSelectedFile(null);
-            setMessage("");
+        );
+      } else if (chat_type === "individual") {
+        socket.emit(
+          "media_message",
+          {
+            file: selectedFile,
+            filename: selectedFile.name,
+            conversation_id: room_id,
+            type: fileSelectionMode,
+            message,
+            from: user_id,
+            to: current_conversation.user_id,
+          },
+          (data) => {
+            // console.log(data.success);
+            OnResponse(data);
           }
-        }
-      );
+        );
+      }
     }
   };
 

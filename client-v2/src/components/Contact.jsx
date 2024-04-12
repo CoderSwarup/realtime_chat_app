@@ -27,9 +27,18 @@ import {
 } from "phosphor-react";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ToggleSideBar, UpdateSidebarType } from "../Redux/Slices/AppSlice";
+import {
+  SelectConversation,
+  ToggleSideBar,
+  UpdateSidebarType,
+} from "../Redux/Slices/AppSlice";
 import { faker } from "@faker-js/faker";
 import AntSwitch from "./AntSwitch";
+import {
+  DeleteOneOnOneChat,
+  SetCurrentConversation,
+} from "../Redux/Slices/ConversationSlice";
+import { socket } from "../Socket";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -58,6 +67,8 @@ const BlockDialog = ({ open, handleClose }) => {
 };
 
 const DeleteDialog = ({ open, handleClose }) => {
+  const dispatch = useDispatch();
+  const { room_id } = useSelector((state) => state.app);
   return (
     <Dialog
       open={open}
@@ -74,7 +85,21 @@ const DeleteDialog = ({ open, handleClose }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleClose}>Confirm</Button>
+        <Button
+          onClick={() => {
+            handleClose();
+            dispatch(SelectConversation({ room_id: null, chat_type: null }));
+            dispatch(SetCurrentConversation(null));
+
+            socket.emit("delete_chat", { room_id }, (data) => {
+              if (data.success) {
+                dispatch(DeleteOneOnOneChat(data.room_id));
+              }
+            });
+          }}
+        >
+          Confirm
+        </Button>
       </DialogActions>
     </Dialog>
   );

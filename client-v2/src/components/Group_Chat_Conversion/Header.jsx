@@ -86,7 +86,14 @@ const ChatHeader = () => {
   const handleClickConversationMenu = (event) => {
     setConversationMenuAnchorEl(event.currentTarget);
   };
-  const handleCloseConversationMenu = () => {
+
+  const handleCloseConversationMenu = (i) => {
+    switch (i) {
+      case 0:
+        dispatch(ToggleSideBar());
+        dispatch(UpdateSidebarType("CONTACT"));
+        break;
+    }
     setConversationMenuAnchorEl(null);
   };
 
@@ -190,8 +197,8 @@ const ChatHeader = () => {
           >
             <Box p={1}>
               <Stack spacing={1}>
-                {Conversation_Menu.map((el) => (
-                  <MenuItem onClick={handleCloseConversationMenu}>
+                {Conversation_Menu.map((el, i) => (
+                  <MenuItem onClick={() => handleCloseConversationMenu(i)}>
                     <Stack
                       sx={{ minWidth: 100 }}
                       direction="row"

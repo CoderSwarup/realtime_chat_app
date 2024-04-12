@@ -191,6 +191,11 @@ export const LoginController = catchAsync(async (req, res, next) => {
     message: "Logged in successfully!",
     token,
     user_id: user._id,
+    user: {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+    },
   });
 });
 

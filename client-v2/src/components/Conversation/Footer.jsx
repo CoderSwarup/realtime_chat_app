@@ -75,7 +75,7 @@ const Actions = [
   // },
 ];
 
-function linkify(text) {
+export function linkify(text) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   return text.replace(
     urlRegex,
@@ -83,7 +83,7 @@ function linkify(text) {
   );
 }
 
-function containsUrl(text) {
+export function containsUrl(text) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   return urlRegex.test(text);
 }
