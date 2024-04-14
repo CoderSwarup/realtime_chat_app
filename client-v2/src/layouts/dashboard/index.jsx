@@ -10,6 +10,8 @@ import {
   AddDirectMessage,
   DeleteGroupMessage,
   DeleteMessage,
+  SetDirectChatAlertMsg,
+  SetGroupAlertMsg,
   addDirectConversation,
   updateDirectConversation,
 } from "../../Redux/Slices/ConversationSlice";
@@ -65,6 +67,7 @@ const DashboardLayout = () => {
         // console.log(data);
         const message = data.message;
         // console.log(room_id);
+
         // check if msg we got is from currently selected conversation
         if (room_id === data.conversation_id) {
           dispatch(
@@ -79,6 +82,44 @@ const DashboardLayout = () => {
               img: message?.file?.url,
             })
           );
+        } else {
+          dispatch(
+            SetDirectChatAlertMsg(
+              data.conversation_id,
+              message?.text || "",
+              message.type
+            )
+          );
+          let userChat = JSON.parse(
+            window.localStorage.getItem(data.conversation_id)
+          );
+          if (userChat == null) {
+            localStorage.setItem(
+              data.conversation_id,
+              message.type === "Text" || message.type === "Link"
+                ? JSON.stringify({
+                    letestMessage: message.text || "",
+                    count: 1,
+                  })
+                : JSON.stringify({
+                    letestMessage: "File Message 📂",
+                    count: 1,
+                  })
+            );
+          } else {
+            localStorage.setItem(
+              data.conversation_id,
+              message.type === "Text" || message.type === "Link"
+                ? JSON.stringify({
+                    letestMessage: message.text || "",
+                    count: userChat.count + 1,
+                  })
+                : JSON.stringify({
+                    letestMessage: "File Message 📂",
+                    count: userChat.count + 1,
+                  })
+            );
+          }
         }
       });
 
@@ -125,6 +166,60 @@ const DashboardLayout = () => {
               file: message?.file,
               img: message?.file?.url,
             })
+          );
+        } else {
+          dispatch(
+            SetGroupAlertMsg(data.room_id, message?.text || "", message.type)
+          );
+
+          let GroupChat = JSON.parse(window.localStorage.getItem(data.room_id));
+          if (GroupChat == null) {
+            localStorage.setItem(
+              data.room_id,
+              JSON.stringify({
+                letestMessage: message.text || "",
+                count: 1,
+              })
+            );
+          } else {
+            localStorage.setItem(
+              data.room_id,
+              JSON.stringify({
+                letestMessage: message.text || "",
+                count: GroupChat.count + 1,
+              })
+            );
+          }
+        }
+
+        let userChat = JSON.parse(
+          window.localStorage.getItem(data.conversation_id)
+        );
+        if (userChat == null) {
+          localStorage.setItem(
+            data.conversation_id,
+            message.type === "Text" || message.type === "Link"
+              ? JSON.stringify({
+                  letestMessage: message.text || "",
+                  count: 1,
+                })
+              : JSON.stringify({
+                  letestMessage: "File Message 📂",
+                  count: 1,
+                })
+          );
+        } else {
+          localStorage.setItem(
+            data.conversation_id,
+            message.type === "Text" || message.type === "Link"
+              ? JSON.stringify({
+                  letestMessage: message.text || "",
+                  count: userChat.count + 1,
+                })
+              : JSON.stringify({
+                  letestMessage: "File Message 📂",
+                  count: userChat.count + 1,
+                })
           );
         }
       });

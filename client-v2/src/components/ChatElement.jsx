@@ -2,7 +2,9 @@ import { Avatar, Badge, Box, Stack, Typography, useTheme } from "@mui/material";
 import StyledBadge from "./Conversation/StyledBadge";
 import { useDispatch, useSelector } from "react-redux";
 import { SelectConversation } from "../Redux/Slices/AppSlice";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { socket } from "../Socket";
+import { SetDirectChatAlertMsgToNull } from "../Redux/Slices/ConversationSlice";
 
 const ChatElement = ({
   id,
@@ -13,6 +15,7 @@ const ChatElement = ({
   unread,
   online,
   chat_type,
+  alertMessage,
 }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -20,11 +23,30 @@ const ChatElement = ({
   const { current_conversation } = useSelector((state) => {
     return state.conversation.direct_chat;
   });
+  const [AlertMsg, setAlertMsg] = useState(null);
+
+  function CheckLocalStorage() {
+    const DirectChat = JSON.parse(window.localStorage.getItem(id));
+    if (DirectChat !== null) {
+      setAlertMsg({
+        letestMessage: DirectChat.letestMessage,
+        count: DirectChat.count,
+      });
+    } else {
+      setAlertMsg(alertMessage);
+    }
+  }
+  useEffect(() => {
+    CheckLocalStorage();
+  }, [alertMessage]);
 
   return (
     <Box
       onClick={() => {
         dispatch(SelectConversation({ room_id: id, chat_type }));
+        dispatch(SetDirectChatAlertMsgToNull(id));
+        window.localStorage.removeItem(id);
+        CheckLocalStorage();
       }}
       sx={{
         width: "100%",
@@ -58,7 +80,14 @@ const ChatElement = ({
           {/* Text Name And Message  */}
           <Stack spacing={0.3}>
             <Typography variant="subtitle2">{name}</Typography>
-            <Typography variant="caption">{msg.slice(0, 20)}..</Typography>
+            <Typography variant="caption">
+              {AlertMsg?.letestMessage && (
+                <>
+                  {AlertMsg?.letestMessage?.slice(0, 20)}
+                  {AlertMsg?.letestMessage.length > 20 ? "..." : ""}
+                </>
+              )}
+            </Typography>
           </Stack>
         </Stack>
 
@@ -67,7 +96,7 @@ const ChatElement = ({
           <Typography sx={{ fontWeight: 600 }} variant="caption">
             {time}
           </Typography>
-          <Badge color="primary" badgeContent={unread}></Badge>
+          <Badge color="secondary" badgeContent={AlertMsg?.count}></Badge>
         </Stack>
       </Stack>
     </Box>

@@ -2,6 +2,8 @@ import { Avatar, Badge, Box, Stack, Typography, useTheme } from "@mui/material";
 import StyledBadge from "../Conversation/StyledBadge";
 import { useSelector, useDispatch } from "react-redux";
 import { SelectConversation } from "../../Redux/Slices/AppSlice";
+import { SetGroupAlertMsgToNull } from "../../Redux/Slices/ConversationSlice";
+import { useEffect, useState } from "react";
 const GroupChatElement = ({
   id,
   name,
@@ -11,6 +13,7 @@ const GroupChatElement = ({
   unread,
   online,
   chat_type,
+  alertMessage,
 }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -19,10 +22,29 @@ const GroupChatElement = ({
     return state.conversation.group_chat;
   });
 
+  const [AlertMsg, setAlertMsg] = useState(null);
+
+  function CheckLocalStorage() {
+    const GroupChat = JSON.parse(window.localStorage.getItem(id));
+    if (GroupChat !== null) {
+      setAlertMsg({
+        letestMessage: GroupChat.letestMessage,
+        count: GroupChat.count,
+      });
+    } else {
+      setAlertMsg(alertMessage);
+    }
+  }
+  useEffect(() => {
+    CheckLocalStorage();
+  }, [alertMessage]);
   return (
     <Box
       onClick={() => {
         dispatch(SelectConversation({ room_id: id, chat_type }));
+        dispatch(SetGroupAlertMsgToNull(id));
+        window.localStorage.removeItem(id);
+        CheckLocalStorage();
       }}
       sx={{
         width: "100%",
@@ -56,7 +78,14 @@ const GroupChatElement = ({
           {/* Text Name And Message  */}
           <Stack spacing={0.3}>
             <Typography variant="subtitle2">{name}</Typography>
-            <Typography variant="caption">{msg.slice(0, 20)}..</Typography>
+            <Typography variant="caption">
+              {AlertMsg?.letestMessage && (
+                <>
+                  {AlertMsg?.letestMessage?.slice(0, 20)}
+                  {AlertMsg?.letestMessage.length > 20 ? "..." : ""}
+                </>
+              )}
+            </Typography>
           </Stack>
         </Stack>
 
@@ -65,7 +94,11 @@ const GroupChatElement = ({
           <Typography sx={{ fontWeight: 600 }} variant="caption">
             {time}
           </Typography>
-          <Badge color="primary" badgeContent={unread}></Badge>
+          <Badge
+            sx={{ fontWeight: 600 }}
+            color="secondary"
+            badgeContent={AlertMsg?.count}
+          ></Badge>
         </Stack>
       </Stack>
     </Box>

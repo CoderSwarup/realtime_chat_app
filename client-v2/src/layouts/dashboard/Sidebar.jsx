@@ -78,8 +78,8 @@ export default function Sidebar() {
       setSelectedBtn(1);
       navigate("/group");
     } else {
-      navigate("/app");
       setSelectedBtn(0);
+      navigate("/app");
     }
   }, []);
 

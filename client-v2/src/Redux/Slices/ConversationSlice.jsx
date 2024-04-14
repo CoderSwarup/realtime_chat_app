@@ -43,6 +43,10 @@ const ConversationSlice = createSlice({
           online: this_user.status === "Online",
           unread: 0,
           pinned: false,
+          alertMessage: {
+            letestMessage: null,
+            count: 0,
+          },
         };
       });
 
@@ -70,6 +74,10 @@ const ConversationSlice = createSlice({
               online: user.status === "Online",
               unread: 0,
               pinned: false,
+              alertMessage: {
+                letestMessage: null,
+                count: 0,
+              },
             };
           } else {
             return ele;
@@ -94,6 +102,10 @@ const ConversationSlice = createSlice({
         online: user.status === "Online",
         unread: 0,
         pinned: false,
+        alertMessage: {
+          letestMessage: null,
+          count: 0,
+        },
       });
     },
 
@@ -102,6 +114,33 @@ const ConversationSlice = createSlice({
       state.direct_chat.current_conversation = action.payload;
     },
 
+    // alert message to null
+    setDirectChatlertMessageToNull(state, action) {
+      const { room_id } = action.payload;
+
+      state.direct_chat.conversations.map((chat) => {
+        if (chat.id === room_id) {
+          chat.alertMessage.letestMessage = null;
+          chat.alertMessage.count = 0;
+          return;
+        }
+      });
+    },
+
+    // set alert Message
+    setDirectChatAlertMessage(state, action) {
+      const { message, room_id, subtype } = action.payload;
+      const findedChat = state.direct_chat.conversations.find(
+        (c) => c.id == room_id
+      );
+      if (!findedChat) return;
+      if (subtype === "Text") {
+        findedChat.alertMessage.letestMessage = message;
+      } else {
+        findedChat.alertMessage.letestMessage = "File 📁";
+      }
+      findedChat.alertMessage.count += 1;
+    },
     // fetch current conversation messages reducer
     fetchCurrentMessages(state, action) {
       const messages = action.payload.messages;
@@ -157,9 +196,12 @@ const ConversationSlice = createSlice({
           time: hours + ":" + minutes,
           unread: 0,
           pinned: false,
-
           participants: ele?.participants,
           admins: ele?.admins,
+          alertMessage: {
+            letestMessage: null,
+            count: 0,
+          },
         };
       });
 
@@ -183,7 +225,37 @@ const ConversationSlice = createSlice({
         pinned: false,
         participants: this_conversation?.participants,
         admins: this_conversation.admins,
+        alertMessage: {
+          letestMessage: null,
+          count: 0,
+        },
       });
+    },
+
+    // setalertMessage
+    setGroupAlertMessageToNull(state, action) {
+      const { room_id } = action.payload;
+
+      state.group_chat.conversations.map((chat) => {
+        if (chat.id === room_id) {
+          chat.alertMessage.letestMessage = null;
+          chat.alertMessage.count = 0;
+          return;
+        }
+      });
+    },
+    setGroupAlertMessage(state, action) {
+      const { message, room_id, subtype } = action.payload;
+      const findedChat = state.group_chat.conversations.find(
+        (c) => c.id == room_id
+      );
+      if (!findedChat) return;
+      if (subtype === "Text") {
+        findedChat.alertMessage.letestMessage = message;
+      } else {
+        findedChat.alertMessage.letestMessage = "File 📁";
+      }
+      findedChat.alertMessage.count += 1;
     },
     // fetch Group Message
     fetchCurrentGroupChatMessages(state, action) {
@@ -280,6 +352,28 @@ export const FetchCurrentMessages = ({ messages }) => {
   };
 };
 
+//set Direct Chat alert Message null
+export const SetDirectChatAlertMsgToNull = (room_id) => {
+  return async (disoacth, getstate) => {
+    disoacth(
+      ConversationSlice.actions.setDirectChatlertMessageToNull({ room_id })
+    );
+    window.localStorage.removeItem(room_id);
+  };
+};
+// set Alert Message
+export const SetDirectChatAlertMsg = (room_id, message, subtype) => {
+  return async (disoacth, getstate) => {
+    disoacth(
+      ConversationSlice.actions.setDirectChatAlertMessage({
+        room_id,
+        message,
+        subtype,
+      })
+    );
+  };
+};
+
 // add the new Message that send
 export const AddDirectMessage = (message) => {
   return async (dispatch, getState) => {
@@ -354,5 +448,24 @@ export const DeleteGroupMessage = (message_id) => {
 export const RemoveTheGroup = (room_id) => {
   return async (disoacth, getstate) => {
     disoacth(ConversationSlice.actions.removeGroup({ room_id }));
+  };
+};
+
+export const SetGroupAlertMsgToNull = (room_id) => {
+  return async (disoacth, getstate) => {
+    disoacth(ConversationSlice.actions.setGroupAlertMessageToNull({ room_id }));
+
+    window.localStorage.removeItem(room_id);
+  };
+};
+export const SetGroupAlertMsg = (room_id, message, subtype) => {
+  return async (disoacth, getstate) => {
+    disoacth(
+      ConversationSlice.actions.setGroupAlertMessage({
+        room_id,
+        message,
+        subtype,
+      })
+    );
   };
 };
