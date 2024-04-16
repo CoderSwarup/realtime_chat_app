@@ -29,11 +29,16 @@ const io = new Server(server, {
 
 // DB CONNECTION
 DBConnect();
-
+const connectUsersIdAndSocketIds = [];
 io.on("connection", async (socket) => {
   // console.log(JSON.stringify(socket.handshake));
   const user_id = socket.handshake.query.user_id;
   const socket_id = socket.id;
+
+  connectUsersIdAndSocketIds.push({
+    user_id,
+    socket_id,
+  });
 
   console.log("User Conncted Successfully", socket_id);
 
@@ -108,7 +113,7 @@ io.on("connection", async (socket) => {
       participants: { $all: [user_id] },
     }).populate(
       "participants",
-      "firstName lastName avatar _id email status updatedAt"
+      "firstName lastName avatar _id email status updatedAt socket_id"
     );
 
     // console.log(exist_conersations);
@@ -124,7 +129,10 @@ io.on("connection", async (socket) => {
         $size: 2,
         $all: [to, from],
       },
-    }).populate("participants", "firstName lastName avatar _id email status");
+    }).populate(
+      "participants",
+      "firstName lastName avatar _id email status updatedAt socket_id"
+    );
 
     // console.log(existing_conversations, "Existing Conversation");
 
@@ -137,10 +145,10 @@ io.on("connection", async (socket) => {
 
       new_chat = await OneToOneMessage.findOne({ _id: new_chat._id }).populate(
         "participants",
-        "firstName lastName avatar _id email status"
+        "firstName lastName avatar _id email status  updatedAt socket_id"
       );
 
-      console.log("new chat is :  ", new_chat);
+      // console.log("new chat is :  ", new_chat);
       // emit start chat event on the frontend
       // socket.emit("start_chat", new_chat);
     } else {
@@ -499,9 +507,203 @@ io.on("connection", async (socket) => {
     callback({ success: true, room_id });
   });
 
+  // add Member From the Group
+  socket.on("add_member_in_group", async (data, callback) => {
+    const { room_id, member_ids } = data;
+
+    try {
+      let groupChat = await GroupMessage.findById(room_id);
+      if (!groupChat)
+        return callback({
+          success: false,
+          message: "Group Doesn't Exist!",
+        });
+
+      // Check if any member_id is already in the participants array
+      const alreadyAddedMembers = [];
+      member_ids.forEach((member_id) => {
+        if (groupChat.participants.includes(member_id)) {
+          alreadyAddedMembers.push(member_id);
+        } else {
+          groupChat.participants.push(member_id);
+        }
+      });
+
+      // Save changes to the database
+      await groupChat.save();
+
+      const Gchat = await GroupMessage.findById(room_id).populate(
+        "participants",
+        "firstName lastName avatar _id email status updatedAt"
+      );
+      if (alreadyAddedMembers.length > 0) {
+        const names = Gchat.participants
+          .filter((participant) =>
+            alreadyAddedMembers.includes(participant._id.toString())
+          ) // Convert participant._id to string for comparison
+          .map((participant) => participant.firstName);
+
+        return callback({
+          success: false,
+          message: `Members ${names.join(", ")} are already in the group!`,
+          participants: Gchat.participants,
+        });
+      } else {
+        return callback({
+          success: true,
+          message: "Members are added to the group.",
+          participants: Gchat.participants,
+        });
+      }
+    } catch (error) {
+      console.error("Error adding members to group:", error);
+      return callback({
+        success: false,
+        message: "An error occurred while adding members to the group.",
+      });
+    }
+  });
+
+  // remove members from the group
+  socket.on("remove_member_from_group", async (data, callback) => {
+    const { room_id, membersList } = data;
+
+    try {
+      let groupChat = await GroupMessage.findById(room_id).populate(
+        "participants",
+        "firstName"
+      );
+
+      if (!groupChat)
+        return callback({
+          success: false,
+          message: "Group Doesn't Exist!",
+        });
+
+      // Check if any member_id is in the participants array and remove them
+      const nonremovedMembers = [];
+      membersList.forEach((member) => {
+        const index = groupChat.participants.findIndex(
+          (participant) => String(participant._id) === String(member.memberid)
+        );
+        if (index === -1) {
+          nonremovedMembers.push(member.membername);
+        } else {
+          groupChat.participants.splice(index, 1);
+        }
+      });
+
+      // Save changes to the database
+      await groupChat.save();
+
+      const Gchat = await GroupMessage.findById(room_id).populate(
+        "participants",
+        "firstName lastName avatar _id email status updatedAt"
+      );
+
+      if (nonremovedMembers.length > 0) {
+        // Get the names of non-removed members
+
+        return callback({
+          success: true,
+          message: `Members [ ${nonremovedMembers.join(
+            ", "
+          )} ] were alredy removed from the group!`,
+          participants: Gchat.participants,
+        });
+      }
+
+      return callback({
+        success: true,
+        message: "Members Removed from Group Successfully!",
+        participants: Gchat.participants,
+      });
+    } catch (error) {
+      console.error("Error removing members from group:", error);
+      return callback({
+        success: false,
+        message: "An error occurred while removing members from the group.",
+      });
+    }
+  });
+
   // ++++++++++++++ Group Conversations Events END +++++++++++++++++++
+
+  // ++++++++++ TYPING  EVENTS +++++++++++++++++
+  socket.on("SINGLE_CHAT_START_TYPING", (data) => {
+    // Find the corresponding socket ID for the given user ID
+    const userSocket = connectUsersIdAndSocketIds.find(
+      (item) => item.user_id === data.user_id
+    );
+
+    // If the user's socket ID is found, emit the "SINGLE_CHAT_TYPING" event to that socket ID
+    if (userSocket) {
+      io.to(userSocket.socket_id).emit("SINGLE_CHAT_TYPING", data);
+    }
+  });
+
+  socket.on("SINGLE_CHAT_STOP_TYPING", (data) => {
+    // Find the corresponding socket ID for the given user ID
+    const userSocket = connectUsersIdAndSocketIds.find(
+      (item) => item.user_id === data.user_id
+    );
+
+    // If the user's socket ID is found, emit the "SINGLE_CHAT_TYPING_STOP" event to that socket ID
+    if (userSocket) {
+      io.to(userSocket.socket_id).emit("SINGLE_CHAT_TYPING_STOP", data);
+    }
+  });
+
+  //Group Chat
+
+  socket.on("GROUP_CHAT_START_TYPING", (data) => {
+    data.user_ids?.forEach((user) => {
+      const { _id } = user;
+      // Find the corresponding socket ID for the given user ID
+      const userSocket = connectUsersIdAndSocketIds?.find(
+        (item) => item?.user_id === _id
+      );
+
+      // Check if the user has a valid socket ID and is not the current user
+      if (userSocket && _id !== data?.current_user_id) {
+        // Emit the "GROUP_CHAT_TYPING" event to that socket ID
+        io.to(userSocket.socket_id).emit("GROUP_CHAT_TYPING", {
+          room_id: data.room_id,
+          _id,
+          firstName: data.firstName,
+        });
+      }
+    });
+  });
+
+  socket.on("GROUP_CHAT_STOP_TYPING", (data) => {
+    data.user_ids.forEach((user) => {
+      const { _id } = user;
+      // Find the corresponding socket ID for the given user ID
+      const userSocket = connectUsersIdAndSocketIds.find(
+        (item) => item.user_id === _id
+      );
+
+      // Check if the user has a valid socket ID
+      if (userSocket) {
+        // Emit the "GROUP_CHAT_TYPING_STOP" event to that socket ID
+        io.to(userSocket.socket_id).emit("GROUP_CHAT_TYPING_STOP", {
+          room_id: data?.room_id,
+          _id,
+        });
+      }
+    });
+  });
+
+  // ++++++++++ TYPING EVENTS END +++++++++++++
   socket.on("disconnect", async () => {
     console.log(socket.id + " has disconnected");
+    const index = connectUsersIdAndSocketIds.findIndex(
+      (item) => item.socket_id === socket.id
+    );
+    if (index !== -1) {
+      connectUsersIdAndSocketIds.splice(index, 1);
+    }
 
     // make User Offine
     const user = await User.findOne({

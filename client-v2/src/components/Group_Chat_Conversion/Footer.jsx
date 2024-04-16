@@ -92,7 +92,38 @@ const ChatInput = ({
   handleActionClick,
 }) => {
   const [openActions, setOpenActions] = React.useState(false);
+  const [iamTyping, setIamTyping] = useState(false);
+  const typingTimeOut = useRef();
+  const current_user_id = window.localStorage.getItem("user_id");
 
+  const { room_id } = useSelector((state) => state.app);
+  const { firstName } = useSelector((state) => state.auth.userdetails);
+  const { current_conversation } = useSelector(
+    (state) => state.conversation.group_chat
+  );
+  const OnMessageChange = (e) => {
+    setTextMsg(e.target.value);
+    if (!iamTyping) {
+      socket.emit("GROUP_CHAT_START_TYPING", {
+        room_id,
+        user_ids: current_conversation.participants,
+        current_user_id,
+        firstName,
+      });
+      setIamTyping(true);
+    }
+
+    if (typingTimeOut.current) clearTimeout(typingTimeOut.current);
+
+    typingTimeOut.current = setTimeout(() => {
+      socket.emit("GROUP_CHAT_STOP_TYPING", {
+        room_id,
+        user_ids: current_conversation.participants,
+        current_user_id,
+      });
+      setIamTyping(false);
+    }, [2000]);
+  };
   return (
     <StyledInput
       fullWidth
@@ -100,9 +131,7 @@ const ChatInput = ({
       placeholder="Write a message..."
       variant="filled"
       value={textMsg}
-      onChange={(e) => {
-        setTextMsg(e.target.value);
-      }}
+      onChange={OnMessageChange}
       InputProps={{
         disableUnderline: true,
         startAdornment: (
@@ -228,6 +257,7 @@ const Footer = () => {
     setSelectedFile(null);
     setFileSelectionMode(null);
   }
+
   return (
     <Box
       sx={{

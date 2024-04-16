@@ -73,6 +73,7 @@ export function LogOutUser(data) {
     window.localStorage.removeItem("user_id");
     dispatch(ShowSnackbar("success", "Logout Successfully"));
     dispatch(SelectConversation({ room_id: null, chat_type: null }));
+    window.localStorage.clear();
   };
 }
 

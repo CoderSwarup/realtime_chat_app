@@ -41,6 +41,10 @@ import {
   RemoveTheGroup,
   SetCurrentGroupConversation,
 } from "../Redux/Slices/ConversationSlice";
+import {
+  AddMember,
+  RemoveMembersFromGroup,
+} from "../Sections/main/AddRemoveMember";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -147,6 +151,18 @@ export default function GroupChatInfo({ FiltertedMedia }) {
   const [openDelete, setOpenDelete] = useState(false);
   const handleCloseDelete = () => {
     setOpenDelete(false);
+  };
+
+  //Add Member Dialog
+  const [AddnewMember, setAddNewMember] = useState(false);
+  const handleCloseAddNewMember = () => {
+    setAddNewMember(false);
+  };
+
+  //Remove Member
+  const [removeMember, setremoveMember] = useState(false);
+  const handleCloseRemoveMember = () => {
+    setremoveMember(false);
   };
   useEffect(() => {
     current_conversation?.admins.forEach((admin) => {
@@ -269,10 +285,20 @@ export default function GroupChatInfo({ FiltertedMedia }) {
                 justifyContent={"space-evenly"}
                 spacing={2}
               >
-                <Button startIcon={<Prohibit />} fullWidth variant="outlined">
+                <Button
+                  onClick={() => setremoveMember(true)}
+                  startIcon={<Prohibit />}
+                  fullWidth
+                  variant="outlined"
+                >
                   Remove Members
                 </Button>
-                <Button startIcon={<UserCircle />} fullWidth variant="outlined">
+                <Button
+                  onClick={() => setAddNewMember(true)}
+                  startIcon={<UserCircle />}
+                  fullWidth
+                  variant="outlined"
+                >
                   Add Members
                 </Button>
               </Stack>
@@ -413,7 +439,7 @@ export default function GroupChatInfo({ FiltertedMedia }) {
               maxHeight={200}
               className="hideScrollBar"
             >
-              {current_conversation?.participants.map((ele) => {
+              {current_conversation?.participants?.map((ele) => {
                 return (
                   <Stack direction={"row"} alignItems={"center"} spacing={2}>
                     <Avatar
@@ -490,6 +516,13 @@ export default function GroupChatInfo({ FiltertedMedia }) {
           handleClose={handleCloseDelete}
         ></DeleteDialog>
       )}
+
+      <AddMember open={AddnewMember} handleClose={handleCloseAddNewMember} />
+      <RemoveMembersFromGroup
+        open={removeMember}
+        handleClose={handleCloseRemoveMember}
+        p
+      />
     </Box>
   );
 }

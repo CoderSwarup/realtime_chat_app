@@ -81,7 +81,6 @@ export default function Chats() {
 
   useEffect(() => {
     socket.emit("get_direct_conersation", { user_id }, (converstionsist) => {
-      // console.log(converstionsist);
       dispatch(FetchDirectConversations({ conversations: converstionsist }));
     });
   }, []);
@@ -89,6 +88,7 @@ export default function Chats() {
   useEffect(() => {
     setChatList(conversations);
   }, [conversations]);
+
   const handleSearch = (e) => {
     const search_value = e.target.value;
     if (search_value === "") {
@@ -185,7 +185,7 @@ export default function Chats() {
                 All Chats
               </Typography>
 
-              {chatList
+              {conversations
                 .filter((e) => !e.pinned)
                 .map((ele, i) => {
                   return (

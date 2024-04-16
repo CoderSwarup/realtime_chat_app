@@ -28,6 +28,7 @@ export default function Groups() {
   const theme = useTheme();
   const dispatch = useDispatch();
   const [openCreateGroupchat, setOpenCreateGroupchat] = useState(false);
+
   const [chatList, setChatList] = useState(ChatList);
   const { sidebar, room_id, chat_type } = useSelector((state) => state.app);
   const user_id = window.localStorage.getItem("user_id");

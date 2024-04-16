@@ -176,51 +176,30 @@ const DashboardLayout = () => {
           if (GroupChat == null) {
             localStorage.setItem(
               data.room_id,
-              JSON.stringify({
-                letestMessage: message.text || "",
-                count: 1,
-              })
+              message.type === "Text" || message.type === "Link"
+                ? JSON.stringify({
+                    letestMessage: message.text || "",
+                    count: 1,
+                  })
+                : JSON.stringify({
+                    letestMessage: "File Message 📂",
+                    count: 1,
+                  })
             );
           } else {
             localStorage.setItem(
               data.room_id,
-              JSON.stringify({
-                letestMessage: message.text || "",
-                count: GroupChat.count + 1,
-              })
+              message.type === "Text" || message.type === "Link"
+                ? JSON.stringify({
+                    letestMessage: message.text || "",
+                    count: GroupChat.count + 1,
+                  })
+                : JSON.stringify({
+                    letestMessage: "File Message 📂",
+                    count: GroupChat.count + 1,
+                  })
             );
           }
-        }
-
-        let userChat = JSON.parse(
-          window.localStorage.getItem(data.conversation_id)
-        );
-        if (userChat == null) {
-          localStorage.setItem(
-            data.conversation_id,
-            message.type === "Text" || message.type === "Link"
-              ? JSON.stringify({
-                  letestMessage: message.text || "",
-                  count: 1,
-                })
-              : JSON.stringify({
-                  letestMessage: "File Message 📂",
-                  count: 1,
-                })
-          );
-        } else {
-          localStorage.setItem(
-            data.conversation_id,
-            message.type === "Text" || message.type === "Link"
-              ? JSON.stringify({
-                  letestMessage: message.text || "",
-                  count: userChat.count + 1,
-                })
-              : JSON.stringify({
-                  letestMessage: "File Message 📂",
-                  count: userChat.count + 1,
-                })
-          );
         }
       });
 
@@ -240,6 +219,8 @@ const DashboardLayout = () => {
       socket?.off("user_offline");
       socket?.off("delete-message");
       socket?.off("group_message_receive");
+      // socket?.off("SINGLE_CHAT_TYPING");
+      // socket?.off("SINGLE_CHAT_TYPING_STOP");
     };
   }, [isLoggedIn, socket, room_id]);
 

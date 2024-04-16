@@ -43,6 +43,7 @@ const ConversationSlice = createSlice({
           online: this_user.status === "Online",
           unread: 0,
           pinned: false,
+          socket_id: this_user.socket_id,
           alertMessage: {
             letestMessage: null,
             count: 0,
@@ -74,6 +75,7 @@ const ConversationSlice = createSlice({
               online: user.status === "Online",
               unread: 0,
               pinned: false,
+              socket_id: user.socket_id,
               alertMessage: {
                 letestMessage: null,
                 count: 0,
@@ -102,6 +104,7 @@ const ConversationSlice = createSlice({
         online: user.status === "Online",
         unread: 0,
         pinned: false,
+        socket_id: user.socket_id,
         alertMessage: {
           letestMessage: null,
           count: 0,
@@ -244,6 +247,7 @@ const ConversationSlice = createSlice({
         }
       });
     },
+
     setGroupAlertMessage(state, action) {
       const { message, room_id, subtype } = action.payload;
       const findedChat = state.group_chat.conversations.find(
@@ -260,7 +264,7 @@ const ConversationSlice = createSlice({
     // fetch Group Message
     fetchCurrentGroupChatMessages(state, action) {
       const messages = action.payload.messages;
-      const formatted_messages = messages.map((el) => ({
+      const formatted_messages = messages?.map((el) => ({
         id: el._id,
         type: "msg",
         subtype: el.type,
@@ -297,12 +301,18 @@ const ConversationSlice = createSlice({
       );
       state.group_chat.conversations = FilteredList;
     },
+
+    addRemoveNewAddedMembers(state, action) {
+      state.group_chat.current_conversation.participants =
+        action.payload.participants;
+    },
   },
 });
 
 export default ConversationSlice.reducer;
 
 // thunk actions
+
 export const FetchDirectConversations = ({ conversations }) => {
   return async (dispatch, getState) => {
     dispatch(
@@ -466,6 +476,14 @@ export const SetGroupAlertMsg = (room_id, message, subtype) => {
         message,
         subtype,
       })
+    );
+  };
+};
+
+export const AddRemoveMembersInTheGroup = (participants) => {
+  return async (dispatch, getState) => {
+    dispatch(
+      ConversationSlice.actions.addRemoveNewAddedMembers({ participants })
     );
   };
 };

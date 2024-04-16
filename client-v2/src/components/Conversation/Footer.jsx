@@ -129,6 +129,11 @@ export default function Footer() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileSelectionMode, setFileSelectionMode] = useState(null); // State for file selection mode
 
+  // Typing Events
+
+  const [iamTyping, setIamTyping] = useState(false);
+  const typingTimeOut = useRef();
+
   // Function to handle opening the dialog
   const handleOpenDialog = () => {
     setOpenDialog(true);
@@ -156,6 +161,27 @@ export default function Footer() {
     setSelectedFile(null);
     setFileSelectionMode(null);
   }
+
+  const messageOnChange = (e) => {
+    setValue(e.target.value);
+    if (!iamTyping) {
+      socket.emit("SINGLE_CHAT_START_TYPING", {
+        room_id,
+        user_id: current_conversation.user_id,
+      });
+      setIamTyping(true);
+    }
+
+    if (typingTimeOut.current) clearTimeout(typingTimeOut.current);
+
+    typingTimeOut.current = setTimeout(() => {
+      socket.emit("SINGLE_CHAT_STOP_TYPING", {
+        room_id,
+        user_id: current_conversation.user_id,
+      });
+      setIamTyping(false);
+    }, [2000]);
+  };
 
   return (
     <Box
@@ -195,9 +221,7 @@ export default function Footer() {
             fullWidth
             value={value}
             inputRef={inputRef}
-            onChange={(event) => {
-              setValue(event.target.value);
-            }}
+            onChange={messageOnChange}
             placeholder="Write a Message......."
             variant="filled"
             InputProps={{

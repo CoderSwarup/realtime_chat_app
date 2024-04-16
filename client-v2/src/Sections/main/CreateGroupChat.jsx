@@ -39,7 +39,7 @@ const CreateGroupChatForm = ({ handleClose }) => {
 
   const CreateGroupSchema = Yup.object().shape({
     title: Yup.string().required("Title is Required"),
-    members: Yup.array().min(0, "At least Two Members are Required"),
+    members: Yup.array().min(1, "At least Two Members are Required"),
     image: Yup.mixed().required("Image is Required").nullable(),
   });
 

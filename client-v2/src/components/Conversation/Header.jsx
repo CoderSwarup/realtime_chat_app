@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "@emotion/react";
 
 import { faker } from "@faker-js/faker";
@@ -28,12 +28,35 @@ import {
   FetchCurrentMessages,
   SetCurrentConversation,
 } from "../../Redux/Slices/ConversationSlice";
+import { socket } from "../../Socket";
 export default function Header() {
   const theme = useTheme();
   const dispatch = useDispatch();
   const { current_conversation } = useSelector(
     (state) => state.conversation.direct_chat
   );
+  const { room_id } = useSelector((state) => state.app);
+  const [userTyping, setUserTyping] = useState(false);
+  useEffect(() => {
+    const handleTypingStart = (data) => {
+      if (room_id === data.room_id) setUserTyping(true);
+    };
+
+    const handleTypingStop = (data) => {
+      // console.log("STOP TYPING>>>", data);
+      setUserTyping(false);
+    };
+
+    // Add event listeners when component mounts
+    socket?.on("SINGLE_CHAT_TYPING", handleTypingStart);
+    socket?.on("SINGLE_CHAT_TYPING_STOP", handleTypingStop);
+
+    // Clean up event listeners when component unmounts
+    return () => {
+      socket?.off("SINGLE_CHAT_TYPING", handleTypingStart);
+      socket?.off("SINGLE_CHAT_TYPING_STOP", handleTypingStop);
+    };
+  }, [room_id]);
 
   return (
     <Box
@@ -80,7 +103,9 @@ export default function Header() {
               <Typography variant="subtitle2">
                 {current_conversation?.name}
               </Typography>
-              <Typography variant="caption">About ....</Typography>
+              <Typography variant="caption">
+                {userTyping && "Typing..."}
+              </Typography>
             </Stack>
           </Stack>
         </Stack>

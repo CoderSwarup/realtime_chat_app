@@ -33,7 +33,7 @@ export default function Messages({ menu = true }) {
       (data) => {
         // data => list of messages
         // console.log(data, "List of messages");
-        dispatch(FetchCurrentGroupChatMessages({ messages: data.messages }));
+        dispatch(FetchCurrentGroupChatMessages({ messages: data?.messages }));
       }
     );
     dispatch(SetCurrentGroupConversation(current));

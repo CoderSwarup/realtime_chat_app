@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Badge,
@@ -31,6 +31,7 @@ import {
 } from "../../Redux/Slices/AppSlice";
 import { SetCurrentGroupConversation } from "../../Redux/Slices/ConversationSlice";
 import { useDispatch } from "react-redux";
+import { socket } from "../../Socket";
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
     backgroundColor: "#44b700",
@@ -101,6 +102,33 @@ const ChatHeader = () => {
     (s) => s.conversation.group_chat
   );
 
+  const { room_id } = useSelector((state) => state.app);
+  const [userTyping, setUserTyping] = useState(false);
+  const [userTypingName, setUserTypingName] = useState("");
+  useEffect(() => {
+    const handleTypingStart = (data) => {
+      if (room_id === data.room_id) {
+        setUserTypingName(data.firstName);
+        setUserTyping(true);
+      }
+    };
+
+    const handleTypingStop = (data) => {
+      // console.log("STOP TYPING>>>", data);
+      setUserTyping(false);
+      setUserTypingName("");
+    };
+
+    // Add event listeners when component mounts
+    socket?.on("GROUP_CHAT_TYPING", handleTypingStart);
+    socket?.on("GROUP_CHAT_TYPING_STOP", handleTypingStop);
+
+    // Clean up event listeners when component unmounts
+    return () => {
+      socket?.off("GROUP_CHAT_TYPING", handleTypingStart);
+      socket?.off("GROUP_CHAT_TYPING_STOP", handleTypingStop);
+    };
+  }, [room_id]);
   return (
     <Box
       p={2}
@@ -147,7 +175,9 @@ const ChatHeader = () => {
               <Typography variant="subtitle2">
                 {current_conversation?.name}
               </Typography>
-              <Typography variant="caption">About ....</Typography>
+              <Typography variant="caption">
+                {userTyping && `${userTypingName} Typing...`}
+              </Typography>
             </Stack>
           </Stack>
         </Stack>
