@@ -2,9 +2,11 @@ import React from "react";
 import { Box, IconButton, Stack, Typography, useTheme } from "@mui/material";
 import { CaretLeft } from "phosphor-react";
 import ProfileForm from "../../Sections/auth/ProfileForm";
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
   const theme = useTheme();
+  const navigate = useNavigate();
   return (
     <>
       <Stack
@@ -30,8 +32,8 @@ export default function Profile() {
           <Stack spacing={3} p={3} sx={{ height: "100vh" }}>
             {/* Heading */}
             <Stack direction={"row"} alignItems={"center"} spacing={1}>
-              <IconButton>
-                <CaretLeft />{" "}
+              <IconButton onClick={() => navigate(-1)}>
+                <CaretLeft />
               </IconButton>
               <Typography variant="h5">Profile</Typography>
             </Stack>

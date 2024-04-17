@@ -69,13 +69,30 @@ const RHFImageUpload = ({ name, label, helperText, ...other }) => {
             {helperText}
           </Typography>
           {imagePreview && (
-            <Box mt={2}>
-              <Paper elevation={3}>
-                <img src={imagePreview} alt="Selected" width="100%" />
-                <IconButton onClick={handleClearImage}>
-                  <X />
-                </IconButton>
-              </Paper>
+            <Box mt={2} position={"relative"}>
+              <Box
+                component="img"
+                sx={{
+                  height: 200,
+                  width: 200,
+                  objectFit: "cover",
+                  borderRadius: "10px",
+                  objectPosition: "top ",
+                  border: "1px solid #00243d",
+                }}
+                alt="pic"
+                src={imagePreview}
+              />
+              <IconButton
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                }}
+                onClick={handleClearImage}
+              >
+                <X />
+              </IconButton>
             </Box>
           )}
         </Stack>

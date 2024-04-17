@@ -1,6 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 import AxiosInstance from "../../utils/Axios";
 import { SelectConversation, ShowSnackbar } from "./AppSlice";
+import { socket } from "../../Socket";
+import { useNavigate } from "react-router-dom";
+import { FetchDirectConversations } from "./ConversationSlice";
 
 const initialState = {
   isLoggedIn: false,
@@ -30,10 +33,26 @@ const AuthSlice = createSlice({
     updateRegisterEmail(state, actions) {
       state.email = actions.payload.email;
     },
+    updateUserDetails(state, action) {
+      state.userdetails = action.payload.user;
+    },
   },
 });
 
 export default AuthSlice.reducer;
+
+export function UpdateUserDeatils(data, setLoading) {
+  return async (dispatch, getState) => {
+    socket.emit("update_user_details", data, (data) => {
+      if (data.success) {
+        dispatch(AuthSlice.actions.updateUserDetails({ user: data.user }));
+        dispatch(ShowSnackbar("success", data.message));
+      }
+      if (!data.success) dispatch(ShowSnackbar("error", data.message));
+      setLoading(false);
+    });
+  };
+}
 
 //Login
 export function LoginUser(data) {
@@ -57,6 +76,7 @@ export function LoginUser(data) {
           })
         );
         window.localStorage.setItem("user_id", res.data.user_id);
+        dispatch(FetchDirectConversations());
         dispatch(ShowSnackbar("success", res.data.message));
       })
       .catch((err) => {
@@ -149,11 +169,11 @@ export function RegisterUser(data) {
         // window.location.href = "/auth/verify";
       })
       .catch((err) => {
-        // console.log(err);
+        console.log(err);
         dispatch(
           AuthSlice.actions.updateLoading({ isLoading: false, error: true })
         );
-        dispatch(ShowSnackbar("error", err.response.data?.message));
+        dispatch(ShowSnackbar("error", err.response?.data?.message));
       })
       .finally(() => {
         if (!getState().auth.error) {
@@ -182,12 +202,12 @@ export function VerifyEmailOTP(data) {
         // console.log(res);
         dispatch(
           AuthSlice.actions.login({
-            isLoggedIn: true,
-            token: res.data.token,
+            isLoggedIn: false,
+            token: "",
           })
         );
-        window.localStorage.setItem("user_id", res.data.user_id);
         dispatch(ShowSnackbar("success", res.data.message));
+        window.location.href = "/login";
       })
       .catch((err) => {
         // console.log(err);

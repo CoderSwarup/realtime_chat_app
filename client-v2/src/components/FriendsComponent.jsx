@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { socket } from "../Socket";
 import { Chat } from "phosphor-react";
-export function UserComponent({ firstName, lastName, _id, img, status }) {
+export function UserComponent({ firstName, lastName, _id, avatar, status }) {
   const theme = useTheme();
   const name = firstName + " " + lastName;
   const user_id = window.localStorage.getItem("user_id");
@@ -42,10 +42,10 @@ export function UserComponent({ firstName, lastName, _id, img, status }) {
             overlap="circular"
             anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           >
-            <Avatar src={img} alt={firstName}></Avatar>
+            <Avatar src={avatar?.url} alt={firstName}></Avatar>
           </StyledBadge>
         ) : (
-          <Avatar src={img} alt={firstName}></Avatar>
+          <Avatar src={avatar?.url} alt={firstName}></Avatar>
         )}
 
         <Typography variant="body2">{name}</Typography>
@@ -64,7 +64,7 @@ export function UserComponent({ firstName, lastName, _id, img, status }) {
 }
 
 export const FriendRequestElement = ({
-  img,
+  avatar,
   firstName,
   lastName,
   status,
@@ -98,10 +98,10 @@ export const FriendRequestElement = ({
               anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
               variant="dot"
             >
-              <Avatar alt={name} src={img} />
+              <Avatar alt={name} src={avatar?.url} />
             </StyledBadge>
           ) : (
-            <Avatar alt={name} src={img} />
+            <Avatar alt={name} src={avatar?.url} />
           )}
           <Stack spacing={0.3}>
             <Typography variant="subtitle2">{name}</Typography>
@@ -122,9 +122,8 @@ export const FriendRequestElement = ({
   );
 };
 
-export const FriendElement = ({ img, firstName, lastName, status, _id }) => {
+export const FriendElement = ({ avatar, firstName, lastName, status, _id }) => {
   const theme = useTheme();
-
   const name = `${firstName} ${lastName}`;
   const user_id = window.localStorage.getItem("user_id");
   return (
@@ -151,10 +150,10 @@ export const FriendElement = ({ img, firstName, lastName, status, _id }) => {
               anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
               variant="dot"
             >
-              <Avatar alt={name} src={img} />
+              <Avatar alt={name} src={avatar?.url} />
             </StyledBadge>
           ) : (
-            <Avatar alt={name} src={img} />
+            <Avatar alt={name} src={avatar?.url} />
           )}
           <Stack spacing={0.3}>
             <Typography variant="subtitle2">{name}</Typography>

@@ -76,8 +76,11 @@ const CreateGroupChatForm = ({ handleClose }) => {
 
       socket.emit(
         "create_group",
-        { title, image, membersIdList, admin },
+        { title, image, filename: image.name, membersIdList, admin },
         (data) => {
+          if (!data.success) {
+            return dispatch(ShowSnackbar("error", "Something Went Wrong!"));
+          }
           dispatch(
             addNewGroupCreatedConversation({ conversation: data.conversation })
           );
@@ -108,6 +111,7 @@ const CreateGroupChatForm = ({ handleClose }) => {
           options={friends?.map((opt) => opt.firstName)}
           ChipProps={{ size: "medium" }}
         />
+
         <RHFImageUpload
           name="image" // Provide a unique name for the image upload field
           label="Upload Image" // Specify the label for the image upload field

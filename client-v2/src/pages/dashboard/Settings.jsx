@@ -22,13 +22,16 @@ import {
 import { faker } from "@faker-js/faker";
 import Shortcuts from "../../Sections/Settings/Shortcuts";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 export default function Settings() {
   const theme = useTheme();
+  const navigate = useNavigate();
   const [openShortcuts, setOpenShortcuts] = useState(false);
   const { current_conversation } = useSelector(
     (state) => state.conversation.direct_chat
   );
+  const { userdetails } = useSelector((state) => state.auth);
 
   const handleOpenShortcuts = () => {
     setOpenShortcuts(!openShortcuts);
@@ -109,7 +112,7 @@ export default function Settings() {
           <Stack spacing={4} p={2}>
             {/* Header */}
             <Stack direction={"row"} alignItems={"center"} spacing={3}>
-              <IconButton>
+              <IconButton onClick={() => navigate(-1)}>
                 <CaretLeft size={24} color="#484848" />
               </IconButton>
               <Typography variant="h5">Settings</Typography>
@@ -120,12 +123,12 @@ export default function Settings() {
             <Stack direction={"row"} alignItems={"center"} spacing={3}>
               <Avatar
                 sx={{ width: 56, height: 56 }}
-                src={current_conversation?.img}
-                alt={current_conversation?.name}
+                src={userdetails?.avatar}
+                alt={userdetails?.firstName}
               ></Avatar>
               <Stack spacing={0.5}>
                 <Typography variant="article">
-                  {current_conversation?.name}
+                  {userdetails?.firstName} {userdetails?.lastName}
                 </Typography>
                 <Typography variant="body2">{"About .."}</Typography>
               </Stack>

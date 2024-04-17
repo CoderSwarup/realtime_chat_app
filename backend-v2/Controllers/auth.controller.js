@@ -87,7 +87,7 @@ export const sendOTPController = catchAsync(async (req, res, next) => {
 
   // Send email
 
-  // await sendEmailService(emailOptions);
+  await sendEmailService(emailOptions);
 
   // console.log(new_otp);
   // console.log("OTP email sent successfully!");
@@ -185,7 +185,6 @@ export const LoginController = catchAsync(async (req, res, next) => {
   }
 
   const token = signToken(user._id);
-
   res.status(200).json({
     status: "success",
     message: "Logged in successfully!",
@@ -195,6 +194,7 @@ export const LoginController = catchAsync(async (req, res, next) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      avatar: user?.avatar.url || "",
     },
   });
 });

@@ -46,8 +46,9 @@ export const GetUsers = async (req, res) => {
 export const getFriends = catchAsync(async (req, res, next) => {
   const this_user = await User.findById(req.user._id).populate(
     "friends",
-    "_id firstName lastName status"
+    "_id firstName lastName status avatar"
   );
+
   res.status(200).json({
     status: "success",
     data: this_user.friends,

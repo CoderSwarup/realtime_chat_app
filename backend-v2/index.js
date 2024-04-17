@@ -9,7 +9,6 @@ import User from "./models/user.model.js";
 import FrientRequestModel from "./models/friendrequest.model.js";
 import OneToOneMessage from "./models/OneToOneMessage.model.js";
 
-import path from "path";
 import { uploadFileOnCloudinary } from "./utils/Services/CloudinaryServices.js";
 import GroupMessage from "./models/GroupMessages.js";
 dotenv.config();
@@ -50,6 +49,42 @@ io.on("connection", async (socket) => {
   }
 
   //socket Event Listener +++++++
+  socket.on("update_user_details", async (data, callback) => {
+    console.log(data);
+    const { firstName, lastName, avatar, filename, user_id } = data;
+
+    const isUser = await User.findById(user_id);
+
+    if (!isUser)
+      callback({
+        success: false,
+        message: "No User Found",
+      });
+
+    if (avatar !== null) {
+      const res = await uploadFileOnCloudinary(avatar, filename);
+      if (res === null)
+        return callback({ success: false, message: "Something Went Wrong" });
+      isUser.avatar.public_id = res?.public_id;
+      isUser.avatar.url = res?.url;
+    }
+
+    isUser.firstName = firstName ? firstName : isUser.firstName;
+    isUser.lastName = lastName ? lastName : isUser.lastName;
+
+    const n = await isUser.save();
+
+    callback({
+      success: true,
+      message: "User  Details Updated Successfully!",
+      user: {
+        firstName: isUser.firstName,
+        lastName: isUser.lastName,
+        email: isUser.email,
+        avatar: isUser?.avatar?.url || "",
+      },
+    });
+  });
   //  +++++++++++++++++++ FRIEND REQUEST EVENTS +++++++++++++++
   socket.on("friend_request", async (data) => {
     // console.log(data.to);
@@ -212,26 +247,7 @@ io.on("connection", async (socket) => {
   socket.on("media_message", async (data, callback) => {
     // console.log("media message recieve", data);
     const { conversation_id, from, to, file, type, message } = data;
-    // get the File Extension
-    const fileExtension = path.extname(data.filename);
-    console.log(conversation_id);
-    const GenerateFileName = `${Date.now()}_${Math.floor(
-      Math.random() * 100000
-    )}${fileExtension}`;
-    console.log(GenerateFileName);
 
-    let fileBuffer = Buffer.from(file);
-
-    // Define the file path where you want to store the buffer data
-    const filePath = `./Public/Temp/${GenerateFileName}`;
-
-    // Write the buffer data to the file
-    fs.writeFile(filePath, fileBuffer, async (err) => {
-      if (err) {
-        // console.error("Error writing file:", err);
-        return callback({ success: false });
-      }
-    });
     const chat = await OneToOneMessage.findById(conversation_id);
     if (!chat) return;
     const user_to = await User.findById(to).select("socket_id");
@@ -242,7 +258,7 @@ io.on("connection", async (socket) => {
 
     // Upload the File on cloudinary
 
-    const res = await uploadFileOnCloudinary(filePath);
+    const res = await uploadFileOnCloudinary(file, data.filename);
     // console.log(res);
     if (res === null) return callback({ success: false });
 
@@ -273,8 +289,6 @@ io.on("connection", async (socket) => {
     });
 
     callback({ success: true });
-
-    fs.unlinkSync(filePath);
   });
 
   // handle Delete the Message
@@ -338,16 +352,24 @@ io.on("connection", async (socket) => {
   socket.on("create_group", async (data, callback) => {
     const { title, image, membersIdList, admin } = data;
 
+    const res = await uploadFileOnCloudinary(image, data.filename);
+    // console.log(res);
+    if (res === null) return callback({ success: false });
+
     const newGroup = await GroupMessage({
       groupName: title,
       admins: [admin],
       participants: [...membersIdList, admin],
+      avatar: {
+        public_id: res?.public_id,
+        url: res?.url,
+      },
     });
 
     await newGroup.save();
 
     callback({
-      status: true,
+      success: true,
       message: "Group Created",
       conversation: newGroup,
     });
@@ -396,22 +418,6 @@ io.on("connection", async (socket) => {
   socket.on("group_media_message", async (data, callback) => {
     // console.log("media message recieve", data);
     const { conversation_id, from, file, type, message } = data;
-    // get the File Extension
-    const fileExtension = path.extname(data.filename);
-    const GenerateFileName = `${Date.now()}_${Math.floor(
-      Math.random() * 100000
-    )}${fileExtension}`;
-
-    let fileBuffer = Buffer.from(file);
-
-    const filePath = `./Public/Temp/${GenerateFileName}`;
-
-    fs.writeFile(filePath, fileBuffer, async (err) => {
-      if (err) {
-        return callback({ success: false });
-      }
-    });
-
     const from_user = await User.findById(from);
     if (!from_user) {
       return;
@@ -423,7 +429,7 @@ io.on("connection", async (socket) => {
     if (!GroupChat) return;
 
     // Upload the File on cloudinary
-    const res = await uploadFileOnCloudinary(filePath);
+    const res = await uploadFileOnCloudinary(file, data.filename);
     if (res === null) return callback({ success: false });
 
     const new_message = {
@@ -449,8 +455,6 @@ io.on("connection", async (socket) => {
       });
     });
     callback({ success: true });
-
-    fs.unlinkSync(filePath);
   });
 
   //Delete Group Messages

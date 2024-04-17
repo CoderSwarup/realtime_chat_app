@@ -36,6 +36,7 @@ const RegisterPage = Loadable(lazy(() => import("../pages/Auth/Register")));
 const VerifyPage = Loadable(lazy(() => import("../pages/Auth/VerifyOTP")));
 
 const Page404 = Loadable(lazy(() => import("../pages/Page404")));
+
 export default function Router() {
   return useRoutes([
     {

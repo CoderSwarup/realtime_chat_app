@@ -19,6 +19,11 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { LogOutUser } from "../../Redux/Slices/AuthSlice";
 import { useSelector } from "react-redux";
+import { SelectConversation } from "../../Redux/Slices/AppSlice";
+import {
+  SetCurrentConversation,
+  SetCurrentGroupConversation,
+} from "../../Redux/Slices/ConversationSlice";
 const Get_MenuItem_Path = (index) => {
   switch (index) {
     case 0:
@@ -61,6 +66,7 @@ export default function Sidebar() {
   const { chat_type } = useSelector((s) => s.app);
   // console.log(theme);
 
+  const { userdetails } = useSelector((state) => state.auth);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -136,6 +142,11 @@ export default function Sidebar() {
                   onClick={() => {
                     setSelectedBtn(button.index);
                     navigate(GetRedirectPath(button.index));
+                    dispatch(
+                      SelectConversation({ room_id: null, chat_type: null })
+                    );
+                    dispatch(SetCurrentConversation(null));
+                    dispatch(SetCurrentGroupConversation(null));
                   }}
                   key={button.index}
                   sx={{
@@ -201,7 +212,7 @@ export default function Sidebar() {
             aria-expanded={open ? "true" : undefined}
             onClick={handleClick}
             sx={{ cursor: "pointer" }}
-            src={faker.image.avatar()}
+            src={userdetails?.avatar}
           ></Avatar>
           <Menu
             id="basic-menu"

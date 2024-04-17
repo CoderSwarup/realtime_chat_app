@@ -15,7 +15,12 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
     avatar: {
-      type: String,
+      public_id: {
+        type: String,
+      },
+      url: {
+        type: String,
+      },
     },
     email: {
       type: String,

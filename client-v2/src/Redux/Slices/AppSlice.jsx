@@ -173,7 +173,6 @@ export const FetchFriendRequestList = () => {
       },
     })
       .then((res) => {
-        console.log(res);
         dispatch(
           AppSlice.actions.updateFriendRequest({
             friendRequestList: res.data.data,
