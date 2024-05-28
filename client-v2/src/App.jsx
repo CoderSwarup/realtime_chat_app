@@ -13,6 +13,8 @@ function App() {
   const { open, message, severity } = useSelector(
     (state) => state.app?.snackbar
   );
+
+  console.log(data);
   return (
     <>
       {open && message ? (

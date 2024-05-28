@@ -1,4 +1,4 @@
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import React from "react";
 
 const LoadingScreen = () => {
@@ -12,9 +12,7 @@ const LoadingScreen = () => {
       alignItems={"center"}
       justifyContent={"center"}
     >
-      <Typography variant="body1" fontFamily={"monospace"}>
-        Loading...
-      </Typography>
+      <CircularProgress />
     </Stack>
   );
 };

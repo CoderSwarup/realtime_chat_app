@@ -11,10 +11,13 @@ import OneToOneMessage from "./models/OneToOneMessage.model.js";
 
 import { uploadFileOnCloudinary } from "./utils/Services/CloudinaryServices.js";
 import GroupMessage from "./models/GroupMessages.js";
+import connectApolloServer from "./GraphQl/index.js";
+import { startStandaloneServer } from "@apollo/server/standalone";
 dotenv.config();
 
 // DEFINE THE PORT
 const PORT = process.env.PORT || 3000;
+const GRAPHQLPORT = process.env.GRAPHQLPORT || 3001;
 
 // Create a HTTP SERVER
 const server = http.createServer(app);
@@ -727,6 +730,16 @@ io.on("connection", async (socket) => {
     socket.disconnect(0);
   });
 });
+
+const initApolloServer = async () => {
+  const apolloServer = await connectApolloServer();
+  startStandaloneServer(apolloServer, {
+    listen: { port: GRAPHQLPORT },
+  }).then((res) => {
+    console.log(`🚀GraphQl Server ready at: ${res.url}`);
+  });
+};
+initApolloServer();
 
 //LISTEN THE SERVER ON DEFINE PORT
 server.listen(PORT, () => {
