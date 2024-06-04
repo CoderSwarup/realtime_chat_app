@@ -3,7 +3,7 @@ import storage from "redux-persist/lib/storage";
 import AppSlice from "./Slices/AppSlice";
 import AuthSlice from "./Slices/AuthSlice";
 import ConversationSlice from "./Slices/ConversationSlice";
-
+import StorySlice from "./Slices/StorySlice";
 // Slices
 export const rootPersistConfig = {
   key: "root",
@@ -16,4 +16,5 @@ export const rootReducer = combineReducers({
   app: AppSlice,
   auth: AuthSlice,
   conversation: ConversationSlice,
+  story: StorySlice,
 });

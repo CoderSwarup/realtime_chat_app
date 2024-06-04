@@ -37,6 +37,9 @@ const VerifyPage = Loadable(lazy(() => import("../pages/Auth/VerifyOTP")));
 
 const Page404 = Loadable(lazy(() => import("../pages/Page404")));
 
+// story Page
+const StoryPage = Loadable(lazy(() => import("../pages/dashboard/StoryPage")));
+
 export default function Router() {
   return useRoutes([
     {
@@ -60,6 +63,7 @@ export default function Router() {
         { path: "group", element: <GroupsPage /> },
         { path: "call", element: <CallPage /> },
         { path: "profile", element: <Profile /> },
+        { path: "story", element: <StoryPage /> },
         { path: "404", element: <Page404 /> },
         { path: "*", element: <Navigate to="/404" replace /> },
       ],

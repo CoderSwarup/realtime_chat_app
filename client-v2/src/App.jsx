@@ -14,7 +14,6 @@ function App() {
     (state) => state.app?.snackbar
   );
 
-  console.log(data);
   return (
     <>
       {open && message ? (

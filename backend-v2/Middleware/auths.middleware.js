@@ -35,6 +35,7 @@ export const VerifyUserMiddleware = catchAsync(async (req, res, next) => {
       message: "The user belonging to this token does no longer exists.",
     });
   }
+
   // 4) Check if user changed password after the token was issued
   if (this_user.changedPasswordAfter(decoded.iat)) {
     return res.status(401).json({

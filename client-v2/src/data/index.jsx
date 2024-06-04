@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import {
   ChatCircleDots,
+  CircleDashed,
   Gear,
   GearSix,
   Phone,
@@ -36,6 +37,10 @@ const Nav_Buttons = [
   {
     index: 2,
     icon: <Phone />,
+  },
+  {
+    index: 3,
+    icon: <CircleDashed />,
   },
 ];
 
@@ -474,6 +479,45 @@ const Members_List = [
     online: true,
   },
 ];
+
+const StoryMenu = [
+  {
+    id: 1,
+    title: "Message",
+    isMyStoryEle: false,
+  },
+  {
+    id: 2,
+    title: "Call",
+    isMyStoryEle: false,
+  },
+
+  {
+    id: 3,
+    title: "View Contact",
+    isMyStoryEle: false,
+  },
+  {
+    id: 4,
+    title: "Delete",
+    isMyStoryEle: true,
+  },
+];
+
+const STORY_UPLOAD_TYPE = [
+  {
+    id: 1,
+    title: "Text",
+  },
+  {
+    id: 2,
+    title: "Image",
+  },
+  {
+    id: 3,
+    title: "Video",
+  },
+];
 export {
   Profile_Menu,
   Nav_Setting,
@@ -486,4 +530,6 @@ export {
   Keyboard_Shortcuts,
   Call_Logs_List,
   Members_List,
+  StoryMenu,
+  STORY_UPLOAD_TYPE,
 };

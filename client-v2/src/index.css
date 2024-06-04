@@ -1,3 +1,41 @@
 .hideScrollBar::-webkit-scrollbar {
   display: none;
 }
+
+.progress-bar {
+  position: relative;
+  width: 100%;
+  height: 2px;
+  background: #ffffff5f;
+}
+
+.progress-bar.active {
+  position: relative;
+  width: 100%;
+  height: 2px;
+  background: #ffffff5f;
+}
+
+.progress-bar.active::before {
+  content: "";
+  position: absolute;
+  width: 0;
+  top: 0;
+  left: 0;
+  height: 100%;
+  animation: progress 10s ease-in-out 1 forwards;
+}
+.progress-bar.complete {
+  background: #ffffff;
+}
+
+@keyframes progress {
+  0% {
+    width: 0;
+    background: #fff;
+  }
+  100% {
+    width: 100%;
+    background: #ffffff;
+  }
+}

@@ -11,7 +11,6 @@ const initialState = {
   snackbar: {
     open: false,
     message: null,
-
     severity: null,
   },
   users: [],
