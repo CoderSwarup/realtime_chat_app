@@ -47,6 +47,8 @@ const GetRedirectPath = (index) => {
     case 2:
       return "/call";
     case 3:
+      return "/story";
+    case 4:
       return "/settings";
     default:
       "/app";
@@ -166,7 +168,7 @@ export default function Sidebar() {
             {/* Divider */}
             <Divider sx={{ width: 48 }}></Divider>
 
-            {selectedBtn == 3 ? (
+            {selectedBtn == 4 ? (
               <Box
                 sx={{
                   background: theme.palette.primary.main,
@@ -185,8 +187,8 @@ export default function Sidebar() {
             ) : (
               <IconButton
                 onClick={() => {
-                  setSelectedBtn(3);
-                  navigate(GetRedirectPath(3));
+                  setSelectedBtn(4);
+                  navigate(GetRedirectPath(4));
                 }}
                 sx={{
                   width: "max-content",
