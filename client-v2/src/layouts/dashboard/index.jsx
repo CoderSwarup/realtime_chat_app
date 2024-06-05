@@ -15,6 +15,7 @@ import {
   addDirectConversation,
   updateDirectConversation,
 } from "../../Redux/Slices/ConversationSlice";
+import { useFetchUserStories } from "../../GraphQl/StoriesService/apis/query_api";
 
 // const isAutenticated = false;
 const DashboardLayout = () => {
@@ -30,7 +31,7 @@ const DashboardLayout = () => {
   const { room_id } = useSelector((s) => s.app);
 
   const user_id = window.localStorage.getItem("user_id");
-
+  const { refetchUserStories } = useFetchUserStories();
   useEffect(() => {
     if (isLoggedIn) {
       // window.onload = function () {
@@ -206,6 +207,11 @@ const DashboardLayout = () => {
       socket.on("delete-group-message", (data) => {
         dispatch(DeleteGroupMessage(data.message_id));
       });
+
+      // STORY EVENTS
+      socket.on("NEW_STORY_UPLOAD", async () => {
+        await refetchUserStories();
+      });
     }
 
     // clear listeners
@@ -219,6 +225,7 @@ const DashboardLayout = () => {
       socket?.off("user_offline");
       socket?.off("delete-message");
       socket?.off("group_message_receive");
+      socket?.off("NEW_STORY_UPLOAD");
       // socket?.off("SINGLE_CHAT_TYPING");
       // socket?.off("SINGLE_CHAT_TYPING_STOP");
     };

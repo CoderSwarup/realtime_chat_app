@@ -11,6 +11,7 @@ import {
   CREATE_IMAGE_STORY_MUTATION,
   CREATE_TEXT_STORY_MUTATION,
 } from "../mutations";
+import { socket } from "../../../Socket";
 const user = localStorage.getItem("user_id");
 
 export const useFriendsId = () => {
@@ -19,11 +20,17 @@ export const useFriendsId = () => {
   return FriendsIds;
 };
 
+export const NotifyOthersAboutStories = () => {
+  socket.emit("NEW_STORY_UPLOAD");
+
+  socket.off("NEW_STORY_UPLOAD");
+};
+
 export const useFetchUserStories = () => {
   const dispatch = useDispatch();
   const friends = useFriendsId();
   const { selectedStoryId } = useSelector((state) => state.story);
-  const { loading, error, data } = useQuery(GET_ALL_STORIES, {
+  const { loading, error, data, refetch } = useQuery(GET_ALL_STORIES, {
     variables: { userIds: friends },
   });
 
@@ -33,28 +40,34 @@ export const useFetchUserStories = () => {
     }
   }, [data, dispatch, selectedStoryId]);
 
-  return { loading, error, stories: data?.getAllStories?.userStories || [] };
+  return {
+    loading,
+    error,
+    stories: data?.getAllStories?.userStories || [],
+    refetchUserStories: refetch,
+  };
 };
 
 export const useFetchMystories = () => {
   const dispatch = useDispatch();
   const { selectedStoryId } = useSelector((state) => state.story);
-  const { loading, error, data } = useQuery(GET_MY_STORIES, {
+  const { loading, error, data, refetch } = useQuery(GET_MY_STORIES, {
     variables: { userIds: [user] },
   });
 
-  useEffect(() => {
-    if (data && data.getAllStories && data.getAllStories.success) {
-      // dispatch(SetTheStories(data.getAllStories.userStories));
-    }
-  }, [data, dispatch, selectedStoryId === user]);
-
-  return { loading, error, stories: data?.getAllStories?.userStories || [] };
+  return {
+    loading,
+    error,
+    stories: data?.getAllStories?.userStories || [],
+    refetch,
+  };
 };
+
 export const useCreateTextStory = () => {
   const [createStory, { data, loading, error }] = useMutation(
     CREATE_TEXT_STORY_MUTATION
   );
+  const { refetch } = useFetchMystories();
 
   const createTextStory = async (createdUser, text) => {
     try {
@@ -64,7 +77,10 @@ export const useCreateTextStory = () => {
           storyType: "Text",
           text,
         },
+        refetchQueries: [{ query: GET_MY_STORIES }],
       });
+      await refetch();
+      NotifyOthersAboutStories();
       return response;
     } catch (err) {
       console.error("Error creating story:", err);
@@ -100,26 +116,25 @@ export const useCreateImageStory = () => {
 
   return { createImageStory, data, loading, error };
 };
+
 export const useGetMyStoryViewsAndReactions = () => {
-  const [getMyStoryViewsAndReactions, { loading, error, data }] = useLazyQuery(
-    GET_MYSTORY_VIEWS_REACTION
-  );
   const { selectedStory } = useSelector((state) => state.story);
 
-  const storyIds = selectedStory?.stories
-    ? selectedStory?.stories.map((story) => story.id)
-    : [];
-
-  const fetchStoryViewsAndReactions = () => {
-    getMyStoryViewsAndReactions({
-      variables: { storyIds },
-    });
-  };
+  const { loading, error, data, refetch } = useQuery(
+    GET_MYSTORY_VIEWS_REACTION,
+    {
+      variables: {
+        storyIds: selectedStory?.stories
+          ? selectedStory.stories.map((story) => story.id)
+          : [],
+      },
+    }
+  );
 
   return {
-    fetchStoryViewsAndReactions,
     loading,
     error,
     data: data?.getUserStorySeensAndReactions || {},
+    refetch,
   };
 };

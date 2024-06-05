@@ -13,6 +13,7 @@ import { uploadFileOnCloudinary } from "./utils/Services/CloudinaryServices.js";
 import GroupMessage from "./models/GroupMessages.js";
 import connectApolloServer from "./GraphQl/index.js";
 import { startStandaloneServer } from "@apollo/server/standalone";
+import StoryEvents from "./utils/SocketEvents/StoryEvents.js";
 dotenv.config();
 
 // DEFINE THE PORT
@@ -703,6 +704,16 @@ io.on("connection", async (socket) => {
   });
 
   // ++++++++++ TYPING EVENTS END +++++++++++++
+
+  //STORY EVENTS
+
+  socket.on("NEW_STORY_UPLOAD", () => StoryEvents.handleNewStoryUpload(socket));
+
+  socket.on("CREATE_IMAGE_STORY", (data, callback) => {
+    StoryEvents.uploadImageStory(socket, data, callback);
+  });
+
+  //STORY EVENT END
   socket.on("disconnect", async () => {
     console.log(socket.id + " has disconnected");
     const index = connectUsersIdAndSocketIds.findIndex(

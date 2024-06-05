@@ -1,4 +1,5 @@
 import StoryModel from "../../models/story.model.js";
+import { uploadFileOnCloudinary } from "../../utils/Services/CloudinaryServices.js";
 
 class StoryServices {
   // Function to create a new story
@@ -6,18 +7,15 @@ class StoryServices {
     try {
       const { createdUser, storyType, storyFile, FileName, text } = data;
       let story;
-      console.log(data);
 
       if (storyFile) {
-        const res = await dataSources.cloudinaryAPI.uploadFileOnCloudinary(
-          storyFile,
-          FileName
-        );
-        if (res === null)
+        const res = await uploadFileOnCloudinary(storyFile, FileName);
+        if (res === null) {
           return {
             success: false,
             message: "Something went wrong uploading the file",
           };
+        }
         story = await StoryModel.create({
           createdUser,
           storyType,
@@ -140,7 +138,6 @@ class StoryServices {
   // Get Story Seen And Reactions
   static async GetStorySeenAndReaction(storyIds) {
     try {
-      console.log(storyIds);
       const stories = await StoryModel.find({ _id: { $in: storyIds } })
         .select("isSeen reactions")
         .populate("isSeen", "firstName email avatar")

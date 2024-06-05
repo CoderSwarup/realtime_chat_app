@@ -2,7 +2,6 @@ import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { CaretCircleLeft } from "phosphor-react";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { setStorySidebarIndex } from "../../../Redux/Slices/StorySlice";
 import RHFImageUpload from "../../Form-Hook/RHFImageUpload";
 import FormProvider from "../../Form-Hook/FormProvider";
@@ -11,10 +10,11 @@ import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup/dist/yup";
 import { ShowSnackbar } from "../../../Redux/Slices/AppSlice";
 import {
-  useCreateImageStory,
   useCreateTextStory,
+  useFetchMystories,
 } from "../../../GraphQl/StoriesService/apis/query_api";
 import LoadingScreen from "../../LoadingScreen";
+import { socket } from "../../../Socket";
 const user_id = window.localStorage.getItem("user_id");
 const BackButton = () => {
   const dispatch = useDispatch();
@@ -78,12 +78,12 @@ export function UploadTypeText() {
     </Stack>
   );
 }
-
-export function UploadTypeImage() {
-  const { createImageStory, data, loading, error } = useCreateImageStory();
+export const UploadTypeImage = () => {
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
+  const { refetch } = useFetchMystories();
   const UploadStoryImageSchema = Yup.object().shape({
-    image: Yup.mixed().required("Plaes Select Image!!"),
+    image: Yup.mixed().required("Please Select Image!!"),
   });
 
   const defaultValues = {
@@ -104,17 +104,39 @@ export function UploadTypeImage() {
   } = methods;
 
   const onSubmit = async (data) => {
+    setLoading(true);
     const { image } = data;
 
-    const response = await createImageStory(user_id, image.name, image);
-
-    if (response.error) {
-      dispatch(ShowSnackbar("error", "Failed to create story"));
-    } else {
-      dispatch(ShowSnackbar("success", "Story created successfully:"));
+    if (image.size > 1024 * 1024) {
+      // console.error("File size exceeds 1 MB");
+      setError("image", {
+        type: "manual",
+        message: "File size should not exceed 1 MB",
+      });
+      return;
     }
-  };
 
+    socket.emit(
+      "CREATE_IMAGE_STORY",
+      {
+        createdUser: user_id,
+        storyType: "Image",
+        FileName: image.name,
+        storyFile: image,
+      },
+      async (data) => {
+        if (data.success) {
+          dispatch(ShowSnackbar("success", data.message));
+          setLoading(false);
+          await refetch();
+        } else {
+          dispatch(ShowSnackbar("error", data.message));
+          setLoading(false);
+        }
+        dispatch(setStorySidebarIndex(0));
+      }
+    );
+  };
   if (loading) {
     return <LoadingScreen />;
   }
@@ -128,7 +150,7 @@ export function UploadTypeImage() {
         spacing={2}
       >
         <BackButton />
-        <Typography variant="h4">Image </Typography>
+        <Typography variant="h4">Image</Typography>
       </Stack>
 
       <Box width={"100%"} textAlign={"center"}>
@@ -160,7 +182,8 @@ export function UploadTypeImage() {
       </Box>
     </Stack>
   );
-}
+};
+
 export function UploadTypeVideo() {
   return (
     <Stack position={"relative"} p={3} sx={{ height: "100vh" }} spacing={3}>

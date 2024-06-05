@@ -211,6 +211,14 @@ export default function StoryData({ isMyStory }) {
           justifyContent={"center"}
         >
           <Typography>PLEASE UPLOAD STORY</Typography>
+          <Button
+            onClick={handleSelectStory}
+            variant="outlined"
+            size="large"
+            sx={{ my: 2 }}
+          >
+            BACK
+          </Button>
         </Stack>
       </>
     );

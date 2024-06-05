@@ -25,7 +25,7 @@ export default function StoryViewsSidebar() {
   const dispatch = useDispatch();
   const userid = localStorage.getItem("user_id");
   const { selectedStory } = useSelector((state) => state.story);
-  const { fetchStoryViewsAndReactions, loading, error, data } =
+  const { fetchStoryViewsAndReactions, loading, error, data, refetch } =
     useGetMyStoryViewsAndReactions();
   const { seenUsers, reactions } = data;
   const [tabValue, setTabValue] = useState(0); // State to manage the selected tab
@@ -33,9 +33,9 @@ export default function StoryViewsSidebar() {
     if (selectedStory?.user?.id && userid !== selectedStory?.user?.id) {
       dispatch(ToggleViewSideBar(false));
     } else {
-      fetchStoryViewsAndReactions();
+      refetch();
     }
-  }, [selectedStory]);
+  }, [selectedStory, userid, dispatch]);
 
   if (loading) {
     return <LoadingScreen />;
