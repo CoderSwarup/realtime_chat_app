@@ -9,6 +9,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import AuthRouter from "./routes/auth.route.js";
 import UserRouter from "./routes/user.route.js";
+import AccountRouter from "./routes/account.route.js";
 
 dotenv.config();
 
@@ -59,5 +60,6 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1/auth", AuthRouter);
 app.use("/api/v1/user", UserRouter);
+app.use("/api/v1/account", AccountRouter);
 
 export default app;

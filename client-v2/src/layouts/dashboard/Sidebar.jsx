@@ -8,10 +8,11 @@ import {
   MenuItem,
   Stack,
   Switch,
+  Tooltip,
 } from "@mui/material";
 import Logo from "../../assets/images/logo.ico";
 import { Nav_Buttons, Profile_Menu } from "../../data/index";
-import { Gear } from "phosphor-react";
+import { CaretCircleLeft, Gear, TextIndent } from "phosphor-react";
 import { faker } from "@faker-js/faker";
 import CustomizedSwitches from "../../components/CustomizeSwitch";
 import { useTheme } from "@mui/material/styles";
@@ -24,6 +25,7 @@ import {
   SetCurrentConversation,
   SetCurrentGroupConversation,
 } from "../../Redux/Slices/ConversationSlice";
+import useResponsive from "../../hooks/useResponsive";
 const Get_MenuItem_Path = (index) => {
   switch (index) {
     case 0:
@@ -49,6 +51,8 @@ const GetRedirectPath = (index) => {
     case 3:
       return "/story";
     case 4:
+      return "/account-dashboard";
+    case 5:
       return "/settings";
     default:
       "/app";
@@ -56,7 +60,9 @@ const GetRedirectPath = (index) => {
 };
 
 export default function Sidebar() {
+  const isMobile = useResponsive("between", "md", "xs", "sm");
   const dispatch = useDispatch();
+  const [sidebar, setSidebar] = useState(true);
   // Main APP theme
   const theme = useTheme();
 
@@ -94,15 +100,39 @@ export default function Sidebar() {
   return (
     <Box
       sx={{
+        position: {
+          xs: "absolute",
+          md: "relative",
+        },
+        left: {
+          xs: sidebar ? -100 : 0,
+          md: 0,
+        },
+        zIndex: 2,
         background: theme.palette.background.paper,
         boxShadow: `inset 0 -1px 0 rgba(3, 3, 3, 0.872), inset 0 0 0 rgba(0, 0, 0, 0.553)`,
         height: "100vh",
         width: 100,
       }}
     >
+      <Box
+        display={{
+          xs: "block",
+          md: "none",
+        }}
+        sx={{
+          position: "absolute",
+          top: 0,
+          right: sidebar ? -40 : -20,
+        }}
+      >
+        <IconButton onClick={() => setSidebar(!sidebar)}>
+          {sidebar ? <TextIndent size={25} /> : <CaretCircleLeft size={25} />}
+        </IconButton>
+      </Box>
       <Stack
         direction="column"
-        sx={{ width: "100%" }}
+        sx={{ width: "100%", overflowY: "hidden" }}
         alignItems="center"
         spacing={4}
         justifyContent={"space-between"}
@@ -112,8 +142,14 @@ export default function Sidebar() {
           <Box
             sx={{
               background: theme.palette.primary.main,
-              height: 60,
-              width: 60,
+              height: {
+                xs: 40,
+                md: 60,
+              },
+              width: {
+                xs: 40,
+                md: 60,
+              },
               borderRadius: 1.5,
             }}
             style={{ marginTop: theme.spacing(2) }} // Apply margin top using style prop
@@ -123,34 +159,81 @@ export default function Sidebar() {
           <Stack spacing={3} flexDirection="column" alignContent="center">
             {Nav_Buttons.map((button) =>
               button.index == selectedBtn ? (
-                <Box
-                  sx={{
-                    background: theme.palette.primary.main,
-                    borderRadius: 1.5,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
+                <Tooltip
+                  title={button?.title}
+                  placement="right"
                   key={button.index}
                 >
-                  {/* Render each button icon */}
-                  <IconButton sx={{ width: "max-content", color: "#fff" }}>
+                  <IconButton
+                    sx={{
+                      width: "max-content",
+                      color: "#fff",
+                      background: theme.palette.primary.main,
+                      borderRadius: 1.5,
+                    }}
+                  >
                     {" "}
                     {button.icon}
                   </IconButton>
-                </Box>
+                </Tooltip>
               ) : (
+                <Tooltip
+                  title={button?.title}
+                  placement="right"
+                  key={button.index}
+                >
+                  <IconButton
+                    onClick={() => {
+                      setSidebar(true);
+                      setSelectedBtn(button.index);
+                      navigate(GetRedirectPath(button.index));
+                      dispatch(
+                        SelectConversation({ room_id: null, chat_type: null })
+                      );
+                      dispatch(SetCurrentConversation(null));
+                      dispatch(SetCurrentGroupConversation(null));
+                    }}
+                    key={button.index}
+                    sx={{
+                      width: "max-content",
+                      color:
+                        theme.palette.mode == "light"
+                          ? "#000"
+                          : theme.palette.text.primary,
+                    }}
+                  >
+                    {" "}
+                    {button.icon}
+                  </IconButton>
+                </Tooltip>
+              )
+            )}
+
+            {/* Divider */}
+            <Divider sx={{ width: 48 }}></Divider>
+
+            {selectedBtn == 5 ? (
+              <Tooltip title="Settings" placement="right">
+                <IconButton
+                  sx={{
+                    width: "max-content",
+                    color: "#fff",
+                    background: theme.palette.primary.main,
+                    borderRadius: 1.5,
+                  }}
+                >
+                  {" "}
+                  <Gear size={20} />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Tooltip title="Settings" placement="right">
                 <IconButton
                   onClick={() => {
-                    setSelectedBtn(button.index);
-                    navigate(GetRedirectPath(button.index));
-                    dispatch(
-                      SelectConversation({ room_id: null, chat_type: null })
-                    );
-                    dispatch(SetCurrentConversation(null));
-                    dispatch(SetCurrentGroupConversation(null));
+                    setSelectedBtn(5);
+                    navigate(GetRedirectPath(5));
+                    setSidebar(true);
                   }}
-                  key={button.index}
                   sx={{
                     width: "max-content",
                     color:
@@ -159,47 +242,9 @@ export default function Sidebar() {
                         : theme.palette.text.primary,
                   }}
                 >
-                  {" "}
-                  {button.icon}
+                  <Gear size={20} />
                 </IconButton>
-              )
-            )}
-
-            {/* Divider */}
-            <Divider sx={{ width: 48 }}></Divider>
-
-            {selectedBtn == 4 ? (
-              <Box
-                sx={{
-                  background: theme.palette.primary.main,
-                  borderRadius: 1.5,
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                {/* Render each button icon */}
-                <IconButton sx={{ width: "max-content", color: "#fff" }}>
-                  {" "}
-                  <Gear />
-                </IconButton>
-              </Box>
-            ) : (
-              <IconButton
-                onClick={() => {
-                  setSelectedBtn(4);
-                  navigate(GetRedirectPath(4));
-                }}
-                sx={{
-                  width: "max-content",
-                  color:
-                    theme.palette.mode == "light"
-                      ? "#000"
-                      : theme.palette.text.primary,
-                }}
-              >
-                <Gear />
-              </IconButton>
+              </Tooltip>
             )}
           </Stack>
         </Stack>

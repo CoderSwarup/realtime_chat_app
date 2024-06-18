@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import {
   CaretCircleLeft,
+  CaretCircleRight,
   DotsThreeVertical,
   Eye,
   ThumbsUp,
@@ -38,7 +39,7 @@ const StoryType = ({ story }) => {
       <Stack
         justifyContent={"center"}
         alignItems={"center"}
-        width={"60%"}
+        width={"90%"}
         height={"75vh"}
         className="hideScrollBar"
         sx={{
@@ -58,7 +59,7 @@ const StoryType = ({ story }) => {
   } else if (storyType === "Image") {
     return (
       <Box
-        width={"60%"}
+        width={"90%"}
         height={"75vh"}
         sx={{
           borderLeft: `1px solid  ${theme.palette.primary.main}`,
@@ -71,7 +72,7 @@ const StoryType = ({ story }) => {
           alt=""
           width={"100%"}
           height={"100%"}
-          style={{ objectFit: "cover" }}
+          style={{ objectFit: "conatin" }}
         />
       </Box>
     );
@@ -147,20 +148,31 @@ const Carousel = ({
       width="100%"
       gap={2}
     >
-      <Button disabled={activeStoryindex === 0} onClick={handlePrev}>
-        Previous
-      </Button>
+      <IconButton
+        size="md"
+        disabled={activeStoryindex === 0}
+        onClick={handlePrev}
+        sx={{
+          mb: 10,
+        }}
+      >
+        <CaretCircleLeft />
+      </IconButton>
       <StoryType
         story={stories[activeStoryindex]}
         isActive={activeStoryindex}
       />
 
-      <Button
+      <IconButton
+        size="md"
         disabled={activeStoryindex == stories.length - 1}
         onClick={handleNext}
+        sx={{
+          mb: 10,
+        }}
       >
-        Next
-      </Button>
+        <CaretCircleRight />
+      </IconButton>
     </Stack>
   );
 };

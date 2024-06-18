@@ -164,11 +164,22 @@ const ChatHeader = () => {
               dispatch(UpdateSidebarType("CONTACT"));
             }}
             direction={"row"}
+            alignItems={"center"}
             spacing={2}
           >
             <Avatar
               src={current_conversation?.img}
               alt={current_conversation?.name}
+              sx={{
+                width: {
+                  xs: 30,
+                  sm: 50,
+                },
+                height: {
+                  xs: 30,
+                  sm: 50,
+                },
+              }}
             ></Avatar>
 
             <Stack spacing={0.2}>
@@ -182,10 +193,24 @@ const ChatHeader = () => {
           </Stack>
         </Stack>
         <Stack direction={"row"} alignItems="center" spacing={isMobile ? 1 : 3}>
-          <IconButton>
+          <IconButton
+            sx={{
+              width: {
+                xs: 35,
+                md: 40,
+              },
+            }}
+          >
             <VideoCamera />
           </IconButton>
-          <IconButton>
+          <IconButton
+            sx={{
+              width: {
+                xs: 35,
+                md: 40,
+              },
+            }}
+          >
             <Phone />
           </IconButton>
           {!isMobile && (

@@ -27,6 +27,7 @@
     "nodemailer": "^6.9.10",
     "otp-generator": "^4.0.1",
     "socket.io": "^4.7.4",
+    "stripe": "^15.10.0",
     "xss": "^1.0.14"
   }
 }

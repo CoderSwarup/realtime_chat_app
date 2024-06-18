@@ -40,6 +40,10 @@ const Page404 = Loadable(lazy(() => import("../pages/Page404")));
 // story Page
 const StoryPage = Loadable(lazy(() => import("../pages/dashboard/StoryPage")));
 
+const AccoutDashBoard = Loadable(
+  lazy(() => import("../pages/dashboard/AccoutDashBoard"))
+);
+
 export default function Router() {
   return useRoutes([
     {
@@ -64,6 +68,7 @@ export default function Router() {
         { path: "call", element: <CallPage /> },
         { path: "profile", element: <Profile /> },
         { path: "story", element: <StoryPage /> },
+        { path: "account-dashboard", element: <AccoutDashBoard /> },
         { path: "404", element: <Page404 /> },
         { path: "*", element: <Navigate to="/404" replace /> },
       ],

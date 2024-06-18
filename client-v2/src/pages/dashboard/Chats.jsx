@@ -104,7 +104,10 @@ export default function Chats() {
       <Box
         sx={{
           position: "relative",
-          width: 320,
+          width: {
+            xs: "100%",
+            md: 320,
+          },
           background:
             theme.palette.mode == "light"
               ? "#F8FAFE"

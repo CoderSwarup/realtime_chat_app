@@ -24,13 +24,22 @@ export default function StoryPage() {
         direction={"row"}
         alignItems={"center"}
         justifyContent={"space-between"}
-        sx={{ position: "relative" }}
+        sx={{
+          position: "relative",
+          overflow: {
+            xs: "hidden",
+            md: "auto",
+          },
+        }}
       >
         {/* Left SideBar */}
         <Box
           sx={{
             position: "relative",
-            width: 400,
+            width: {
+              xs: "100%",
+              md: 400,
+            },
 
             background:
               theme.palette.mode == "light"
@@ -61,7 +70,15 @@ export default function StoryPage() {
         <Box
           sx={{
             height: "100%",
-            width: "calc(100vw - 490px)", // if we need sidebar -720px
+            zIndex: isStorySelected ? 1 : "-1",
+            position: {
+              xs: "absolute",
+              md: "relative",
+            },
+            width: {
+              xs: "100%",
+              md: "calc(100vw - 490px)",
+            }, // if we need sidebar -720px
             background:
               theme.palette.mode == "light"
                 ? "#F0F4FE"
@@ -82,8 +99,16 @@ export default function StoryPage() {
               alignItems={"center"}
               justifyContent={"center"}
             >
-              <NoChat />{" "}
-              <Typography variant="subtitle">Select a Story</Typography>
+              <Stack
+                width={"100px"}
+                height={"100px"}
+                spacing={3}
+                alignItems={"center"}
+                justifyContent={"center"}
+              >
+                <NoChat />{" "}
+                <Typography variant="subtitle">Select a Story</Typography>
+              </Stack>
             </Stack>
           )}
         </Box>

@@ -93,14 +93,33 @@ export default function Header() {
             }}
             direction={"row"}
             spacing={2}
+            alignItems={"center"}
           >
             <Avatar
               src={current_conversation?.img}
               alt={current_conversation?.name}
+              sx={{
+                width: {
+                  xs: 30,
+                  sm: 50,
+                },
+                height: {
+                  xs: 30,
+                  sm: 50,
+                },
+              }}
             ></Avatar>
 
             <Stack spacing={0.2}>
-              <Typography variant="subtitle2">
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  fontSize: {
+                    xs: 10,
+                    md: 17,
+                  },
+                }}
+              >
                 {current_conversation?.name}
               </Typography>
               <Typography variant="caption">
@@ -111,14 +130,41 @@ export default function Header() {
         </Stack>
 
         {/* Right Side Icons*/}
-        <Stack direction={"row"} alignItems={"center"} spacing={1}>
-          <IconButton>
+        <Stack
+          direction={"row"}
+          alignItems={"center"}
+          sx={{
+            spacing: { xs: 0.5, md: 1 },
+          }}
+        >
+          <IconButton
+            sx={{
+              width: {
+                xs: 30,
+                md: 40,
+              },
+            }}
+          >
             <VideoCamera></VideoCamera>
           </IconButton>
-          <IconButton>
+          <IconButton
+            sx={{
+              width: {
+                xs: 30,
+                md: 40,
+              },
+            }}
+          >
             <PhoneCall />
           </IconButton>
-          <IconButton>
+          <IconButton
+            sx={{
+              width: {
+                xs: 30,
+                md: 40,
+              },
+            }}
+          >
             <MagnifyingGlass />
           </IconButton>
 

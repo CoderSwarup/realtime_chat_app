@@ -63,7 +63,10 @@ export default function Groups() {
   return (
     <>
       <Stack
-        width={"100%"}
+        width={{
+          xs: "100%",
+          md: 320,
+        }}
         direction={"row"}
         alignItems={"center"}
         justifyContent={"space-between"}
@@ -74,7 +77,10 @@ export default function Groups() {
           height={"100%"}
           sx={{
             position: "relative",
-            width: 320,
+            width: {
+              xs: "100%",
+              md: 320,
+            },
             background:
               theme.palette.mode == "light"
                 ? "#F8FAFE"

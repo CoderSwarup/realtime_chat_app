@@ -220,7 +220,7 @@ export const DocMessage = ({ ele, menu }) => {
   return (
     <Stack direction={"row"} justifyContent={ele.incoming ? "start" : "end"}>
       <Box
-        p={1.5}
+        p={1}
         sx={{
           background: ele.incoming
             ? theme.palette.background.default
@@ -237,7 +237,7 @@ export const DocMessage = ({ ele, menu }) => {
             alignItems={"center"}
             sx={{ background: theme.palette.background.paper, borderRadius: 1 }}
           >
-            <File size={49} />
+            <File size={20} />
             <Typography variant="caption">
               {ele?.file?.public_id.replace("Talk_Live/", "") || "FILE"}
             </Typography>
@@ -246,7 +246,7 @@ export const DocMessage = ({ ele, menu }) => {
                 downloadFile(ele?.file.url, ele?.file.public_id);
               }}
             >
-              <DownloadSimple />
+              <DownloadSimple size={20} />
             </IconButton>
           </Stack>
 

@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import {
   Camera,
+  CurrencyInr,
   File,
   Image,
   LinkSimple,
@@ -26,6 +27,7 @@ import { useSelector } from "react-redux";
 import { socket } from "../../Socket";
 import * as path from "path"; // Import path module for file extension extraction
 import FileSelectionDialog from "../../Sections/main/FileDialog";
+import SendMoney from "../PaymentAccount/SendMoney";
 
 const StyledInput = styled(TextField)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -90,7 +92,7 @@ export function containsUrl(text) {
 
 export default function Footer() {
   const theme = useTheme();
-
+  const [openSendMoneyDialog, setopenSendMoneyDialog] = useState(false);
   const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
   const [openActions, setOpenActions] = useState(false);
 
@@ -268,6 +270,13 @@ export default function Footer() {
                   >
                     <Smiley />
                   </IconButton>
+                  <IconButton
+                    onClick={() => {
+                      setopenSendMoneyDialog(true);
+                    }}
+                  >
+                    <CurrencyInr />
+                  </IconButton>
                 </InputAdornment>
               ),
             }}
@@ -321,6 +330,13 @@ export default function Footer() {
           </Stack>
         </Box>
       </Stack>
+
+      {openSendMoneyDialog && (
+        <SendMoney
+          open={openSendMoneyDialog}
+          handleClose={() => setopenSendMoneyDialog(false)}
+        />
+      )}
     </Box>
   );
 }

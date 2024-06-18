@@ -8,6 +8,7 @@ import {
   SignOut,
   User,
   Users,
+  Wallet,
 } from "phosphor-react";
 
 const Profile_Menu = [
@@ -28,19 +29,28 @@ const Profile_Menu = [
 const Nav_Buttons = [
   {
     index: 0,
-    icon: <ChatCircleDots />,
+    icon: <ChatCircleDots size={20} />,
+    title: "Single Chat",
   },
   {
     index: 1,
-    icon: <Users />,
+    icon: <Users size={20} />,
+    title: "Group Chat",
   },
   {
     index: 2,
-    icon: <Phone />,
+    icon: <Phone size={20} />,
+    title: "Phone",
   },
   {
     index: 3,
-    icon: <CircleDashed />,
+    icon: <CircleDashed size={20} />,
+    title: "Story",
+  },
+  {
+    index: 4,
+    icon: <Wallet size={20} />,
+    title: "Payment",
   },
 ];
 

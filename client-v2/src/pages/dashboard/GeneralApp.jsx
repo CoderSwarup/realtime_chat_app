@@ -25,7 +25,22 @@ const GeneralApp = () => {
       <Box
         sx={{
           height: "100%",
-          width: "calc(100vw - 410px)", // if we need sidebar -720px
+          display: {
+            xs: room_id == null ? "none" : "block",
+            md: "block",
+          },
+          zIndex: {
+            xs: 1,
+            md: 0,
+          },
+          position: {
+            xs: "absolute",
+            md: "relative",
+          },
+          width: {
+            xs: "100%",
+            md: "calc(100vw - 410px)",
+          }, // if we need sidebar -720px
           background:
             theme.palette.mode == "light"
               ? "#F0F4FE"
