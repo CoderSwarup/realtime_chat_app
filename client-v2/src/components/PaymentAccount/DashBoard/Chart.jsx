@@ -5,7 +5,7 @@ import { LineChart, axisClasses } from "@mui/x-charts";
 
 import Title from "./Title";
 import { useSelector } from "react-redux";
-import { CircularProgress, Stack } from "@mui/material";
+import { CircularProgress, Stack, Typography } from "@mui/material";
 
 export default function Chart() {
   const theme = useTheme();
@@ -14,7 +14,7 @@ export default function Chart() {
   );
 
   // Check if chartData is empty or not loaded yet
-  if (historyloading || !chartData || chartData.length == 0) {
+  if (historyloading) {
     return (
       <React.Fragment>
         <Title>Transaction History Chart</Title>
@@ -43,6 +43,20 @@ export default function Chart() {
       time: new Date(chartData[0].date).toLocaleDateString("en-US"),
       amount: 0,
     });
+  }
+
+  if (!chartData || chartData.length == 0) {
+    <React.Fragment>
+      <Title>Transaction History Chart</Title>
+      <Stack
+        alignItems={"center"}
+        width={"100%"}
+        height={"100%"}
+        justifyContent={"center"}
+      >
+        <Typography variant="h3"> NO HISTORY FOUND</Typography>
+      </Stack>
+    </React.Fragment>;
   }
 
   return (

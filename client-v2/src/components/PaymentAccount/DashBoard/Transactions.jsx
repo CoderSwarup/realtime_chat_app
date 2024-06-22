@@ -9,7 +9,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Title from "./Title";
 import Pagination from "@mui/material/Pagination";
-import { CircularProgress, Stack } from "@mui/material";
+import { CircularProgress, Stack, Typography } from "@mui/material";
 
 // Function to simulate fetching data (replace with actual Redux action)
 function fetchTransactions() {
@@ -123,7 +123,7 @@ export default function Transactions() {
     rowsPerPage -
     Math.min(rowsPerPage, transactions.length - (page - 1) * rowsPerPage);
 
-  if (historyloading || transactions.length === 0 || !transactions) {
+  if (historyloading) {
     return (
       <React.Fragment>
         <Title>Transaction History </Title>
@@ -134,6 +134,22 @@ export default function Transactions() {
           justifyContent={"center"}
         >
           <CircularProgress />
+        </Stack>
+      </React.Fragment>
+    );
+  }
+
+  if (transactions.length === 0 || !transactions) {
+    return (
+      <React.Fragment>
+        <Title>Transaction History </Title>
+        <Stack
+          alignItems={"center"}
+          width={"100%"}
+          height={"100%"}
+          justifyContent={"center"}
+        >
+          <Typography variant="h3"> NO HISTORY FOUND</Typography>
         </Stack>
       </React.Fragment>
     );

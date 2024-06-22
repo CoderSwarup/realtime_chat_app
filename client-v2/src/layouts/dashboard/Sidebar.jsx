@@ -10,7 +10,7 @@ import {
   Switch,
   Tooltip,
 } from "@mui/material";
-import Logo from "../../assets/images/logo.ico";
+import Logo from "../../assets/Images/logo.ico";
 import { Nav_Buttons, Profile_Menu } from "../../data/index";
 import { CaretCircleLeft, Gear, TextIndent } from "phosphor-react";
 import { faker } from "@faker-js/faker";
