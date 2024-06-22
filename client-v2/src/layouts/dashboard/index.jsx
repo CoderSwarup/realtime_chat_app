@@ -49,22 +49,22 @@ const DashboardLayout = () => {
       // Socket Listeners
 
       // Event for the Send the friend request
-      socket.on("friend_request_send", (data) => {
+      socket?.on("friend_request_send", (data) => {
         dispatch(ShowSnackbar("success", data.message));
       });
 
       // event listener for the get Notification on new friend request is come
-      socket.on("new_friend_request", (data) => {
+      socket?.on("new_friend_request", (data) => {
         dispatch(ShowSnackbar("success", data.message));
       });
 
       // event listener for the accespt the friend request
-      socket.on("request_accepted", (data) => {
+      socket?.on("request_accepted", (data) => {
         dispatch(ShowSnackbar("success", data.message));
       });
 
       //Event Lsitener for the new message
-      socket.on("new_message", (data) => {
+      socket?.on("new_message", (data) => {
         // console.log(data);
         const message = data.message;
         // console.log(room_id);
@@ -125,7 +125,7 @@ const DashboardLayout = () => {
       });
 
       // event listener for start new chat
-      socket.on("start_chat", (data) => {
+      socket?.on("start_chat", (data) => {
         const existing_conversation = conversations.find(
           (ele) => ele.id === data._id
         );
@@ -142,17 +142,17 @@ const DashboardLayout = () => {
       });
 
       // user Offline
-      socket.on("user_offline", (data) => {
+      socket?.on("user_offline", (data) => {
         console.log(data, "USER OFFLINE");
       });
 
       // Delete Message
-      socket.on("delete-message", (data) => {
+      socket?.on("delete-message", (data) => {
         dispatch(DeleteMessage(data.message_id));
       });
 
       // Group Enevnts
-      socket.on("group_message_receive", (data) => {
+      socket?.on("group_message_receive", (data) => {
         const { message } = data;
 
         if (room_id === data.room_id) {
@@ -204,12 +204,12 @@ const DashboardLayout = () => {
         }
       });
 
-      socket.on("delete-group-message", (data) => {
+      socket?.on("delete-group-message", (data) => {
         dispatch(DeleteGroupMessage(data.message_id));
       });
 
       // STORY EVENTS
-      socket.on("NEW_STORY_UPLOAD", async () => {
+      socket?.on("NEW_STORY_UPLOAD", async () => {
         await refetchUserStories();
       });
     }
