@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import otpGenerator from "otp-generator";
 import crypto from "crypto";
 import { sendEmailService } from "../utils/Services/SendMailService.js";
-import OTP_HTML from "../Templates/Otp_HTML.js";
+import OTP_HTML from "../Templates/OTP_HTML.js";
 import jwt from "jsonwebtoken";
 import FORGOT_PASSWORD from "../Templates/FORGOT_PASSWORD.js";
 

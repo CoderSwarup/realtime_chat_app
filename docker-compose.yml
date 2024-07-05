@@ -1,0 +1,48 @@
+version: "3.0"
+
+services:
+  mongoserver:
+    image: mongo
+    container_name: mongodb-server
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+    ports:
+      - "27018:27017"
+    volumes:
+      - ~/mongo/data:/data/db
+    networks:
+      - tlive-network
+
+  backendapi:
+    image: talk-live-backend
+    build:
+      context: "./backend-v2"
+      dockerfile: Dockerfile
+    container_name: TL-server
+    env_file: ./backend-v2/.env
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    depends_on:
+      - mongoserver
+    networks:
+      - tlive-network
+
+  frontend:
+    image: talk-live-client
+    build:
+      context: "./client-v2"
+      dockerfile: Dockerfile
+    container_name: TL-client
+    env_file: "./client-v2/.env"
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backendapi
+    networks:
+      - tlive-network
+
+networks:
+  tlive-network:
+    driver: bridge
