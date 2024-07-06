@@ -8,7 +8,7 @@ export default function VerifyOTP() {
       <Typography variant="h3">Verify the OTP</Typography>
       <Stack spacing={3}>
         <Typography typography={"body2"} textAlign={"center"}>
-          Sent to Email {"xyz@gmail.com"}
+          OTP is Sent to Email
         </Typography>
 
         {/* Verify OTP FORM */}

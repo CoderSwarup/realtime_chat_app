@@ -7,7 +7,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Stack, IconButton, InputAdornment, Button } from "@mui/material";
 // components
 import { Eye, EyeSlash } from "phosphor-react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import FormProvider from "../../components/Form-Hook/FormProvider";
 import { RHFTextField } from "../../components/Form-Hook";
@@ -18,6 +18,7 @@ import { NewPassword } from "../../Redux/Slices/AuthSlice";
 export default function NewPasswordForm() {
   const dispatch = useDispatch();
   const [queryParameters] = useSearchParams();
+  const navigator = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -48,6 +49,7 @@ export default function NewPasswordForm() {
       //   console.log(data);
       //   Send API Request
       dispatch(NewPassword({ ...data, token: queryParameters.get("token") }));
+      navigator("/");
     } catch (error) {
       console.error(error);
     }

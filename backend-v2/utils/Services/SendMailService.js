@@ -37,7 +37,7 @@ const NodeMailerEmailSender = async ({
 };
 
 export const sendEmailService = async (args) => {
-  if (process.env.NODE_ENV !== "development") {
+  if (process.env.NODE_ENV === "development") {
     return Promise.resolve();
   } else {
     try {

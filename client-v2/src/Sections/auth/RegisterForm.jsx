@@ -20,6 +20,7 @@ import { useDispatch } from "react-redux";
 import { RegisterUser } from "../../Redux/Slices/AuthSlice";
 
 export default function RegisterForm() {
+  const [isSent, setIssent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const RegisterFormSchema = Yup.object().shape({
@@ -28,7 +29,7 @@ export default function RegisterForm() {
     email: Yup.string()
       .required("Email is Required")
       .email("Email Must Be Valid Email Address"),
-    password: Yup.string().required("Password is Required"),
+    password: Yup.string().required("Password is Required").min(5),
   });
 
   const defaultValues = {
@@ -51,9 +52,11 @@ export default function RegisterForm() {
   } = methods;
   const onSubmit = async (data) => {
     try {
+      setIssent(true);
       dispatch(RegisterUser(data));
     } catch (error) {
       console.log(error);
+      setIssent(false);
       reset();
       setError("afterSubmit", {
         ...error,
@@ -114,6 +117,7 @@ export default function RegisterForm() {
                 theme.palette.mode == "light" ? "common.white" : "gray.800",
             },
           }}
+          disabled={isSent}
         >
           Create Account
         </Button>

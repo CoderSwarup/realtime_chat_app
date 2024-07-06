@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup/dist/yup";
@@ -10,6 +10,7 @@ import { ForgoutUserPassword } from "../../Redux/Slices/AuthSlice";
 
 export default function ForgotPasswordForm() {
   const dispatch = useDispatch();
+  const [sent, setSent] = useState(false);
   const ForgotPasswordSchema = Yup.object().shape({
     email: Yup.string()
       .required("Email is Required")
@@ -33,10 +34,12 @@ export default function ForgotPasswordForm() {
 
   const onSubmit = async (data) => {
     try {
+      setSent(true);
       //   console.log(data);
       dispatch(ForgoutUserPassword(data));
     } catch (error) {
       // console.log(error);
+      setSent(false);
       reset();
       setError("afterSubmit", {
         ...error,
@@ -64,6 +67,7 @@ export default function ForgotPasswordForm() {
                 theme.palette.mode == "light" ? "common.white" : "gray.800",
             },
           }}
+          disabled={sent}
         >
           Forgot
         </Button>

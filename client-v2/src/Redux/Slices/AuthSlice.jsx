@@ -127,12 +127,12 @@ export function NewPassword(data) {
     })
       .then((res) => {
         // console.log(res);
-        dispatch(
-          AuthSlice.actions.login({
-            isLoggedIn: true,
-            token: res.data.token,
-          })
-        );
+        // dispatch(
+        //   AuthSlice.actions.login({
+        //     isLoggedIn: true,
+        //     token: res.data.token,
+        //   })
+        // );
         dispatch(ShowSnackbar("success", res.data.message));
       })
       .catch((err) => {
