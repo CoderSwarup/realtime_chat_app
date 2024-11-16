@@ -100,7 +100,10 @@ export default function Settings() {
           sx={{
             overflowY: "scroll",
             height: "100vh",
-            width: 320,
+            width: {
+              xs: "100%",
+              md: 320,
+            },
             background:
               theme.palette.mode == "light"
                 ? "#F8FAFF"

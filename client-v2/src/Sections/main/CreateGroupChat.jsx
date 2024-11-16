@@ -40,7 +40,7 @@ const CreateGroupChatForm = ({ handleClose }) => {
   const CreateGroupSchema = Yup.object().shape({
     title: Yup.string().required("Title is Required"),
     members: Yup.array().min(1, "At least Two Members are Required"),
-    image: Yup.mixed().required("Image is Required").nullable(),
+    image: Yup.mixed().required("Image is Required"),
   });
 
   const defaultValues = {
@@ -61,10 +61,10 @@ const CreateGroupChatForm = ({ handleClose }) => {
     handleSubmit,
     formState: { errors, isSubmitting, isSubmitSuccessful, isValid },
   } = methods;
-
   const onSubmit = (data) => {
     try {
       const { title, image } = data;
+      console.log(image);
       let membersIdList = [];
       data.members.map((mem) => {
         friends?.filter((f) => {
@@ -91,7 +91,8 @@ const CreateGroupChatForm = ({ handleClose }) => {
         }
       );
     } catch (error) {
-      console.log(error);
+      // dispatch(ShowSnackbar("error", ));
+      console.log("ERRR", error);
       reset();
       setError("afterSubmit", {
         ...error,
@@ -117,7 +118,11 @@ const CreateGroupChatForm = ({ handleClose }) => {
           label="Upload Image" // Specify the label for the image upload field
           helperText="Please select an image file" // Provide helper text for the image upload field
         />
-        {errors.img && <p>{errors.img.message}</p>}
+        {errors.image && (
+          <Typography variant="caption" color={"red"} textAlign={"center"}>
+            {errors.image.message}
+          </Typography>
+        )}
       </Stack>
 
       <Stack

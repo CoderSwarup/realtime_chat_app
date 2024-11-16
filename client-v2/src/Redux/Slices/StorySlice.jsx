@@ -3,7 +3,6 @@ const initialState = {
   sidebarIndex: 0,
   isStorySelected: false,
   stories: [],
-  selectedStory: {},
   selectedStoryId: null,
   selectedStory: {},
   storyViewSidebar: false,

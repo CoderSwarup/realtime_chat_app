@@ -10,6 +10,7 @@ import dotenv from "dotenv";
 import AuthRouter from "./routes/auth.route.js";
 import UserRouter from "./routes/user.route.js";
 import AccountRouter from "./routes/account.route.js";
+import CallRouter from "./routes/call.route.js";
 
 dotenv.config();
 
@@ -61,5 +62,6 @@ app.get("/", (req, res) => {
 app.use("/api/v1/auth", AuthRouter);
 app.use("/api/v1/user", UserRouter);
 app.use("/api/v1/account", AccountRouter);
+app.use("/api/v1/call", CallRouter);
 
 export default app;

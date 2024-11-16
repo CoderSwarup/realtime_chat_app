@@ -15,9 +15,42 @@ import {
   PhoneCall,
   VideoCamera,
 } from "phosphor-react";
+import { useDispatch, useSelector } from "react-redux";
+import { StartCall } from "../Redux/Slices/AudioVideoCallSlice";
+import { ShowSnackbar } from "../Redux/Slices/AppSlice";
+import { fDateTime, fToNow } from "../utils/formatTime";
+import { useCall } from "../contexts/WebRTCVideoCallContext";
 
-export function CallLogElement({ online, incoming, missed }) {
+export function CallLogElement({
+  online,
+  isIncoming,
+  verdict,
+  callType,
+  otherUser,
+  endedAt,
+  startedAt,
+}) {
   const theme = useTheme();
+  const dispatch = useDispatch();
+  const user_id = localStorage.getItem("user_id");
+  const { userdetails } = useSelector((state) => state.auth);
+
+  const handleCall = () => {
+    if (!callType || callType.trim() === "") {
+      dispatch(ShowSnackbar("warning", "Something Wrong For Calling"));
+    }
+    dispatch(
+      StartCall(
+        callType,
+        {
+          _id: user_id,
+          ...userdetails,
+        },
+        otherUser
+      )
+    );
+    handleClose();
+  };
   return (
     <>
       <Box
@@ -45,26 +78,46 @@ export function CallLogElement({ online, incoming, missed }) {
                 overlap="circular"
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
               >
-                <Avatar src={faker.image.url()}></Avatar>
+                <Avatar src={otherUser?.avatar?.url}></Avatar>
               </StyledBadge>
             ) : (
-              <Avatar src={faker.image.url()}></Avatar>
+              <Avatar src={otherUser?.avatar?.url}></Avatar>
             )}
             <Stack spacing={0.5}>
-              <Typography variant="body2">{faker.person.fullName()}</Typography>
+              <Typography variant="body2">
+                {otherUser.firstName + " " + otherUser.lastName}
+              </Typography>
               <Stack direction={"row"} alignItems={"center"} spacing={0.5}>
-                {incoming ? (
-                  <ArrowDownLeft color={missed ? "red" : "green"} />
+                {isIncoming ? (
+                  <ArrowDownLeft
+                    color={
+                      verdict === "Missed" || verdict === "Busy"
+                        ? "red"
+                        : "green"
+                    }
+                  />
                 ) : (
-                  <ArrowUpRight color={missed ? "red" : "green"} />
+                  <ArrowUpRight
+                    color={
+                      verdict === "Missed" || verdict === "Busy"
+                        ? "red"
+                        : "green"
+                    }
+                  />
                 )}
-                <Typography variant="caption">Yesterday 12:23</Typography>
+                <Typography variant="caption">
+                  {fDateTime(endedAt || startedAt)}
+                </Typography>
               </Stack>
             </Stack>
           </Stack>
 
-          <IconButton>
-            <PhoneCall size={25} color="green" />
+          <IconButton onClick={handleCall}>
+            {callType == "Audio" ? (
+              <PhoneCall size={25} color="green" />
+            ) : (
+              <VideoCamera size={25} color="green" />
+            )}
           </IconButton>
         </Stack>
       </Box>
@@ -72,8 +125,43 @@ export function CallLogElement({ online, incoming, missed }) {
   );
 }
 
-export function CallElement({ online, img, name }) {
+export function CallElement({
+  _id,
+  status,
+  avatar,
+  firstName,
+  lastName,
+  email,
+  handleClose,
+}) {
+  const { startCall } = useCall();
   const theme = useTheme();
+  const user_id = localStorage.getItem("user_id");
+  const dispatch = useDispatch();
+  const { userdetails } = useSelector((state) => state.auth);
+  const handleCall = (call_type) => {
+    if (!call_type || call_type.trim() === "") {
+      dispatch(ShowSnackbar("warning", "Something Wrong For Calling"));
+    }
+    dispatch(
+      StartCall(
+        call_type,
+        {
+          _id: user_id,
+          ...userdetails,
+        },
+        {
+          _id,
+          status,
+          avatar,
+          firstName,
+          lastName,
+          email,
+        }
+      )
+    );
+    handleClose();
+  };
   return (
     <>
       <Box
@@ -95,30 +183,41 @@ export function CallElement({ online, img, name }) {
           spacing={2}
         >
           <Stack direction={"row"} spacing={3}>
-            {online ? (
+            {status !== "Offline" ? (
               <StyledBadge
                 variant="dot"
                 overlap="circular"
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
               >
-                <Avatar src={img}></Avatar>
+                <Avatar src={avatar?.url}></Avatar>
               </StyledBadge>
             ) : (
-              <Avatar src={img}></Avatar>
+              <Avatar src={avatar.url}></Avatar>
             )}
             <Stack spacing={0.5}>
-              <Typography variant="body2">{name}</Typography>
-              <Stack direction={"row"} alignItems={"center"} spacing={0.5}>
-                <Typography variant="caption">Yesterday 12:23</Typography>
+              <Typography variant="body2">
+                {firstName + " " + lastName}
+              </Typography>
+              <Stack direction={"row"} spacing={0.5}>
+                <Typography variant="caption">{email}</Typography>
               </Stack>
             </Stack>
           </Stack>
 
           <Stack direction={"row"} alignItems={"center"} spacing={1}>
-            <IconButton>
+            <IconButton
+              onClick={() => {
+                handleCall("Audio");
+              }}
+            >
               <PhoneCall size={25} color="green" />
             </IconButton>
-            <IconButton>
+            <IconButton
+              onClick={() => {
+                handleCall("Video");
+                startCall(_id);
+              }}
+            >
               <VideoCamera size={25} color="green" />
             </IconButton>
           </Stack>

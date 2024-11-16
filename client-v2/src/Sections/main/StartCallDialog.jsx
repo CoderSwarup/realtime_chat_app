@@ -1,6 +1,7 @@
 import { yupResolver } from "@hookform/resolvers/yup/dist/yup";
 import {
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -10,7 +11,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as Yup from "yup";
 import FormProvider from "../../components/Form-Hook/FormProvider";
@@ -23,6 +24,8 @@ import Search, {
 } from "../../components/Search";
 import { CallElement } from "../../components/CallLogElement";
 import { Members_List } from "../../data";
+import { useDispatch, useSelector } from "react-redux";
+import { FetchFriendsList } from "../../Redux/Slices/AppSlice";
 
 const DUMMY_MEMBERLIST = ["NAME 1", "NAME 2", "NAME 3"];
 
@@ -94,6 +97,30 @@ const CreateGroupChatForm = () => {
 };
 
 export default function StartCallDialog({ open, handleClose }) {
+  const { friends } = useSelector((state) => state.app);
+  const [friendsList, setfriendsList] = useState(friends);
+  const dispatch = useDispatch();
+
+  const handleSearch = (e) => {
+    const search = e.target.value;
+    const filtered = friends.filter(
+      (friend) =>
+        friend.firstName.toLowerCase().includes(search.toLowerCase()) ||
+        friend.lastName.toLowerCase().includes(search.toLowerCase())
+    );
+    setfriendsList(filtered);
+  };
+
+  useEffect(() => {
+    if (friends.length == 0) {
+      dispatch(FetchFriendsList());
+    }
+  }, []);
+
+  useEffect(() => {
+    setfriendsList(friends);
+  }, [friends]);
+
   return (
     <>
       <Dialog
@@ -131,6 +158,7 @@ export default function StartCallDialog({ open, handleClose }) {
                 <StyledInputBase
                   placeholder="Search Groups"
                   inputProps={{ "aria-label": "search" }}
+                  onChange={handleSearch}
                 ></StyledInputBase>
               </Search>
             </Stack>
@@ -139,11 +167,23 @@ export default function StartCallDialog({ open, handleClose }) {
         <DialogContent className="hideScrollBar" sx={{ mt: 2 }}>
           <Stack spacing={3} padding={1}>
             {/* Calls List */}
-            <Stack spacing={3}>
-              {Members_List.map((ele) => {
-                return <CallElement key={ele.id} {...ele} />;
-              })}
-            </Stack>
+            {friendsList.length === 0 ? (
+              <Stack justifyContent={"center"} alignItems={"center"}>
+                <Typography variant="body">No Data Found</Typography>
+              </Stack>
+            ) : (
+              <Stack spacing={3}>
+                {friendsList.map((ele) => {
+                  return (
+                    <CallElement
+                      key={ele.id}
+                      {...ele}
+                      handleClose={handleClose}
+                    />
+                  );
+                })}
+              </Stack>
+            )}
           </Stack>
         </DialogContent>
       </Dialog>

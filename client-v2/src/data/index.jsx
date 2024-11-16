@@ -395,6 +395,7 @@ const Call_Logs_List = [
     online: true,
     missed: false,
     incoming: true,
+    call_type: "VideoCall",
   },
   {
     id: 1,
@@ -403,6 +404,7 @@ const Call_Logs_List = [
     online: false,
     missed: true,
     incoming: false,
+    call_type: "AudioCall",
   },
   {
     id: 2,
@@ -411,6 +413,7 @@ const Call_Logs_List = [
     online: false,
     missed: false,
     incoming: false,
+    call_type: "VideoCall",
   },
   {
     id: 3,
@@ -419,6 +422,7 @@ const Call_Logs_List = [
     online: true,
     missed: false,
     incoming: true,
+    call_type: "AudioCall",
   },
   {
     id: 4,
@@ -427,6 +431,7 @@ const Call_Logs_List = [
     online: true,
     missed: true,
     incoming: false,
+    call_type: "VideoCall",
   },
   {
     id: 5,
@@ -435,6 +440,7 @@ const Call_Logs_List = [
     online: true,
     missed: false,
     incoming: true,
+    call_type: "AudioCall",
   },
   {
     id: 6,
@@ -443,6 +449,7 @@ const Call_Logs_List = [
     online: false,
     missed: true,
     incoming: true,
+    call_type: "VideoCall",
   },
 ];
 const Members_List = [

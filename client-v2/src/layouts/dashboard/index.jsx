@@ -16,6 +16,14 @@ import {
   updateDirectConversation,
 } from "../../Redux/Slices/ConversationSlice";
 import { useFetchUserStories } from "../../GraphQl/StoriesService/apis/query_api";
+import IncomingCallDialog from "../../components/CallComponets/IncomingCallDialog";
+import {
+  CloseCallNotificationDialog,
+  handleIncommingCall,
+  HandleOpenCallDialog,
+  ResetCallQueue,
+} from "../../Redux/Slices/AudioVideoCallSlice";
+import { useCall } from "../../contexts/WebRTCVideoCallContext";
 
 // const isAutenticated = false;
 const DashboardLayout = () => {
@@ -32,6 +40,11 @@ const DashboardLayout = () => {
 
   const user_id = window.localStorage.getItem("user_id");
   const { refetchUserStories } = useFetchUserStories();
+
+  const { open_call_notification_dialog, incoming } = useSelector(
+    (state) => state.audiovideocall
+  );
+
   useEffect(() => {
     if (isLoggedIn) {
       // window.onload = function () {
@@ -212,6 +225,61 @@ const DashboardLayout = () => {
       socket?.on("NEW_STORY_UPLOAD", async () => {
         await refetchUserStories();
       });
+
+      /**
+       * Call Events
+       */
+
+      socket.on("NEW_INCOMMING_CALL", async (data) => {
+        const { call_id, from, to, call_type, call_details } = data;
+        dispatch(
+          handleIncommingCall({
+            call_id,
+            from,
+            to,
+            call_type,
+            call_details,
+          })
+        );
+      });
+
+      socket.on("CALL_BUSY", (data) => {
+        dispatch(ShowSnackbar("success", "User is Busy on the Another Call"));
+        dispatch(ResetCallQueue());
+      });
+      socket.on("CALL_DENIED", (data) => {
+        dispatch(ShowSnackbar("success", "Call is Denied By the User"));
+        dispatch(ResetCallQueue());
+      });
+
+      socket.on("MISSED_CALL", (data) => {
+        dispatch(
+          ShowSnackbar(
+            "success",
+            "MissCall from " + data.from.firstName + " " + data.from.lastName
+          )
+        );
+        dispatch(ResetCallQueue());
+      });
+
+      socket.on("CALL_ACCEPT", (data) => {
+        dispatch(ShowSnackbar("success", "Call is Accepted By the User"));
+        dispatch(CloseCallNotificationDialog());
+        dispatch(HandleOpenCallDialog(true));
+      });
+
+      socket.on("CUT_CALL", async (data) => {
+        dispatch(
+          ShowSnackbar(
+            "success",
+            "Call Disconnect from " +
+              data.from.firstName +
+              " " +
+              data.from.lastName
+          )
+        );
+        dispatch(ResetCallQueue());
+      });
     }
 
     // clear listeners
@@ -228,6 +296,12 @@ const DashboardLayout = () => {
       socket?.off("NEW_STORY_UPLOAD");
       // socket?.off("SINGLE_CHAT_TYPING");
       // socket?.off("SINGLE_CHAT_TYPING_STOP");
+      socket?.off("NEW_INCOMMING_CALL");
+      socket?.off("CALL_BUSY");
+      socket?.off("CALL_DENIED");
+      socket?.off("MISSED_CALL");
+      socket?.off("CALL_ACCEPT");
+      socket?.off("CUT_CALL");
     };
   }, [isLoggedIn, socket, room_id]);
 
@@ -241,6 +315,7 @@ const DashboardLayout = () => {
       <Sidebar />
 
       <Outlet />
+      {open_call_notification_dialog && incoming && <IncomingCallDialog />}
     </Stack>
   );
 };

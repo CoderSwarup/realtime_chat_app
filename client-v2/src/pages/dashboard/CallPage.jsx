@@ -7,7 +7,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Conversation from "../../components/Conversation";
 import {
   Chat,
@@ -24,15 +24,44 @@ import { Call_Logs_List, ChatList } from "../../data";
 import CreateGroupChat from "../../Sections/main/CreateGroupChat";
 import { CallLogElement } from "../../components/CallLogElement";
 import StartCallDialog from "../../Sections/main/StartCallDialog";
+import CallMainPage from "../../components/CallComponets/CallMainPage";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchCallLogs,
+  StartCall,
+} from "../../Redux/Slices/AudioVideoCallSlice";
 
 export default function CallPage() {
   const theme = useTheme();
-
+  const dispatch = useDispatch();
   const [startCall, setstartCall] = useState(false);
+  const { call_logs } = useSelector((state) => state.audiovideocall);
+  const [callLogs_List, setCallLogsList] = useState(call_logs);
 
   const handleClosestartCall = () => {
     setstartCall(false);
   };
+
+  const handleSearch = (e) => {
+    const search = e.target.value;
+    const filtered = call_logs.filter(
+      (call_log) =>
+        call_log.otherUser.firstName
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
+        call_log.otherUser.lastName.toLowerCase().includes(search.toLowerCase())
+    );
+    setCallLogsList(filtered);
+  };
+
+  useEffect(() => {
+    dispatch(fetchCallLogs());
+  }, []);
+
+  useEffect(() => {
+    setCallLogsList(call_logs);
+  }, [call_logs]);
+
   return (
     <>
       <Stack
@@ -78,6 +107,7 @@ export default function CallPage() {
                 <StyledInputBase
                   placeholder="Search Groups"
                   inputProps={{ "aria-label": "search" }}
+                  onChange={handleSearch}
                 ></StyledInputBase>
               </Search>
             </Stack>
@@ -108,24 +138,15 @@ export default function CallPage() {
             >
               {/* Calling Conversations  call logs */}
 
-              {Call_Logs_List.map((ele) => {
+              {callLogs_List?.map((ele) => {
                 return <CallLogElement key={ele.id} {...ele} />;
               })}
             </Stack>
           </Stack>
         </Box>
 
-        {/* Right Conversation  */}
-        <Box
-          sx={{
-            height: "100%",
-            width: "calc(100vw - 410px)", // if we need sidebar -720px
-            background:
-              theme.palette.mode == "light"
-                ? "#F0F4FE"
-                : theme.palette.background.default,
-          }}
-        ></Box>
+        {/* Right Side Call Main Page  */}
+        <CallMainPage />
       </Stack>
 
       <StartCallDialog open={startCall} handleClose={handleClosestartCall} />

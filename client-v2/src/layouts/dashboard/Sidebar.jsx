@@ -130,6 +130,7 @@ export default function Sidebar() {
           {sidebar ? <TextIndent size={25} /> : <CaretCircleLeft size={25} />}
         </IconButton>
       </Box>
+
       <Stack
         direction="column"
         sx={{ width: "100%", overflowY: "hidden" }}

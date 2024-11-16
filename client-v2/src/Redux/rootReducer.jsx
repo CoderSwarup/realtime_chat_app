@@ -5,6 +5,7 @@ import AuthSlice from "./Slices/AuthSlice";
 import ConversationSlice from "./Slices/ConversationSlice";
 import StorySlice from "./Slices/StorySlice";
 import PaymentSlice from "./Slices/PaymentSlice";
+import AudioVideoCallSlice from "./Slices/AudioVideoCallSlice";
 // Slices
 export const rootPersistConfig = {
   key: "root",
@@ -19,4 +20,5 @@ export const rootReducer = combineReducers({
   conversation: ConversationSlice,
   story: StorySlice,
   payment: PaymentSlice,
+  audiovideocall: AudioVideoCallSlice,
 });

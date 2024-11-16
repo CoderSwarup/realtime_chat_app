@@ -34,7 +34,7 @@ const uploadFileOnCloudinary = async (file, FileName) => {
       }
     });
     const response = await cloudinary.uploader.upload(filePath, {
-      folder: "Talk_Live",
+      folder: "builder_path",
       resource_type: "auto",
     });
 
