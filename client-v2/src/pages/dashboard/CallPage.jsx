@@ -30,6 +30,8 @@ import {
   fetchCallLogs,
   StartCall,
 } from "../../Redux/Slices/AudioVideoCallSlice";
+import { useCall } from "../../contexts/WebRTCVideoCallContext";
+import LoadingScreen from "../../components/LoadingScreen";
 
 export default function CallPage() {
   const theme = useTheme();
@@ -37,6 +39,7 @@ export default function CallPage() {
   const [startCall, setstartCall] = useState(false);
   const { call_logs } = useSelector((state) => state.audiovideocall);
   const [callLogs_List, setCallLogsList] = useState(call_logs);
+  const { callLoading, userOnCall } = useCall();
 
   const handleClosestartCall = () => {
     setstartCall(false);
@@ -71,82 +74,98 @@ export default function CallPage() {
         justifyContent={"space-between"}
         sx={{ position: "relative" }}
       >
-        {/* Left  */}
-        <Box
-          height={"100%"}
-          sx={{
-            position: "relative",
-            width: 320,
-            background:
-              theme.palette.mode == "light"
-                ? "#F8FAFE"
-                : theme.palette.background.paper,
-            boxShadow: "0px 0px 2px rgba(0,0,0,0.25)",
-          }}
-        >
-          <Stack spacing={3} p={3} sx={{ height: "100vh" }}>
-            {/* Heading */}
-            <Stack
-              direction={"row"}
-              justifyContent={"space-between"}
-              alignItems={"center"}
-              spacing={1}
+        {callLoading ? (
+          <LoadingScreen />
+        ) : (
+          <>
+            {/* Left  */}
+            <Box
+              height={"100%"}
+              sx={{
+                position: "relative",
+                width: {
+                  // xs: "calc(100vw - 10px)",
+                  xs: "100%",
+                  md: 320,
+                },
+                display: {
+                  xs: userOnCall ? "none" : "block",
+                  md: "block",
+                },
+                background:
+                  theme.palette.mode == "light"
+                    ? "#F8FAFE"
+                    : theme.palette.background.paper,
+                boxShadow: "0px 0px 2px rgba(0,0,0,0.25)",
+              }}
             >
-              <Typography variant="h5">Call Logs</Typography>
-              <IconButton>
-                <PhoneCall />{" "}
-              </IconButton>
-            </Stack>
+              <Stack spacing={3} p={3} sx={{ height: "100vh" }}>
+                {/* Heading */}
+                <Stack
+                  direction={"row"}
+                  justifyContent={"space-between"}
+                  alignItems={"center"}
+                  spacing={1}
+                >
+                  <Typography variant="h5">Call Logs</Typography>
+                  <IconButton>
+                    <PhoneCall />{" "}
+                  </IconButton>
+                </Stack>
 
-            {/* Search */}
-            <Stack direction="row" sx={{ width: "100%" }}>
-              <Search>
-                <SearchIconWrapper>
-                  <MagnifyingGlass color="#709CE6" />
-                </SearchIconWrapper>
-                <StyledInputBase
-                  placeholder="Search Groups"
-                  inputProps={{ "aria-label": "search" }}
-                  onChange={handleSearch}
-                ></StyledInputBase>
-              </Search>
-            </Stack>
+                {/* Search */}
+                <Stack direction="row" sx={{ width: "100%" }}>
+                  <Search>
+                    <SearchIconWrapper>
+                      <MagnifyingGlass color="#709CE6" />
+                    </SearchIconWrapper>
+                    <StyledInputBase
+                      placeholder="Search Groups"
+                      inputProps={{ "aria-label": "search" }}
+                      onChange={handleSearch}
+                    ></StyledInputBase>
+                  </Search>
+                </Stack>
 
-            {/* Create New Call Conversation */}
-            <Stack spacing={1}>
-              <Stack
-                direction={"row"}
-                spacing={2}
-                alignItems={"center"}
-                justifyContent={"space-between"}
-              >
-                <Typography variant="subtitle2" component={Link}>
-                  Create New ConverSation
-                </Typography>
-                <IconButton onClick={() => setstartCall(true)}>
-                  <PhoneOutgoing sx={{ color: theme.palette.primary.main }} />
-                </IconButton>
+                {/* Create New Call Conversation */}
+                <Stack spacing={1}>
+                  <Stack
+                    direction={"row"}
+                    spacing={2}
+                    alignItems={"center"}
+                    justifyContent={"space-between"}
+                  >
+                    <Typography variant="subtitle2" component={Link}>
+                      Create New ConverSation
+                    </Typography>
+                    <IconButton onClick={() => setstartCall(true)}>
+                      <PhoneOutgoing
+                        sx={{ color: theme.palette.primary.main }}
+                      />
+                    </IconButton>
+                  </Stack>
+                  <Divider />
+                </Stack>
+
+                <Stack
+                  spacing={3}
+                  className="hideScrollBar"
+                  direction="column"
+                  sx={{ flexGrow: 1, overflowY: "scroll", height: "100%" }}
+                >
+                  {/* Calling Conversations  call logs */}
+
+                  {callLogs_List?.map((ele) => {
+                    return <CallLogElement key={ele.id} {...ele} />;
+                  })}
+                </Stack>
               </Stack>
-              <Divider />
-            </Stack>
+            </Box>
 
-            <Stack
-              spacing={3}
-              className="hideScrollBar"
-              direction="column"
-              sx={{ flexGrow: 1, overflowY: "scroll", height: "100%" }}
-            >
-              {/* Calling Conversations  call logs */}
-
-              {callLogs_List?.map((ele) => {
-                return <CallLogElement key={ele.id} {...ele} />;
-              })}
-            </Stack>
-          </Stack>
-        </Box>
-
-        {/* Right Side Call Main Page  */}
-        <CallMainPage />
+            {/* Right Side Call Main Page  */}
+            <CallMainPage />
+          </>
+        )}
       </Stack>
 
       <StartCallDialog open={startCall} handleClose={handleClosestartCall} />

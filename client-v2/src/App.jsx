@@ -7,7 +7,8 @@ import Router from "./routes";
 import { Alert, Snackbar } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { HideSnackBar } from "./Redux/Slices/AppSlice";
-
+import React from "react";
+import { AudioVideoCallProvider } from "./contexts/WebRTCVideoCallContext";
 function App() {
   const dispatch = useDispatch();
   const { open, message, severity } = useSelector(
@@ -42,7 +43,9 @@ function App() {
       )}
       <ThemeProvider>
         <ThemeSettings>
-          <Router></Router>
+          <AudioVideoCallProvider>
+            <Router></Router>
+          </AudioVideoCallProvider>
         </ThemeSettings>
       </ThemeProvider>
     </>

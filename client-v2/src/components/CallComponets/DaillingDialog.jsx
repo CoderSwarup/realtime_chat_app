@@ -1,84 +1,88 @@
-import { faker } from "@faker-js/faker";
+import { useState } from "react";
 import { Avatar, IconButton, Stack, Typography, useTheme } from "@mui/material";
-import {
-  DeviceMobile,
-  PhoneCall,
-  PhoneDisconnect,
-  PhoneOutgoing,
-  VideoCamera,
-} from "phosphor-react";
-import { useDispatch, useSelector } from "react-redux";
-import { ResetCallQueue } from "../../Redux/Slices/AudioVideoCallSlice";
+import { PhoneDisconnect, PhoneOutgoing, VideoCamera } from "phosphor-react";
 import { socket } from "../../Socket";
+import { useCall } from "../../contexts/WebRTCVideoCallContext";
+import { useDispatch } from "react-redux";
+import { ShowSnackbar } from "../../Redux/Slices/AppSlice";
 
 export default function DaillingDialog() {
-  const theme = useTheme();
   const dispatch = useDispatch();
-  const { call_type, caller_details, incoming, call_queue } = useSelector(
-    (state) => state.audiovideocall
-  );
+  const theme = useTheme();
+  const { inComingCallDetails, callToUserDetails, resetCallData } = useCall();
 
   const handleCutOrMissedCall = () => {
-    const { call_id, from, to, call_type } = call_queue[0];
-    socket.emit("MISSED_CALL", { call_id, from, to, call_type }, (data) => {
-      if (data.status) {
-        dispatch(ShowSnackbar("success", data.message));
-      } else {
-        dispatch(ShowSnackbar("error", data.message));
-      }
-      dispatch(ResetCallQueue());
-      handleClose();
-    });
-    dispatch(ResetCallQueue());
+    if (callToUserDetails) {
+      const { call_id, from, to, call_type } = callToUserDetails;
+      socket.emit("MISSED_CALL", { call_id, from, to, call_type }, (data) => {
+        if (data.status) {
+          dispatch(ShowSnackbar("success", "Call Disconnect"));
+        } else {
+          dispatch(
+            ShowSnackbar("error", data?.message || "SomeThing Went Wrong")
+          );
+        }
+        resetCallData();
+      });
+    }
   };
+
   return (
     <Stack
       sx={{
-        width: "400px",
-        height: "600px",
+        width: {
+          xs: "350px",
+          md: "400px",
+        },
+        height: {
+          xs: "500px",
+          md: "600px",
+        },
         background:
-          theme.palette.mode == "light"
+          theme.palette.mode === "light"
             ? "#F8FAFE"
             : theme.palette.background.paper,
         border: `2px solid ${
-          theme.palette.mode == "light" ? "#5c5c5c5c" : "#ffffffa1"
-        } `,
+          theme.palette.mode === "light" ? "#5c5c5c5c" : "#ffffffa1"
+        }`,
       }}
-      alignItems={"center"}
-      justifyContent={"space-between"}
+      alignItems="center"
+      justifyContent="space-between"
       gap={2}
       padding={4}
       borderRadius={5}
     >
-      <Stack alignItems={"center"} justifyContent={"start"} gap={2}>
+      <Stack alignItems="center" justifyContent="start" gap={2}>
         <Avatar
-          src={caller_details?.avatar?.url}
+          src={callToUserDetails?.to?.avatar?.url}
           alt="User Profile Image"
           sx={{
             width: "120px",
             height: "120px",
           }}
-        ></Avatar>
-        <Typography typography={"body2"}>
-          {caller_details.firstName + caller_details.lastName}
+        />
+        <Typography typography="body2">
+          {callToUserDetails?.to?.firstName} {callToUserDetails?.to?.lastName}
         </Typography>
         <Stack
-          direction={"row"}
+          direction="row"
           gap={2}
-          alignItems={"center"}
-          justifyContent={"center"}
+          alignItems="center"
+          justifyContent="center"
         >
-          {" "}
-          {call_type === "Audio" ? (
+          {callToUserDetails.call_type === "Audio" ? (
             <PhoneOutgoing size={25} color="green" />
           ) : (
             <VideoCamera size={25} color="green" />
-          )}{" "}
-          <Typography typography={"body2"}>{call_type}</Typography>
+          )}
+          <Typography typography="body2">
+            {callToUserDetails?.call_type}
+          </Typography>
         </Stack>
-        <Typography typography={"caption"}>Calling.....</Typography>
+        <Typography typography="caption">Calling...</Typography>
       </Stack>
-      <Stack alignItems={"center"} justifyContent={"center"} gap={2}>
+
+      <Stack alignItems="center" justifyContent="center" gap={2}>
         <IconButton
           sx={{
             background: "red",

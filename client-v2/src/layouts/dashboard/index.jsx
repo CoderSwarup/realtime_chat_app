@@ -17,12 +17,6 @@ import {
 } from "../../Redux/Slices/ConversationSlice";
 import { useFetchUserStories } from "../../GraphQl/StoriesService/apis/query_api";
 import IncomingCallDialog from "../../components/CallComponets/IncomingCallDialog";
-import {
-  CloseCallNotificationDialog,
-  handleIncommingCall,
-  HandleOpenCallDialog,
-  ResetCallQueue,
-} from "../../Redux/Slices/AudioVideoCallSlice";
 import { useCall } from "../../contexts/WebRTCVideoCallContext";
 
 // const isAutenticated = false;
@@ -41,9 +35,14 @@ const DashboardLayout = () => {
   const user_id = window.localStorage.getItem("user_id");
   const { refetchUserStories } = useFetchUserStories();
 
-  const { open_call_notification_dialog, incoming } = useSelector(
-    (state) => state.audiovideocall
-  );
+  const {
+    isIncommingCall,
+    userOnCall,
+    setUserOnCall,
+    setIsIncommingCall,
+    resetCallData,
+    setInComingCallDetails,
+  } = useCall();
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -154,11 +153,6 @@ const DashboardLayout = () => {
         dispatch(SelectConversation({ room_id: data._id }));
       });
 
-      // user Offline
-      socket?.on("user_offline", (data) => {
-        console.log(data, "USER OFFLINE");
-      });
-
       // Delete Message
       socket?.on("delete-message", (data) => {
         dispatch(DeleteMessage(data.message_id));
@@ -229,27 +223,32 @@ const DashboardLayout = () => {
       /**
        * Call Events
        */
-
       socket.on("NEW_INCOMMING_CALL", async (data) => {
-        const { call_id, from, to, call_type, call_details } = data;
-        dispatch(
-          handleIncommingCall({
-            call_id,
-            from,
-            to,
-            call_type,
-            call_details,
-          })
-        );
+        const { call_id, from, to, call_type, call_details, signal } = data;
+        console.log("NEW INCOMMING CALL ", data);
+
+        if (userOnCall) {
+          socket.emit(
+            "BUSY_CALL",
+            { call_id, from: to, to: from, call_type },
+            (response) => {}
+          );
+
+          return;
+        }
+        setUserOnCall(false);
+        setInComingCallDetails(data);
+        setIsIncommingCall(true);
       });
 
       socket.on("CALL_BUSY", (data) => {
         dispatch(ShowSnackbar("success", "User is Busy on the Another Call"));
-        dispatch(ResetCallQueue());
+
+        resetCallData();
       });
       socket.on("CALL_DENIED", (data) => {
         dispatch(ShowSnackbar("success", "Call is Denied By the User"));
-        dispatch(ResetCallQueue());
+        resetCallData();
       });
 
       socket.on("MISSED_CALL", (data) => {
@@ -259,13 +258,7 @@ const DashboardLayout = () => {
             "MissCall from " + data.from.firstName + " " + data.from.lastName
           )
         );
-        dispatch(ResetCallQueue());
-      });
-
-      socket.on("CALL_ACCEPT", (data) => {
-        dispatch(ShowSnackbar("success", "Call is Accepted By the User"));
-        dispatch(CloseCallNotificationDialog());
-        dispatch(HandleOpenCallDialog(true));
+        resetCallData();
       });
 
       socket.on("CUT_CALL", async (data) => {
@@ -278,7 +271,7 @@ const DashboardLayout = () => {
               data.from.lastName
           )
         );
-        dispatch(ResetCallQueue());
+        resetCallData();
       });
     }
 
@@ -290,7 +283,6 @@ const DashboardLayout = () => {
       socket?.off("start_chat");
       socket?.off("new_message");
       socket?.off("new_media_message");
-      socket?.off("user_offline");
       socket?.off("delete-message");
       socket?.off("group_message_receive");
       socket?.off("NEW_STORY_UPLOAD");
@@ -300,10 +292,9 @@ const DashboardLayout = () => {
       socket?.off("CALL_BUSY");
       socket?.off("CALL_DENIED");
       socket?.off("MISSED_CALL");
-      socket?.off("CALL_ACCEPT");
       socket?.off("CUT_CALL");
     };
-  }, [isLoggedIn, socket, room_id]);
+  }, [isLoggedIn, socket, room_id, userOnCall]);
 
   if (!isLoggedIn) {
     return <Navigate to={"/auth/login"} />;
@@ -315,7 +306,7 @@ const DashboardLayout = () => {
       <Sidebar />
 
       <Outlet />
-      {open_call_notification_dialog && incoming && <IncomingCallDialog />}
+      {!userOnCall && isIncommingCall && <IncomingCallDialog />}
     </Stack>
   );
 };

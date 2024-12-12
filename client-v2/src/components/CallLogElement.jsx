@@ -30,6 +30,7 @@ export function CallLogElement({
   endedAt,
   startedAt,
 }) {
+  const { startCall } = useCall();
   const theme = useTheme();
   const dispatch = useDispatch();
   const user_id = localStorage.getItem("user_id");
@@ -39,17 +40,8 @@ export function CallLogElement({
     if (!callType || callType.trim() === "") {
       dispatch(ShowSnackbar("warning", "Something Wrong For Calling"));
     }
-    dispatch(
-      StartCall(
-        callType,
-        {
-          _id: user_id,
-          ...userdetails,
-        },
-        otherUser
-      )
-    );
-    handleClose();
+
+    startCall(callType, { _id: user_id, ...userdetails }, otherUser);
   };
   return (
     <>
@@ -143,22 +135,20 @@ export function CallElement({
     if (!call_type || call_type.trim() === "") {
       dispatch(ShowSnackbar("warning", "Something Wrong For Calling"));
     }
-    dispatch(
-      StartCall(
-        call_type,
-        {
-          _id: user_id,
-          ...userdetails,
-        },
-        {
-          _id,
-          status,
-          avatar,
-          firstName,
-          lastName,
-          email,
-        }
-      )
+    startCall(
+      call_type,
+      {
+        _id: user_id,
+        ...userdetails,
+      },
+      {
+        _id,
+        status,
+        avatar,
+        firstName,
+        lastName,
+        email,
+      }
     );
     handleClose();
   };
@@ -192,7 +182,7 @@ export function CallElement({
                 <Avatar src={avatar?.url}></Avatar>
               </StyledBadge>
             ) : (
-              <Avatar src={avatar.url}></Avatar>
+              <Avatar src={avatar?.url}></Avatar>
             )}
             <Stack spacing={0.5}>
               <Typography variant="body2">
@@ -215,7 +205,6 @@ export function CallElement({
             <IconButton
               onClick={() => {
                 handleCall("Video");
-                startCall(_id);
               }}
             >
               <VideoCamera size={25} color="green" />

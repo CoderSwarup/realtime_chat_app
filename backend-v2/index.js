@@ -722,7 +722,8 @@ io.on("connection", async (socket) => {
 
   socket.on("CREATE_NEW_CALL", async (data, callback) => {
     try {
-      const { from, to, call_type } = data;
+      const { from, to, call_type, signal } = data;
+
       const users = await User.find({ _id: { $in: [from._id, to._id] } });
       const from_user = users.find(
         (user) => user._id.toString() === from._id.toString()
@@ -753,6 +754,7 @@ io.on("connection", async (socket) => {
         to,
         call_type,
         call_details: newCall,
+        signal,
       });
 
       callback({
@@ -761,7 +763,6 @@ io.on("connection", async (socket) => {
         call_id: newCall._id,
       });
     } catch (error) {
-      console.log(error);
       callback({
         status: false,
         message: "Error creating call",
@@ -811,6 +812,8 @@ io.on("connection", async (socket) => {
         to,
         call_type,
         call_details: call,
+        call_id: data?.call_id || null,
+        signal: data?.signal || null,
       });
 
       callback({
@@ -818,6 +821,8 @@ io.on("connection", async (socket) => {
         message: `${eventName} successfully`,
       });
     } catch (error) {
+      console.log(error);
+
       callback({
         status: false,
         message: `Error in ${eventName}`,
@@ -853,46 +858,6 @@ io.on("connection", async (socket) => {
   /**
    * Call Events End
    */
-
-  /**
-   * WebRTC Events VIDEO CALL
-   */
-
-  socket.on("VIDEO_OFFER", async ({ from, to, offer }) => {
-    try {
-      console.log("VIDEO OFFER COME ", offer);
-      const recipient = await User.findById(to);
-      if (recipient && recipient.socket_id) {
-        io.to(recipient.socket_id).emit("VIDEO_OFFER", { from, offer });
-      }
-    } catch (error) {
-      console.error("Error handling VIDEO_OFFER:", error);
-    }
-  });
-
-  socket.on("VIDEO_ANSWER", async ({ from, to, answer }) => {
-    try {
-      console.log("VIDEO ANSWER SEND", answer);
-      const sender = await User.findById(from);
-      if (sender && sender.socket_id) {
-        io.to(sender.socket_id).emit("VIDEO_ANSWER", { answer });
-      }
-    } catch (error) {
-      console.error("Error handling VIDEO_ANSWER:", error);
-    }
-  });
-
-  socket.on("ICECANDIDATE", async ({ from, to, candidate }) => {
-    try {
-      console.log("ICE CANDIDATE SEND");
-      const recipient = await User.findById(to);
-      if (recipient && recipient.socket_id) {
-        io.to(recipient.socket_id).emit("ICECANDIDATE", { candidate });
-      }
-    } catch (error) {
-      console.error("Error handling ICECANDIDATE:", error);
-    }
-  });
 
   /**
    * WebRTC Events VIDEO CALL END

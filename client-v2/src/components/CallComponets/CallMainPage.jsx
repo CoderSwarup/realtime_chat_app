@@ -1,11 +1,10 @@
 import { useTheme } from "@emotion/react";
 import { Box, Stack, Typography } from "@mui/material";
 import React from "react";
-import { useSelector } from "react-redux";
 import NoChat from "../../assets/Illustration/NoChat";
 import DaillingDialog from "./DaillingDialog";
-import VideoCallComponent from "./VideoCallComponent";
-import AudioCallComponent from "./AudioCallComponent";
+
+import { useCall } from "../../contexts/WebRTCVideoCallContext";
 
 const NoConversation = () => {
   return (
@@ -24,19 +23,16 @@ const NoConversation = () => {
 
 export default function CallMainPage() {
   const theme = useTheme();
-  const {
-    open_call_dialog,
-    call_type,
-    open_call_notification_dialog,
-    incoming,
-  } = useSelector((state) => state.audiovideocall);
 
-  if (!open_call_dialog && call_type === null) {
+  const { userOnCall, isCallAccepted, inComingCallDetails, isIncommingCall } =
+    useCall();
+
+  if (!userOnCall && inComingCallDetails?.call_type === null) {
     return (
       <Box
         sx={{
           height: "100%",
-          width: "calc(100vw - 410px)", // if we need sidebar -720px
+          width: "calc(100vw - 410px)",
           background:
             theme.palette.mode == "light"
               ? "#F0F4FE"
@@ -49,22 +45,18 @@ export default function CallMainPage() {
     );
   }
 
-  const renderContent = () => {
-    switch (call_type) {
-      case "Audio":
-        return <AudioCallComponent />;
-      case "Video":
-        return <VideoCallComponent />;
-      default:
-        return <NoConversation />;
-    }
-  };
-
   return (
     <Box
       sx={{
         height: "100%",
-        width: "calc(100vw - 410px)", // if we need sidebar -720px
+        width: {
+          sx: "100%",
+          md: "calc(100vw - 410px)",
+        }, // if we need sidebar -720px
+        display: {
+          xs: userOnCall ? "flex" : "none",
+          md: "flex",
+        },
         background:
           theme.palette.mode == "light"
             ? "#F0F4FE"
@@ -72,23 +64,18 @@ export default function CallMainPage() {
       }}
     >
       <Stack
-        width={"100%"}
-        height={"100%"}
+        width={"100vw"}
+        height={"100vh"}
         spacing={2}
+        display={"flex"}
         alignItems={"center"}
         justifyContent={"center"}
         position={"relative"}
       >
-        {open_call_notification_dialog && incoming == false ? (
+        {userOnCall && isIncommingCall == false && !isCallAccepted ? (
           <DaillingDialog />
         ) : (
-          <>
-            {open_call_dialog && call_type !== null ? (
-              renderContent()
-            ) : (
-              <NoConversation />
-            )}
-          </>
+          <NoConversation />
         )}
       </Stack>
     </Box>

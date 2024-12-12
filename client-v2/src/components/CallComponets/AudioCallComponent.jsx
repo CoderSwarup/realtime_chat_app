@@ -5,7 +5,7 @@ import { Microphone, PhoneDisconnect } from "phosphor-react";
 import { useTheme } from "@emotion/react";
 import { useDispatch, useSelector } from "react-redux";
 import { socket } from "../../Socket";
-import { ResetCallQueue } from "../../Redux/Slices/AudioVideoCallSlice";
+
 import { ShowSnackbar } from "../../Redux/Slices/AppSlice";
 
 const ControlButton = styled(IconButton)(({ theme }) => ({
@@ -23,7 +23,6 @@ const ControlButton = styled(IconButton)(({ theme }) => ({
 }));
 
 export default function AudioCallComponent() {
-  const otherAudioRef = useRef(null);
   const canvasRef = useRef(null);
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -32,61 +31,6 @@ export default function AudioCallComponent() {
   );
   const user_id = localStorage.getItem("user_id");
   const { userdetails } = useSelector((state) => state.auth);
-
-  useEffect(() => {
-    async function getMediaStream() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-        });
-        if (otherAudioRef.current) {
-          otherAudioRef.current.srcObject = stream;
-        }
-
-        const audioContext = new (window.AudioContext ||
-          window.webkitAudioContext)();
-        const source = audioContext.createMediaStreamSource(stream);
-        const analyser = audioContext.createAnalyser();
-        analyser.fftSize = 256;
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-
-        source.connect(analyser);
-
-        function draw() {
-          requestAnimationFrame(draw);
-          analyser.getByteFrequencyData(dataArray);
-          const canvas = canvasRef.current;
-          const canvasCtx = canvas?.getContext("2d");
-          const width = canvas.width;
-          const height = canvas.height;
-          canvasCtx.clearRect(0, 0, width, height);
-
-          const barWidth = (width / bufferLength) * 2.5;
-          let barHeight;
-          let x = 0;
-
-          for (let i = 0; i < bufferLength; i++) {
-            barHeight = dataArray[i];
-            canvasCtx.fillStyle = "rgba(255, 255, 255, 0.7)";
-            canvasCtx.fillRect(
-              x,
-              height - barHeight / 2,
-              barWidth,
-              barHeight / 2
-            );
-            x += barWidth + 1;
-          }
-        }
-
-        draw();
-      } catch (error) {
-        console.error("Error accessing media devices.", error);
-      }
-    }
-
-    getMediaStream();
-  }, []);
 
   const handleCallDisconnect = () => {
     const { call_id, call_type, from, to } = call_queue[0];
@@ -108,7 +52,6 @@ export default function AudioCallComponent() {
         } else {
           dispatch(ShowSnackbar("error", data.message));
         }
-        dispatch(ResetCallQueue());
       }
     );
   };
@@ -177,12 +120,7 @@ export default function AudioCallComponent() {
       >
         On Audio Call...
       </Typography>
-      <audio
-        ref={otherAudioRef}
-        autoPlay
-        playsInline
-        style={{ display: "none" }}
-      ></audio>
+      <audio autoPlay playsInline style={{ display: "none" }}></audio>
       <Box
         sx={{
           position: "absolute",

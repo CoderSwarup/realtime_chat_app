@@ -29,6 +29,7 @@ import {
   SetCurrentConversation,
 } from "../../Redux/Slices/ConversationSlice";
 import { socket } from "../../Socket";
+import { useCall } from "../../contexts/WebRTCVideoCallContext";
 export default function Header() {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -37,6 +38,33 @@ export default function Header() {
   );
   const { room_id } = useSelector((state) => state.app);
   const [userTyping, setUserTyping] = useState(false);
+
+  const user_id = localStorage.getItem("user_id");
+  const { userdetails } = useSelector((state) => state.auth);
+
+  const { startCall } = useCall();
+
+  const handleCall = (call_type) => {
+    if (!call_type || call_type.trim() === "") {
+      dispatch(ShowSnackbar("warning", "Something Wrong For Calling"));
+    }
+    startCall(
+      call_type,
+      {
+        _id: user_id,
+        ...userdetails,
+      },
+      {
+        _id: current_conversation?.user_id,
+        status: current_conversation?.online,
+        avatar: current_conversation?.img,
+        firstName: current_conversation?.name.split(" ")[0],
+        lastName: current_conversation?.name.split(" ")[1],
+        email: current_conversation?.email,
+      }
+    );
+  };
+
   useEffect(() => {
     const handleTypingStart = (data) => {
       if (room_id === data.room_id) setUserTyping(true);
@@ -144,6 +172,7 @@ export default function Header() {
                 md: 40,
               },
             }}
+            onClick={() => handleCall("Video")}
           >
             <VideoCamera></VideoCamera>
           </IconButton>
@@ -154,6 +183,7 @@ export default function Header() {
                 md: 40,
               },
             }}
+            onClick={() => handleCall("Audio")}
           >
             <PhoneCall />
           </IconButton>
